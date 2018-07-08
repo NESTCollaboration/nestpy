@@ -1,12 +1,12 @@
 #include <pybind11/pybind11.h>
-#include "math.hpp"
+#include "NEST.hh"
 
 namespace py = pybind11;
 
-PYBIND11_PLUGIN(nestpy)
-{
-  py::module m("nestpy");
-  m.def("add", &add);
-  m.def("subtract", &subtract);
-  return m.ptr();
+PYBIND11_MODULE(nestpy, m) {
+  py::class_<NEST::NESTcalc>(m, "NESTcalc")
+    .def(py::init<>())
+    .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
+    ;
 }
+

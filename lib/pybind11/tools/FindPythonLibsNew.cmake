@@ -1,5 +1,5 @@
 # - Find python libraries
-# This module finds the libraries corresponding to the Python interpeter
+# This module finds the libraries corresponding to the Python interpreter
 # FindPythonInterp provides.
 # This code sets the following variables:
 #
@@ -50,7 +50,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
-if(PYTHONLIBS_FOUND)
+# Checking for the extension makes sure that `LibsNew` was found and not just `Libs`.
+if(PYTHONLIBS_FOUND AND PYTHON_MODULE_EXTENSION)
     return()
 endif()
 
