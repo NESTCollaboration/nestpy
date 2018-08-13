@@ -6,6 +6,8 @@ from nestpy import nestpy
 nestpy.NESTcalc().BinomFluct(10, 0.2)
 ```
 
+Install with `python setup.py install` (PyPI will come later) and be sure to have CMake and a C++ compatible compiler.
+
 ## Credit
 
 * NEST collaboration.  
