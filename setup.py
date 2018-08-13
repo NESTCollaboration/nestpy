@@ -68,7 +68,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='nestpy',
-    version='0.0.1',
+    version='2.0.0',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
     description='Python bindings for NEST',
