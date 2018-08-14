@@ -66,16 +66,25 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp)
         print()  # Add an empty line for cleaner output
 
+readme = open('README.md').read()
+history = open('HISTORY.md').read().replace('.. :changelog:', '')
+
+# Fetch requirements, but remove explicit version pins.
+# Use pip install -r requirements.txt for repeatable installations
+requirements = open('requirements.txt').read().splitlines()
+requirements = [x.split('=')[0] for x in requirements]
+
 setup(
     name='nestpy',
     version='2.0.0',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
-    description='Python bindings for NEST',
-    long_description='',
+    description='Python bindings for the NEST noble element simulations',
+    long_description=readme + '\n\n' + history,
     packages=find_packages('src'),
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
+    install_requires=requirements,
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
     zip_safe=False,
