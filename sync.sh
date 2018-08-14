@@ -1,3 +1,6 @@
+#  This script is used for syncing to the NEST main repository
+#  to ensure that the bindings bind to the same version of NEST
+
 export VERSION=`grep version= setup.py | cut -c 14-18`
 echo $VERSION 
 
