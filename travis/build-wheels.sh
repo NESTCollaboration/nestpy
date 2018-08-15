@@ -4,11 +4,17 @@ set -e -x
 # Install a system package required by our library
 yum install -y atlas-devel
 
+# Manual install cmake since Centos5 old and pip somehow didn't work
+ls
+pwd
+wget https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh
+chmod +x cmake-3.12.1-Linux-x86_64.sh
+./cmake-3.12.1-Linux-x86_64.sh --skip-license
+export PATH=$PATH:`pwd`/bin
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
     "${PYBIN}/pip" install -r /io/requirements_dev.txt
-    "${PYBIN}/python" -c "import cmake;print(cmake.CMAKE_BIN_DIR);import os;print(os.path.exists(cmake.CMAKE_BIN_DIR + '/cmake'))"
     "${PYBIN}/pip" wheel /io/ -w wheelhouse/
 done
 
