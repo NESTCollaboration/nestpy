@@ -1,5 +1,7 @@
 from nestpy import nestpy
 from types import *
+import unittest
+from enum import Enum
 
 #   struct for YieldResult
 class YieldResult:
@@ -104,25 +106,61 @@ class QuantaResult:
                                                                                                    self.Quanta.excitons))
 
 
+class INTERACTION_TYPE:
+
+    def __init__(self, int_type):
+        assert type(int_type) is IntType and int_type >= 0 and int_type <= 12, "int_type must be of type INT and " \
+                                                                               "0 <= int_type <= 12!"
+        self.type = nestpy.INTERACTION_TYPE(int_type)
+
+
 #   struct for NESTresult
 class NESTresult:
 
-    def __init__(self, yields, quanta, photons_times):
+    def __init__(self, yields, quanta, photons_times, constructor_type=0):
         self.Nresult = nestpy.NESTresult()
-        self.Nresult.yields = yields.Yield
-        self.Nresult.quanta = quanta.Quanta
-        self.Nresult.photon_times = photons_times
+        if constructor_type == 0:
+            self.Nresult.yields = yields.Yield
+            self.Nresult.quanta = quanta.Quanta
+            self.yields = yields
+            self.quanta = quanta
+        else:
+            self.Nresult.yields = yields
+            self.Nresult.quanta = quanta
+            self.yields = YieldResult(yields.PhotonYield, yields.ElectronYield, yields.ExcitonRatio, yields.Lindhard,
+                                      yields.ElectricField, yields.DeltaT_Scint)
+            self.quanta = QuantaResult(quanta.photons, quanta.electrons, quanta.ions, quanta.excitons)
+            self.Nresult.photon_times = photons_times
 
-        self.yields = self.Nresult.yields
-        self.quanta = self.Nresult.quanta
-        self.photon_times = self.Nresult.photon_times
+    #   Setters for Parameters
+    def set_yields(self, yields):
+        self.Nresult.yields = yields.Yields
+
+    def set_quanta(self, quanta):
+        self.Nresult.quanta = quanta.Quanta
+
+    def set_photon_times(self, photon_times):
+        self.Nresult.photon_times = photon_times
+
+    #   Getters for Parameters
+    def get_yields(self):
+        return self.yields
+
+    def get_quanta(self):
+        return self.quanta
+
+    def get_photon_times(self):
+        return self.Nresult.photon_times
 
 
 #   class for VDetector
 class VDetector:
 
-    def __init__(self):
-        self.Detector = nestpy.VDetector()
+    def __init__(self, detector=None):
+        if detector is None:
+            self.Detector = nestpy.VDetector()
+        else:
+            self.Detector = detector
 
     #   default initialization
     def initialization(self):
@@ -321,16 +359,171 @@ class VDetector:
 #   class for NESTcalc
 class NESTcalc:
 
-    def __init__(self):
-        self.calc = nestpy.NESTcalc()
+    def __init__(self, detector=None):
+        if detector is None:
+            self.calc = nestpy.NESTcalc()
+        else:
+            assert isinstance(detector, VDetector), "detector must be of type VDetector!"
+            self.calc = nestpy.NESTcalc(detector.Detector)
 
-if __name__ == "__main__":
-    y = YieldResult(0,1,2,3,4,5)
+    #   main NESTcalc functions
+    def BinomFluct(self, x, y):
+        return self.calc.BinomFluct(x, y)
+
+    #   Full calculation
+    def FullCalculation(self, species, energy, density, dfield, A, Z, NuisParam=[1, 1]):
+        result = self.calc.FullCalculation(species.type, energy, density, dfield, A, Z, NuisParam)
+        return(NESTresult(result.yields, result.quanta, result.photon_times, constructor_type=1))
+
+    #   PhotonTime
+    def PhotonTime(self, species, exciton, dfield, energy):
+        return self.calc.PhotonTime(species.type, exciton, dfield, energy)
+
+    #   AddPhotonTransportTime
+    def AddPhotonTransportTime(self, emmited_times, x, y, z):
+        return self.calc.AddPhotonTransportTime(emmited_times, x, y, z)
+
+    #   GetPhotonTimes
+    def GetPhotonTimes(self, species, total_photons, excitons, dfield, energy):
+        return self.calc.GetPhotonTimes(species.type, total_photons, excitons, dfield, energy)
+
+    #   GetYields
+    def GetYields(self, species, energy, density, dfield, A, Z, NuisParam):
+        result = self.calc.GetYields(species.type, energy, density, dfield, A, Z, NuisParam)
+        return YieldResult(result.PhotonYield, result.ElectronYield, result.ExcitonRatio, result.Lindhard,
+                                      result.ElectricField, result.DeltaT_Scint)
+
+    #   GetQuanta
+    def GetQuanta(self, yields, density):
+        result =  self.calc.GetQuanta(yields.Yield, density)
+        return QuantaResult(result.photons, result.electrons, result.ions, result.excitons)
+
+    #   GetS1
+    def GetS1(self, quanta, truthPos, smearPos, driftSpeed, dS_mid, species, evtNum, dfield, energy, useTiming,
+              outputTiming, wf_time, wf_amp):
+        return self.calc.GetS1(quanta.Quanta, truthPos, smearPos, driftSpeed, dS_mid, species.type, evtNum, dfield,
+                               energy, useTiming, outputTiming, wf_time, wf_amp)
+
+    #   GetSpike
+    def GetSpike(self, Nph, dx, dy, dz, driftSpeed, dS_mid, origScint):
+        return self.calc.GetSpike(Nph, dx, dy, dz, driftSpeed, dS_mid, origScint)
+
+    #   GetS2
+    def GetS2(self, Ne, truthPos, smearPos, dt, driftSpeed, evtNum, dfield, useTiming, outputTiming, wf_time, wf_amp,
+              g2_params):
+        return self.calc.GetS2(Ne, truthPos, smearPos, dt, driftSpeed, evtNum, dfield, useTiming, outputTiming, wf_time,
+                               wf_amp, g2_params)
+
+    #   CalculateG2
+    def CalculateG2(self, verbosity):
+        return self.calc.CalculateG2(verbosity)
+
+    #   SetDriftVelocity
+    def SetDriftVelocity(self, T, D, F):
+        return self.calc.SetDriftVelocity(T, D, F)
+
+    #   SetDriftVelocity_MagBoltz
+    def SetDriftVelocity_MagBoltz(self, D, F):
+        return self.calc.SetDriftVelocity_MagBoltz(D, F)
+
+    #   SetDriftVelocity_NonUniform
+    def SetDriftVelocity_NonUniform(self, rho, zStep, dx, dy):
+        return self.calc.SetDriftVelocity_NonUniform(rho, zStep, dx, dy)
+
+    #   SetDensity
+    def SetDensity(self, T, P):
+        return self.calc.SetDensity(T, P)
+
+    #   xyResolution
+    def xyResolution(self, xPos_mm, yPos_mm, A_top):
+        return self.calc.xyResolution(xPos_mm, yPos_mm, A_top)
+
+    #   PhotonEnergy
+    def PhotonEnergy(self, s2Flag, state, tempK):
+        return self.calc.PhotonEnergy(s2Flag, state, tempK)
+
+    #   CalcElectronLET
+    def CalcElectronLET(self, E):
+        return self.calc.CalcElectronLET(E)
+
+    #   GetDetector
+    def GetDetector(self):
+        return VDetector(self.calc.GetDetector())
+
+class NESTcalcTestt(unittest.TestCase):
+    y = YieldResult(0, 1, 2, 3, 4, 5)
     y.print_values()
-    z = QuantaResult(0,1,2,3.)
+    z = QuantaResult(0, 1, 2, 3.)
     z.print_values()
-    x = NESTresult(y, z, [1,1,1])
+    x = NESTresult(y, z, [1, 1, 1])
 
     detec = VDetector()
     detec.initialization()
-    print(detec.OptTrans(1,2,3))
+    print(detec.OptTrans(1, 2, 3))
+    nest = NESTcalc()
+    print(nest)
+    nest = NESTcalc(detec)
+    print(nest)
+
+    #   NESTcalc tests
+
+    #   binomial fluct
+    print(nest.BinomFluct(1, 20.))
+    #   full calculation
+    print("FULL CALCULATION TEST:")
+    int_type = INTERACTION_TYPE(0)
+    result = nest.FullCalculation(int_type, 1., 2., 3., 4, 5)
+    print(result.get_yields(),result.get_quanta(),result.get_photon_times())
+    #   photon time
+    print("PHOTON TIME TEST:")
+    print(nest.PhotonTime(int_type, False, 10., 10.))
+    #   add photon transport time
+    print("PHOTON TRANSPORT TIME TEST:")
+    print(nest.AddPhotonTransportTime(result.get_photon_times(), 1.0, 2.0, 3.0))
+    #   get photon times
+    print("GET PHOTON TIMES TEST:")
+    print(nest.GetPhotonTimes(int_type, 10, 10, 10., 10.))
+    #   get yields
+    print("GET YIELDS TEST:")
+    nest.GetYields(int_type, 10., 10., 10., 10., 10., [1, 1]).print_values()
+    #   get quanta
+    print("GET QUANTA TEST:")
+    nest.GetQuanta(result.get_yields(), 10.).print_values()
+    #   get S1
+    print("GET S1 TEST:")
+    print(nest.GetS1(result.get_quanta(), 0, 1, 10., 10., int_type, 100, 10., 10., 0, False, [0,1,2], [0.,1.,2.]))
+    #   get spike
+    print("GET SPIKE TEST:")
+    print(nest.GetSpike(10, 10., 20., 30., 10., 10., [0, 1, 2]))
+    #   get s2
+    print("GET S2 TEST:")
+    print(nest.GetS2(10, 1, 1, 10., 10., 100, 10., 1, False, [0,1,2], [1,2,3], [1]))
+    #   calculate g2
+    print("CALCULATE G2 TEST:")
+    print(nest.CalculateG2(True))
+    #   set drift velocity
+    print("SET DRIFT VELOCITY TEST:")
+    print(nest.SetDriftVelocity(190, 10, 10))
+    #   set drift velocity mag_boltz
+    print("SET DRIFT VELOCITY MAG BOLTZ TEST:")
+    print(nest.SetDriftVelocity_MagBoltz(10, 10))
+    #   set drift velocity non uniform
+    print("SET DRIFT VELOCITY NON UNIFORM TEST:")
+    print(nest.SetDriftVelocity_NonUniform(190, 10, 10, 10))
+    #   set density
+    print("SET DENSITY TEST:")
+    print(nest.SetDensity(190, 10))
+    #   xyResolution
+    print("XY RESOLUTION TEST:")
+    #print(nest.xyResolution(100, 100, 100000))
+    #   Photon energy
+    print("PHOTON ENERGY TEST:")
+    print(nest.PhotonEnergy(True, True, 190))
+    #   calc electron LET
+    print("CALC ELECTRON LET TEST:")
+    print(nest.CalcElectronLET(100))
+    print(nest.GetDetector())
+
+
+if __name__ == "__main__":
+   unittest.main()

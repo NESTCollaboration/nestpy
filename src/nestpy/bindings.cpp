@@ -34,6 +34,23 @@ PYBIND11_MODULE(nestpy, m) {
 	.def_readwrite("yields", &NEST::NESTresult::yields)
 	.def_readwrite("quanta", &NEST::NESTresult::quanta)
 	.def_readwrite("photon_times", &NEST::NESTresult::photon_times);
+  
+  //	Binding for the enumeration INTERACTION_TYPE
+  py::enum_<NEST::INTERACTION_TYPE>(m, "INTERACTION_TYPE", py::arithmetic())
+    .value("NR", NEST::INTERACTION_TYPE::NR)
+    .value("WIMP", NEST::INTERACTION_TYPE::WIMP)
+    .value("B8", NEST::INTERACTION_TYPE::B8)
+    .value("DD", NEST::INTERACTION_TYPE::DD)
+    .value("AmBe", NEST::INTERACTION_TYPE::AmBe)
+    .value("Cf", NEST::INTERACTION_TYPE::Cf)
+    .value("ion", NEST::INTERACTION_TYPE::ion)
+    .value("gammaRay", NEST::INTERACTION_TYPE::gammaRay)
+    .value("beta", NEST::INTERACTION_TYPE::beta)
+    .value("CH3T", NEST::INTERACTION_TYPE::CH3T)
+    .value("C14", NEST::INTERACTION_TYPE::C14)
+    .value("Kr83m", NEST::INTERACTION_TYPE::Kr83m)
+    .value("NoneType", NEST::INTERACTION_TYPE::NoneType)
+    .export_values();
 
   //	Binding for the VDetector class
   py::class_<VDetector>(m, "VDetector")
@@ -119,26 +136,25 @@ PYBIND11_MODULE(nestpy, m) {
     .def(py::init<>())
 	.def(py::init<VDetector*>())
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
-	.def("SetDensity", &NEST::NESTcalc::SetDensity)
+	.def("FullCalculation", &NEST::NESTcalc::FullCalculation, 
+			"Perform the full yield calculation with smearings")
+	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
+	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
+	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
+	.def("GetYields", &NEST::NESTcalc::GetYields)
+	.def("GetQuanta", &NEST::NESTcalc::GetQuanta)
+	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
+	.def("GetS2", &NEST::NESTcalc::GetS2)
 	.def("CalculateG2", &NEST::NESTcalc::CalculateG2)
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
 	.def("SetDriftVelocity_MagBoltz", &NEST::NESTcalc::SetDriftVelocity_MagBoltz)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
+	.def("SetDensity", &NEST::NESTcalc::SetDensity)
 	.def("xyResolution", &NEST::NESTcalc::xyResolution)
-
-	//NESTresult FullCalculation(INTERACTION_TYPE species,double energy,double density,double dfield,double A,double Z,std::vector<double> NuisParam={1,1});
-	//double PhotonTime(INTERACTION_TYPE species,bool exciton, double dfield, double energy);
-	//photonstream AddPhotonTransportTime (photonstream emitted_times, double x, double y, double z);
-	//photonstream GetPhotonTimes(INTERACTION_TYPE species, int total_photons, int excitons, double dfield, double energy);
-	//YieldResult GetYields ( INTERACTION_TYPE species, double energy, double density, double dfield,double A,double Z,std::vector<double> NuisParam);
-	//QuantaResult GetQuanta(YieldResult yields, double density);
-	//std::vector<double> GetS1 ( QuantaResult quanta, double dx, double dy, double dz, double driftSpeed, double dS_mid, INTERACTION_TYPE species, long evtNum, double dfield, double energy, bool useTiming,  bool outputTiming, vector<long int>& wf_time, vector<double>& wf_amp );
-
-    ;
+	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
+	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
+	.def("GetDetector", &NEST::NESTcalc::GetDetector);
+  
 }
-
-//std::vector<double> GetSpike(int Nph,double dx,double dy, double dz, double driftSpeed, double dS_mid, std::vector<double> origScint );
-//std::vector<double> GetS2 ( int Ne, double dx, double dy, double dt, double driftSpeed, long evtNum, double dfield, bool useTiming, bool outputTiming, vector<long int>& wf_time, vector<double>& wf_amp,vector<double> &g2_params );
-
 
