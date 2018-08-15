@@ -3,6 +3,7 @@ set -e -x
 
 # Install a system package required by our library
 yum install -y atlas-devel
+yum install -y cmake  # Needed for pybind11
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
