@@ -29,5 +29,5 @@ done
 # Install packages and test
 for PYBIN in /opt/python/*/bin/; do
     "${PYBIN}/pip" install nestpy --no-index -f /io/wheelhouse
-    (cd "$HOME"; "${PYBIN}/nosetests" nestpy)
+    (cd "$HOME"; "${PYBIN}/nosetests" -w /io/tests)
 done
