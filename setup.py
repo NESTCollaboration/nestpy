@@ -80,6 +80,7 @@ setup(
     author_email='tunnell@rice.edu',
     description='Python bindings for the NEST noble element simulations',
     long_description=readme + '\n\n' + history,
+    long_description_content_type="text/markdown",
     packages=find_packages('src'),
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
