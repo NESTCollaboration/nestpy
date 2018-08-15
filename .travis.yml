@@ -1,3 +1,6 @@
+# This file arranges for the build server for tests and automatic
+# deployment to PyPI such that we can pip install.
+
 notifications:
   email: false
 
