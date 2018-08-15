@@ -4,14 +4,15 @@ set -e -x
 # Install a system package required by our library
 yum install -y atlas-devel wget
 
-# Manual install cmake since Centos5 old and pip somehow didn't work
-cd /tmp
-ls
-pwd
-wget -q https://www.nikhef.nl/~ctunnell/cmake-3.12.1-Linux-x86_64.sh
-chmod +x cmake-3.12.1-Linux-x86_64.sh
-./cmake-3.12.1-Linux-x86_64.sh --skip-license
-export PATH=$PATH:`pwd`/bin
+# Have to manually build and install CMake since libc old
+cd /root
+wget -q https://www.nikhef.nl/~ctunnell/cmake-2.8.12.tar.gz
+tar xvfz cmake-2.8.12.tar.gz
+cd cmake-2.8.12
+./bootstrap
+make
+make install
+export PATH=$PATH:/usr/local/bin
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
