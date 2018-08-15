@@ -29,4 +29,5 @@ script:
 
 after_success:
     - pip install twine
-    - python -m twine upload wheelhouse/*.whl
+    - echo TRAVIS_TAG $TRAVIS_TAG
+    - if [ "${TRAVIS_TAG}" == "true" ]; then python -m twine upload wheelhouse/*.whl; fi
