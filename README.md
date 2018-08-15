@@ -2,14 +2,9 @@
 
 (Not ready for use)
 
-Python bindings to the NEST library:
+[![Build Status](https://travis-ci.org/NESTCollaboration/nestpy.svg?branch=master)](https://travis-ci.org/NESTCollaboration/nestpy)
 
-```
-from nestpy import nestpy
-nestpy.NESTcalc().BinomFluct(10, 0.2)
-```
-
-Install with `python setup.py install` (PyPI will come later) and be sure to have CMake and a C++ compatible compiler.
+These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest).  You do not have to have NEST already installed to use this package.
 
 ## Installing from PyPI
 
@@ -32,6 +27,18 @@ git checkout https://github.com/NESTCollaboration/nestpy
 cd nestpy
 python setup.py install
 ```
+
+## Usage
+
+Python bindings to the NEST library:
+
+```
+from nestpy import nestpy
+nestpy.NESTcalc().BinomFluct(10, 0.2)
+```
+
+Install with `python setup.py install` (PyPI will come later) and be sure to have CMake and a C++ compatible compiler.
+
 
 ## Credit
 
