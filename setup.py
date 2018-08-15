@@ -9,6 +9,7 @@ from distutils.version import LooseVersion
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
+CMAKE_BINARY = 'cmake'
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -19,11 +20,16 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def run(self):
         try:
-            out = subprocess.check_output(['cmake', '--version'])
+            out = subprocess.check_output([CMAKE_BINARY, '--version'])
         except OSError:
-            raise RuntimeError(
-                "CMake must be installed to build the following extensions: " +
-                ", ".join(e.name for e in self.extensions))
+            try:
+                import cmake
+                CMAKE_BINARY = os.path.join(cmake.CMAKE_BIN_DIR, 'cmake')
+                out = subprocess.check_output([CMAKE_BINARY, '--version'])
+            except ImportError:
+                raise RuntimeError(
+                     "CMake must be installed to build the following extensions: " +
+                      ", ".join(e.name for e in self.extensions))
 
         if platform.system() == "Windows":
             cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)',
@@ -60,9 +66,9 @@ class CMakeBuild(build_ext):
             self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
+        subprocess.check_call([CMAKE_BINARY, ext.sourcedir] + cmake_args,
                               cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args,
+        subprocess.check_call([CMAKE_BINARY, '--build', '.'] + build_args,
                               cwd=self.build_temp)
         print()  # Add an empty line for cleaner output
 
