@@ -1,7 +1,7 @@
 #  This script is used for syncing to the NEST main repository
 #  to ensure that the bindings bind to the same version of NEST
 
-export VERSION=`grep version= setup.py | cut -c 14-18`
+export VERSION=2.0.0
 echo $VERSION 
 
 git clone https://github.com/NESTCollaboration/nest.git nest_source
