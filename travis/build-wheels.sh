@@ -4,7 +4,8 @@ set -e -x
 # Install a system package required by our library
 yum install -y atlas-devel wget
 
-# Have to manually build and install CMake since libc old
+# Have to manually build and install CMake since libc old but
+# at least 2.8.12 is required for pybind11.
 cd /root
 wget -q https://www.nikhef.nl/~ctunnell/cmake-2.8.12.tar.gz
 tar xfz cmake-2.8.12.tar.gz
