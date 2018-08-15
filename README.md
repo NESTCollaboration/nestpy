@@ -1,6 +1,4 @@
-# nestpy
-
-(Not ready for use)
+# nestpy (alpha status)
 
 [![Build Status](https://travis-ci.org/NESTCollaboration/nestpy.svg?branch=master)](https://travis-ci.org/NESTCollaboration/nestpy)
 [![DOI](https://zenodo.org/badge/140174447.svg)](https://zenodo.org/badge/latestdoi/140174447)
