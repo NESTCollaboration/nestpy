@@ -2,9 +2,10 @@
 set -e -x
 
 # Install a system package required by our library
-yum install -y atlas-devel
+yum install -y atlas-devel wget
 
 # Manual install cmake since Centos5 old and pip somehow didn't work
+cd /tmp
 ls
 pwd
 wget https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh
