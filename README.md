@@ -36,39 +36,33 @@ Python bindings to the NEST library:
 ```
 import nestpy
 
+# This is same as C++ NEST with naming                                                                            
 nc = nestpy.NESTcalc()
-print('My favorite random number is', nc.BinomFluct(10, 0.2))
-
-print('This is NR', nestpy.INTERACTION_TYPE(0))
 
 A = 131.293
 Z = 54.
+density = 2.9 # g/cm^3                                                                                            
 
-x = nc.FullCalculation(nestpy.INTERACTION_TYPE(5), # NR                                  
-                       -1, # keV                                                         
-                       2.9, # g/cm^3                                                     
-                       124, # Drift field, V/cm                                          
-                       A,
-                       Z,
-                       (1,1))
-print('Full calculation gives quanta object', x.quanta)  # This is QuantaResult          
+interaction = nestpy.INTERACTION_TYPE(0) # NR                                                                     
+E = 10 # keV                                                                                                      
+print('For an %s keV %s' % (E, interaction))
 
-print('This many:')
-print('\t', x.quanta.photons)
-print('\t', x.quanta.electrons)
-
-detec = nestpy.VDetector()
-detec.Initialization()
-
-y = nc.GetYields(nestpy.INTERACTION_TYPE(0), # NR                                        
-                 200, # keV                                                              
-                 2.9, # g/cm^3                                                           
-                 124, # Drift field, V/cm                                                
+# Get particle yields                                                                                             
+y = nc.GetYields(interaction,
+                 E,
+                 density,
+                 124, # Drift field, V/cm                                                                         
                  A,
                  Z,
                  (1,1))
 
-print(y.PhotonYield)
+print('The photon yield is:', y.PhotonYield)
+
+print('With statistical fluctuations', nc.GetQuanta(y, density).photons)
+
+# Also                                                                                                            
+detec = nestpy.VDetector()
+detec.Initialization()
 ```
 
 ## Credit
