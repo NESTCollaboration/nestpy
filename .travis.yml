@@ -1,6 +1,9 @@
 notifications:
   email: false
 
+# The manylinux docker is required for building the Python bindingins with an
+# old enough libc such that these binaries can be run anywhere (more or less).
+# If using another architecture, then pip/PyPI will just rebuild.
 matrix:
   include:
     - sudo: required
