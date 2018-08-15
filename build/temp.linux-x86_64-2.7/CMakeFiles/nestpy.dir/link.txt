@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC  -DVERSION_INFO=\"2.0.0\"  -O3 -DNDEBUG  -shared  -o ../lib.linux-x86_64-2.7/nestpy/nestpy.so CMakeFiles/nestpy.dir/src/nestpy/NEST.cpp.o CMakeFiles/nestpy.dir/src/nestpy/RandomGen.cpp.o CMakeFiles/nestpy.dir/src/nestpy/VDetector.cpp.o CMakeFiles/nestpy.dir/src/nestpy/bindings.cpp.o -flto 

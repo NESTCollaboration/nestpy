@@ -1,5 +1,0 @@
-/home/ncarrara/nestpy2/nestpy-1/build/temp.linux-x86_64-2.7/CMakeFiles/edit_cache.dir
-/home/ncarrara/nestpy2/nestpy-1/build/temp.linux-x86_64-2.7/CMakeFiles/rebuild_cache.dir
-/home/ncarrara/nestpy2/nestpy-1/build/temp.linux-x86_64-2.7/CMakeFiles/nestpy.dir
-/home/ncarrara/nestpy2/nestpy-1/build/temp.linux-x86_64-2.7/lib/pybind11/CMakeFiles/edit_cache.dir
-/home/ncarrara/nestpy2/nestpy-1/build/temp.linux-x86_64-2.7/lib/pybind11/CMakeFiles/rebuild_cache.dir
