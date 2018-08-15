@@ -7,11 +7,11 @@ yum install -y atlas-devel wget
 # Have to manually build and install CMake since libc old
 cd /root
 wget -q https://www.nikhef.nl/~ctunnell/cmake-2.8.12.tar.gz
-tar xvfz cmake-2.8.12.tar.gz
+tar xfz cmake-2.8.12.tar.gz
 cd cmake-2.8.12
-./bootstrap
-make
-make install
+./bootstrap > quiet_bootstrap
+make  > quiet_make
+make install > quiet_make_install
 export PATH=$PATH:/usr/local/bin
 
 # Compile wheels
