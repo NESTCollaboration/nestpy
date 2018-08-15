@@ -75,7 +75,7 @@ requirements = [x.split('=')[0] for x in requirements]
 
 setup(
     name='nestpy',
-    version='2.0.0',
+    version='0.1.0',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
     description='Python bindings for the NEST noble element simulations',
