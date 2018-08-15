@@ -4,12 +4,20 @@ History
 -------
 
 ------------------
+0.2.2 (2018-08-14)
+------------------
+
+NESTv2.0.0
+
+* Fix lack of deploy of release to PyPI
+
+------------------
 0.2.1 (2018-08-14)
 ------------------
 
 NESTv2.0.0
 
-* Fix tests
+* Fix tests that were breaking only in deploys
 
 ------------------
 0.2.0 (2018-08-14)
