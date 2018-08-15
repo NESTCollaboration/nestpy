@@ -34,8 +34,41 @@ python setup.py install
 Python bindings to the NEST library:
 
 ```
-from nestpy import nestpy
-nestpy.NESTcalc().BinomFluct(10, 0.2)
+import nestpy
+
+nc = nestpy.NESTcalc()
+print('My favorite random number is', nc.BinomFluct(10, 0.2))
+
+print('This is NR', nestpy.INTERACTION_TYPE(0))
+
+A = 131.293
+Z = 54.
+
+x = nc.FullCalculation(nestpy.INTERACTION_TYPE(5), # NR                                  
+                       -1, # keV                                                         
+                       2.9, # g/cm^3                                                     
+                       124, # Drift field, V/cm                                          
+                       A,
+                       Z,
+                       (1,1))
+print('Full calculation gives quanta object', x.quanta)  # This is QuantaResult          
+
+print('This many:')
+print('\t', x.quanta.photons)
+print('\t', x.quanta.electrons)
+
+detec = nestpy.VDetector()
+detec.Initialization()
+
+y = nc.GetYields(nestpy.INTERACTION_TYPE(0), # NR                                        
+                 200, # keV                                                              
+                 2.9, # g/cm^3                                                           
+                 124, # Drift field, V/cm                                                
+                 A,
+                 Z,
+                 (1,1))
+
+print(y.PhotonYield)
 ```
 
 ## Credit
