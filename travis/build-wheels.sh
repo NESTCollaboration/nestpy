@@ -8,7 +8,7 @@ yum install -y atlas-devel wget
 cd /tmp
 ls
 pwd
-wget --no-check-certificate https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh
+wget http://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh
 chmod +x cmake-3.12.1-Linux-x86_64.sh
 ./cmake-3.12.1-Linux-x86_64.sh --skip-license
 export PATH=$PATH:`pwd`/bin
