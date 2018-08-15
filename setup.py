@@ -19,6 +19,8 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def run(self):
+        global CMAKE_BINARY
+        
         try:
             out = subprocess.check_output([CMAKE_BINARY, '--version'])
         except OSError:
@@ -41,6 +43,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
+        global CMAKE_BINARY
+        
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
