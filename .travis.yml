@@ -1,22 +1,29 @@
 notifications:
   email: false
+
 language: python
+
 matrix:
   include:
   - sudo: required
     services:
     - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+
 install:
 - docker pull $DOCKER_IMAGE
+
 script:
 - docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
 - ls wheelhouse/
 
-# Deploy releases to PyPI for pip installs
-# See https://docs.travis-ci.com/user/encryption-keys/
-deploy:
-  provider: pypi
-  user: "NESTCollaboration"
-  password:  # The following is encrypted FYI
-    secure: zFPixdFNL4vwKjmca76NghmQDc+DcuCeSt6jlKsEZCl09qlJYrfa8iYmI2iQNmm6iHNKiOwyU5bfGnSRNxoWzdpPhqqQz1nciWsdOmVNP7m093qWoKDkFCE1yCXD/AswTCl5UGmFMJHuCd9ThUivASJM+UzaMO4ljO1b+7OG7GyIEZgEcKQfnRrWzvfGq6LsGU+yYPZi7M8tSHHAANSDk9bPhpkd+76TUja5KAgMD3dObR6QiXzbbEXrogROEiUVokXh0bY+HeyDkwI4koF9q0J6TP3AD8J/0X9sXLaOUHfxkOHjDpsGvgBl6b1Wd6fOHzVgBf3EoX5IRKVRjevcf/aZoV0xGlItQvG+U6pgkIR55QFJD7RD5580RgxhtRoVSLI+HYRlGQtrOXUwmJP9sbg81bLw+AWoiuPIffbeGlUfrfJQHOhyM9m1dQgQLzGB5oB9kUSrT8hnBeRNKwn5P3+hPDQox4EoxvDXdnc3mo3wvFhbeXv+eh/ZV0Xye8Vcq56YcmuMO22sEzdljvnXanDUNdf9KZBuyAERlllSOwga5LLd3CINUq45mLLn4DmHg8ZjF+pgntf5Kv1p7jykEL1k2/FWqBGZwvEDHOJvBK2USmlbRs+TPPFxsJx8lAZDJH2DmmnN3xLcVkq+FNRNlzP8L4OASjGeJTlGedLRH3A=
+env:
+    global:
+        # Following generated with
+        # travis encrypt -r NESTCollaboration/nestpy WHEELHOUSE_UPLOADER_SECRET=XXX
+        secure: "rCRaNGw1TQbCZNMcnr/EM2joUaOBXmNe7trlzO4q7v3YQ/+mXkD/cli2qriJNm6T+sj61Ddr0XZnKNY4DcZlaCYvKnuubJMtIBa60UCgubOTyJzbbIC+5fG2UqAeHF4V/veASbbyTwewZT+1WoU/16aJKdfDF/Z/M1AzXglkGclWj2lF2WL/17wweHq/WNjf/q8FfGRXuEk52NUxMYxSDj9Zwtgf2GydXP4ONhQl0hLXQcV34rPs40HAnWFJHsbeTanlj/bCexxyyqvq0AoHaRU+3f5odKtV4qUyfR0CnXWg9UfQK5fR5zqrA4px5w0qJ8xa+RF8cbLtLKkUlh+I6SJRJH19fNWbpP3LkA5YBbl/yppkxV0FDFDv5hrwlC1tRYjr+ZdrYIja8YsH59r/sBfibhFekPKJf62S5iOv00wrmWYiFhRuyBbJ+r/Es4GDwPSQbP2wiLderSHyWBgSspZEDiVXAjvDSrkNHX1FrXqFHat+D6l5hKqQSm1eEODFb0xRLFKkiFPoLCwwqrKMxVR0kz9M6tHaT0KTEX0PBOxZE3Ig4Vr49Q3vg0S3SCp6QFo3VOaBaPdyN1ddvPZiWfDu0RoeF1FkdaciEX1KWwsDSrjGFAibnmDMWS3jKbrLvRndmtUwS+qUaKY6qom7n4KPBHTr3q2kH5KfEcMOYeQ="
+        
+after_success:
+    # Upload wheels to Rackspace container
+    - pip install wheelhouse-uploader
+    - python -m wheelhouse_uploader upload --username=NESTCollaboration --secret=${password} --local-folder=dist/ wheelhouse
