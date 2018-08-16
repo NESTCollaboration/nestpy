@@ -15,10 +15,10 @@ env:
     
 matrix:
   include:
-  - sudo: required
-    services:
-      - docker
-    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+  #- sudo: required
+  #  services:
+  #    - docker
+  #  env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
   #- sudo: required
   #  services:
   #    - docker
@@ -26,6 +26,7 @@ matrix:
   #         PRE_CMD=linux32
   - os: osx
     osx_image: xcode6.4
+    language: python
     
 
 install:
