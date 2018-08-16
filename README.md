@@ -9,7 +9,7 @@ These are the Python bindings for the [NEST library](https://github.com/NESTColl
 
 ## Installing from PyPI
 
-For nearly all systems, instally 'nestpy' should just require running:
+For 64-bit Linux systems, instally 'nestpy' should just require running:
 
 ```
 pip install nestpy
@@ -65,7 +65,11 @@ detec = nestpy.VDetector()
 detec.Initialization()
 ```
 
-## Credit
+## Technical implementation
+
+This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.html) wrapper of [NEST](https://github.com/NESTCollaboration/nest) that uses (TravisCI)[https://travis-ci.org] to build binaries using the (manylinux)[https://github.com/pypa/python-manylinux-demo] (Docker image)[https://www.docker.com].
 
 * Help from Henry Schreiner (https://indico.cern.ch/event/694818/contributions/2985778/attachments/1682465/2703470/PyHEPTalk.pdf)
 * Implementation also based on http://www.benjack.io/2018/02/02/python-cpp-revisited.html
+
+See AUTHORS.md for information on the developers.
