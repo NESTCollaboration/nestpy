@@ -53,7 +53,7 @@ PYBIND11_MODULE(nestpy, m) {
     .export_values();
 
   //	Binding for the VDetector class
-  py::class_<VDetector>(m, "VDetector")
+  py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")
 	.def(py::init<>())
 	.def("Initialization", &VDetector::Initialization)
 	.def("get_g1", &VDetector::get_g1)
@@ -127,6 +127,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("FitS1", &VDetector::FitS1)
 	.def("FitEF", &VDetector::FitEF)
 	.def("FitS2", &VDetector::FitS2)
+	.def("FitTBA", &VDetector::FitTBA)
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
