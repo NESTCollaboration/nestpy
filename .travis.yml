@@ -50,11 +50,11 @@ install:
 script:
     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh; fi
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py bdist_wheel; fi
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ] && ["${PYTHON}" == "3.7"]; then python setup.py sdist ; fi
+    - if ["${PYTHON}" == "3.7"]; then python setup.py sdist ; fi
 
 after_success:
     - pip install twine
     - echo TRAVIS_TAG $TRAVIS_TAG
     - export TRAVIS_TAG=test
-    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then twine upload --skip-existing wheelhouse/*.whl; fi
-    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then twine upload --skip-existing dist/*; fi
+    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload wheelhouse/*.whl; fi
+    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload dist/*; fi
