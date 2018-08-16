@@ -26,8 +26,10 @@ matrix:
   #         PRE_CMD=linux32
   - os: osx
     osx_image: xcode6.4
-    language: python
+    env: PYTHON=3.6
     
+before_install:
+    - - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then source travis/setup-osx.sh; fi
 
 install:
     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker pull $DOCKER_IMAGE; fi
