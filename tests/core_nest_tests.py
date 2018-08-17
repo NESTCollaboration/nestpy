@@ -1,7 +1,6 @@
 import unittest
 import nestpy
 
-#from nestpy import nestpy.VDetector, NESTcalc, nestpy.YieldResult, QuantaResult, NESTresult, nestpy.INTERACTION_TYPE
 
 class ConstructorTest(unittest.TestCase):
     """Test constructors
@@ -9,6 +8,7 @@ class ConstructorTest(unittest.TestCase):
     These are used in the setup of later tests.  Therefore, seperate test
     here.
     """
+
     def test_vdetector_constructor(self):
         detector = nestpy.VDetector()
         assert detector is not None
@@ -51,13 +51,12 @@ class VDetectorTest(unittest.TestCase):
 
     def test_fit_ef(self):
         self.detector.FitEF(1.0, 2.0, 3.0)
-        
+
     def test_fit_s2(self):
         self.detector.FitS2(1.0, 2.0)
 
     def test_fit_tba(self):
         self.detector.FitTBA(1.0, 2.0, 3.0)
-
 
 
 class NESTcalcTest(unittest.TestCase):
@@ -79,14 +78,16 @@ class NESTcalcTest(unittest.TestCase):
             it = nestpy.nestpy.INTERACTION_TYPE(i)
 
     def test_nestcalc_full_calculation(self):
-        result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5, [1, 1])
+        result = self.nestcalc.FullCalculation(
+            self.it, 1., 2., 3., 4, 5, [1, 1])
         assert isinstance(result, nestpy.NESTresult)
-        
+
     def test_nestcalc_get_photon_times(self):
         self.nestcalc.GetPhotonTimes(self.it, 10, 10, 10., 10.)
 
     def test_nestcalc_get_yields(self):
-        yields = self.nestcalc.GetYields(self.it, 10., 10., 10., 10., 10., [1, 1])
+        yields = self.nestcalc.GetYields(
+            self.it, 10., 10., 10., 10., 10., [1, 1])
 
     def test_nestcalc_get_spike(self):
         self.nestcalc.GetSpike(10, 10., 20., 30., 10., 10., [0, 1, 2])
@@ -117,30 +118,31 @@ class NESTcalcTest(unittest.TestCase):
 
 
 class NESTcalcFullCalculationTest(unittest.TestCase):
-        
+
     @classmethod
     def setUpClass(cls):
         cls.detector = nestpy.VDetector()
         cls.detector.Initialization()
         cls.it = nestpy.INTERACTION_TYPE(0)
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
-        cls.result = cls.nestcalc.FullCalculation(cls.it, 1., 2., 3., 4, 5, [1, 1])
+        cls.result = cls.nestcalc.FullCalculation(
+            cls.it, 1., 2., 3., 4, 5, [1, 1])
 
     def test_nestcalc_photon_time(self):
-        self.nestcalc.AddPhotonTransportTime(self.result.photon_times, 1.0, 2.0, 3.0)
+        self.nestcalc.AddPhotonTransportTime(
+            self.result.photon_times, 1.0, 2.0, 3.0)
 
     def test_nestcalc_add_photon_transport_time(self):
-        self.nestcalc.AddPhotonTransportTime(self.result.photon_times, 1.0, 2.0, 3.0)
+        self.nestcalc.AddPhotonTransportTime(
+            self.result.photon_times, 1.0, 2.0, 3.0)
 
     def test_nestcalc_get_quanta(self):
         self.nestcalc.GetQuanta(self.result.yields, 10.)
-        
+
     def test_nestcalc_get_s1(self):
-        self.nestcalc.GetS1(self.result.quanta, 0, 1, 10., 10., self.it, 100, 10., 10., 0, False, [0,1,2], [0.,1.,2.])
-            
+        self.nestcalc.GetS1(self.result.quanta, 0, 1, 10., 10.,
+                            self.it, 100, 10., 10., 0, False, [0, 1, 2], [0., 1., 2.])
 
-
-        
 
 if __name__ == "__main__":
     unittest.main()
