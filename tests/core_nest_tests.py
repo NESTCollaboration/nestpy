@@ -71,7 +71,7 @@ class NESTcalcTest(unittest.TestCase):
     def test_nestcalc_binom_fluct(self):
         binom = self.nestcalc.BinomFluct(1, 20.)
         assert binom > 0
-        assert isinstance(binom, [float, int])
+        assert isinstance(binom, [float, int]), type(binom)
 
     def test_interaction_type_constructor(self):
         for i in range(5):
