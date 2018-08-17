@@ -1,4 +1,7 @@
-export VERSION=`grep version= setup.py | cut -c 14-18`
+#  This script is used for syncing to the NEST main repository
+#  to ensure that the bindings bind to the same version of NEST
+
+export VERSION=`python -c "import nestpy;print(nestpy.__nest_version__)"`
 echo $VERSION 
 
 git clone https://github.com/NESTCollaboration/nest.git nest_source
