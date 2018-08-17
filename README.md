@@ -72,3 +72,7 @@ This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.htm
 * Implementation also based on http://www.benjack.io/2018/02/02/python-cpp-revisited.html
 
 See AUTHORS.md for information on the developers.
+
+## Citation
+
+When you use `nestpy`, please say so in your slides or publications (for publications, see Zenodo link above).  You can mention this in addition to how you cite NEST.  This is important for us being able to get funding to support this project.
