@@ -60,10 +60,9 @@ print('The photon yield is:', y.PhotonYield)
 
 print('With statistical fluctuations', nc.GetQuanta(y, density).photons)
 
-# Also                                                                                                            
-detec = nestpy.VDetector()
-detec.Initialization()
 ```
+
+For more examples on possible calls, please see the tests folder.
 
 ## Technical implementation
 
