@@ -53,7 +53,8 @@ PYBIND11_MODULE(nestpy, m) {
     .export_values();
 
   //	Binding for the VDetector class
-  py::class_<VDetector>(m, "VDetector")
+  py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")	//	py::nodelete added so that NESTcalc() deconstructor does
+		  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	//	not delete instance of VDetector()
 	.def(py::init<>())
 	.def("Initialization", &VDetector::Initialization)
 	.def("get_g1", &VDetector::get_g1)
@@ -127,6 +128,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("FitS1", &VDetector::FitS1)
 	.def("FitEF", &VDetector::FitEF)
 	.def("FitS2", &VDetector::FitS2)
+	.def("FitTBA", &VDetector::FitTBA)
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
@@ -145,13 +147,13 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("GetQuanta", &NEST::NESTcalc::GetQuanta)
 	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
-	.def("GetS2", &NEST::NESTcalc::GetS2)
+	//.def("GetS2", &NEST::NESTcalc::GetS2) 					Currently not working because of VDetector.FitTBA()
 	.def("CalculateG2", &NEST::NESTcalc::CalculateG2)
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
 	.def("SetDriftVelocity_MagBoltz", &NEST::NESTcalc::SetDriftVelocity_MagBoltz)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
 	.def("SetDensity", &NEST::NESTcalc::SetDensity)
-	.def("xyResolution", &NEST::NESTcalc::xyResolution)
+	//.def("xyResolution", &NEST::NESTcalc::xyResolution)		Currently not working because of VDetector.FitTBA()
 	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
