@@ -71,16 +71,16 @@ For more examples on possible calls, please see the tests folder.
 
 ### Support
 
-* Bugs: Please report bugs to the (issue tracker on Github)[https://github.com/NESTCollaboration/nestpy/issues] such that we can keep track of them and eventually fix them.  Please explain how to reproduce the issue (including code) and which system you are running on.
+* Bugs: Please report bugs to the [issue tracker on Github](https://github.com/NESTCollaboration/nestpy/issues) such that we can keep track of them and eventually fix them.  Please explain how to reproduce the issue (including code) and which system you are running on.
 * Help: Help can be provided also via the issue tracker by tagging your issue with 'question'
 * Contributing:  Please fork this repository then make a pull request.  In this pull request, explain the details of your change and include tests.
 
 ## Technical implementation
 
-This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.html) wrapper of [NEST](https://github.com/NESTCollaboration/nest) that uses (TravisCI)[https://travis-ci.org] to build binaries using the (manylinux)[https://github.com/pypa/python-manylinux-demo] (Docker image)[https://www.docker.com].
+This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.html) wrapper of [NEST](https://github.com/NESTCollaboration/nest) that uses [TravisCI](https://travis-ci.org) to build binaries using the [manylinux](https://github.com/pypa/python-manylinux-demo) [Docker image](https://www.docker.com).
 
-* Help from Henry Schreiner (https://indico.cern.ch/event/694818/contributions/2985778/attachments/1682465/2703470/PyHEPTalk.pdf)
-* Implementation also based on http://www.benjack.io/2018/02/02/python-cpp-revisited.html
+* Help from Henry Schreiner, which included a great [binding tutorial](https://indico.cern.ch/event/694818/contributions/2985778/attachments/1682465/2703470/PyHEPTalk.pdf)
+* Implementation also based on [this](http://www.benjack.io/2018/02/02/python-cpp-revisited.html)
 
 See AUTHORS.md for information on the developers.
 
