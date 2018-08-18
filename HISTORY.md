@@ -2,6 +2,17 @@
 History
 =======
 
+1.0.0 (2018-08-18)
+------------------
+
+NESTv2.0.0
+
+* First release intended for general public.
+* Mac OSX support (#10)
+* Complete tests and various bug fixes (#13)
+* Documentation, citation, and technical detail writing
+
+
 0.2.3 (2018-08-14)
 ------------------
 
