@@ -19,10 +19,12 @@ matrix:
     services:
       - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    language: python
   - sudo: required
     services:
       - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
+    language: python
   - os: osx
     osx_image: xcode6.4
     env: PYTHON=2.7
