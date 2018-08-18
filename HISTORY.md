@@ -2,6 +2,20 @@
 History
 =======
 
+1.0.2 (2018-08-18)
+------------------
+
+NESTv2.0.0
+
+* Metadata (classifier in setup.py, badges, chat) (#14)
+
+1.0.1 (2018-08-18)
+------------------
+
+NESTv2.0.0
+
+* Retrigger release for PyPI deployment
+
 1.0.0 (2018-08-18)
 ------------------
 
