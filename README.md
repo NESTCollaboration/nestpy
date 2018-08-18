@@ -1,15 +1,17 @@
-# nestpy (alpha status)
+# nestpy (beta status)
 
 [![Build Status](https://travis-ci.org/NESTCollaboration/nestpy.svg?branch=master)](https://travis-ci.org/NESTCollaboration/nestpy)
 [![DOI](https://zenodo.org/badge/140174447.svg)](https://zenodo.org/badge/latestdoi/140174447)
 [![PyPi version](https://pypip.in/v/nestpy/badge.png)](https://pypi.org/project/nestpy/)
 [![PyPi downloads](https://pypip.in/d/nestpy/badge.png)](https://crate.io/packages/nestpy/)
 
-These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest).  You do not have to have NEST already installed to use this package.
+These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is not Pythonic at this point but just uses the existing naming conventions from the C++ library.
+
+You do *not* have to have NEST already installed to use this package.
 
 ## Installing from PyPI
 
-For 64-bit Linux systems, instally 'nestpy' should just require running:
+For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
 ```
 pip install nestpy
@@ -63,6 +65,12 @@ print('With statistical fluctuations', nc.GetQuanta(y, density).photons)
 ```
 
 For more examples on possible calls, please see the tests folder.
+
+### Support
+
+* Bugs: Please report bugs to the (issue tracker on Github)[https://github.com/NESTCollaboration/nestpy/issues] such that we can keep track of them and eventually fix them.  Please explain how to reproduce the issue (including code) and which system you are running on.
+* Help: Help can be provided also via the issue tracker by tagging your issue with 'question'
+* Contributing:  Please fork this repository then make a pull request.  In this pull request, explain the details of your change and include tests.
 
 ## Technical implementation
 
