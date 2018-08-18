@@ -68,11 +68,6 @@ class CMakeBuild(build_ext):
 readme = open('README.md').read()
 history = open('HISTORY.md').read().replace('.. :changelog:', '')
 
-# Fetch requirements, but remove explicit version pins.
-# Use pip install -r requirements.txt for repeatable installations
-requirements = open('requirements.txt').read().splitlines()
-requirements = [x.split('=')[0] for x in requirements]
-
 setup(
     name='nestpy',
     version='1.0.3',
@@ -84,11 +79,15 @@ setup(
     packages=find_packages('src'),
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
-    install_requires=requirements,
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
     zip_safe=False,
     include_package_data=True,
+    project_urls={
+        'nestpy source': 'https://github.com/NESTCollaboration/nestpy',
+        'NEST source': 'https://github.com/NESTCollaboration/nest',
+        'NEST collaboration' : 'http://nest.physics.ucdavis.edu/'
+    },
     classifiers = [
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
