@@ -53,7 +53,7 @@ script:
     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh; fi
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py test; fi
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py bdist_wheel; fi
-    - if ["${PYTHON}" == "3.7"]; then python setup.py sdist ; fi
+    - if [ "${PYTHON}" == "3.7" ]; then python setup.py sdist ; fi
 
 after_success:
     - pip install twine
