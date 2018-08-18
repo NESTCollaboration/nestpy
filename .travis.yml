@@ -58,6 +58,5 @@ script:
 after_success:
     - pip install twine
     - echo TRAVIS_TAG $TRAVIS_TAG
-    - export TRAVIS_TAG=test
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload wheelhouse/*.whl; fi
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload dist/*; fi
