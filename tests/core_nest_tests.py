@@ -20,6 +20,11 @@ class ConstructorTest(unittest.TestCase):
         assert detector is not None
         assert isinstance(detector, nestpy.VDetector)
 
+    def test_xenon_example_constructor(self):
+        detector = nestpy.DetectorExample_XENON10()
+        assert detector is not None
+        assert isinstance(detector, nestpy.DetectorExample_XENON10)
+
     def test_nestcalc_constructor(self):
         nestcalc = nestpy.NESTcalc()
         assert nestcalc is not None
@@ -142,6 +147,32 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         self.nestcalc.GetS1(self.result.quanta, 0, 1, 10., 10.,
                             self.it, 100, 10., 10., 0, False, [0, 1, 2], [0., 1., 2.])
 
+class testNESTTest(unittest.TestCase):
+
+    def test_testNEST_random_pos(self):
+        detector = nestpy.DetectorExample_XENON10()
+        #  test with -1 for fObs and seed (1)
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 0.], -1, 1, True)
+
+    def test_testNEST_pos(self):
+        detector = nestpy.DetectorExample_XENON10()
+        #  test with actual position [0.,0.,0.] and seed(1)
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 10.], 1, 1, True) 
+
+    def test_testNEST_pos_random_seed(self):
+        detector = nestpy.DetectorExample_XENON10()
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 10.], 1, 1, True)
+
+    def test_testNEST_random_z(self):
+        detector = nestpy.DetectorExample_XENON10()
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., -1], 1, 1, True)
+
+    def test_testNEST_random_xy(self):
+        detector = nestpy.DetectorExample_XENON10()
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [-999, -999, 10.], 1, 1, True)
 
 if __name__ == "__main__":
     unittest.main()
