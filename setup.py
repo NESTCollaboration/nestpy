@@ -9,7 +9,6 @@ from distutils.version import LooseVersion
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 
-
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
@@ -22,8 +21,8 @@ class CMakeBuild(build_ext):
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
             raise RuntimeError(
-                "CMake must be installed to build the following extensions: " +
-                ", ".join(e.name for e in self.extensions))
+                     "CMake must be installed to build the following extensions: " +
+                      ", ".join(e.name for e in self.extensions))
 
         if platform.system() == "Windows":
             cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)',
@@ -55,7 +54,7 @@ class CMakeBuild(build_ext):
             build_args += ['--', '-j2']
 
         env = os.environ.copy()
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
+        env['CXXFLAGS'] = '{} -std=c++11 -DVERSION_INFO=\\"{}\\"'.format(
             env.get('CXXFLAGS', ''),
             self.distribution.get_version())
         if not os.path.exists(self.build_temp):
@@ -66,16 +65,30 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp)
         print()  # Add an empty line for cleaner output
 
+readme = open('README.md').read()
+history = open('HISTORY.md').read().replace('.. :changelog:', '')
+
+# Fetch requirements, but remove explicit version pins.
+# Use pip install -r requirements.txt for repeatable installations
+requirements = open('requirements.txt').read().splitlines()
+requirements = [x.split('=')[0] for x in requirements]
+
 setup(
     name='nestpy',
+<<<<<<< HEAD
     version='2.0.1',
+=======
+    version='0.2.5',
+>>>>>>> 8a63909ea4be8965bd0d8f2b8bd14519db974f80
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
-    description='Python bindings for NEST',
-    long_description='',
+    description='Python bindings for the NEST noble element simulations',
+    long_description=readme + '\n\n' + history,
+    long_description_content_type="text/markdown",
     packages=find_packages('src'),
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
+    install_requires=requirements,
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
     zip_safe=False,
