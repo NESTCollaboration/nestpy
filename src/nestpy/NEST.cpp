@@ -405,7 +405,7 @@ NESTcalc::NESTcalc(VDetector* detector) {
 
 NESTcalc::~NESTcalc() {
   if (pulseFile) pulseFile.close();
-  if (fdetector) delete fdetector;
+  //if (fdetector) delete fdetector;
 }
 
 vector<double> NESTcalc::GetS1(QuantaResult quanta, double truthPos[3],
