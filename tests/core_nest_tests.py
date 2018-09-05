@@ -161,17 +161,17 @@ class testNESTTest(unittest.TestCase):
 
     def test_testNEST_pos_random_seed(self):
         detector = nestpy.DetectorExample_XENON10()
-	#  test with actual position [0.,0.,0.] and randomSeed
+	      #  test with actual position [0.,0.,0.] and randomSeed
         nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 10.], 1, 1, True)
 
     def test_testNEST_random_z(self):
         detector = nestpy.DetectorExample_XENON10()
-	#  test with actual position [0.,0.,0.] and randomSeed
+	      #  test with actual position [0.,0.,0.] and randomSeed
         nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., -1], 1, 1, True)
 
     def test_testNEST_random_xy(self):
         detector = nestpy.DetectorExample_XENON10()
-	#  test with actual position [0.,0.,0.] and randomSeed
+	      #  test with actual position [0.,0.,0.] and randomSeed
         nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [-999, -999, 10.], 1, 1, True)
 
 if __name__ == "__main__":

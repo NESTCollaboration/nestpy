@@ -19,10 +19,12 @@ matrix:
     services:
       - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    language: python
   - sudo: required
     services:
       - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
+    language: python
   - os: osx
     osx_image: xcode6.4
     env: PYTHON=2.7
@@ -51,11 +53,10 @@ script:
     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh; fi
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py test; fi
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py bdist_wheel; fi
-    - if ["${PYTHON}" == "3.7"]; then python setup.py sdist ; fi
+    - if [ "${PYTHON}" == "3.7" ]; then python setup.py sdist ; fi
 
 after_success:
     - pip install twine
     - echo TRAVIS_TAG $TRAVIS_TAG
-    - export TRAVIS_TAG=test
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload wheelhouse/*.whl; fi
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload dist/*; fi

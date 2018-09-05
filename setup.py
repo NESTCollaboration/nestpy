@@ -68,14 +68,9 @@ class CMakeBuild(build_ext):
 readme = open('README.md').read()
 history = open('HISTORY.md').read().replace('.. :changelog:', '')
 
-# Fetch requirements, but remove explicit version pins.
-# Use pip install -r requirements.txt for repeatable installations
-requirements = open('requirements.txt').read().splitlines()
-requirements = [x.split('=')[0] for x in requirements]
-
 setup(
     name='nestpy',
-    version='0.2.5',
+    version='1.1.1',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
     description='Python bindings for the NEST noble element simulations',
@@ -84,9 +79,29 @@ setup(
     packages=find_packages('src'),
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
-    install_requires=requirements,
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
     zip_safe=False,
-    include_package_data=True
+    include_package_data=True,
+    project_urls={
+        'nestpy source': 'https://github.com/NESTCollaboration/nestpy',
+        'NEST source': 'https://github.com/NESTCollaboration/nest',
+        'NEST collaboration' : 'http://nest.physics.ucdavis.edu/'
+    },
+    classifiers = [
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: C++',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Scientific/Engineering :: Physics',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX :: Linux'
+    ]
 )
