@@ -1258,11 +1258,11 @@ vector<double> NESTcalc::SetDriftVelocity_NonUniform(double rho, double zStep,
 
 vector<double> NESTcalc::xyResolution(double xPos_mm, double yPos_mm,
                                       double A_top) {
-	
   vector<double> xySmeared(2);
   A_top *=
       1. -
       fdetector->FitTBA(xPos_mm, yPos_mm, fdetector->get_TopDrift() / 2.)[1];
+
   double rad = sqrt(pow(xPos_mm, 2.) + pow(yPos_mm, 2.));
   double kappa = fdetector->get_PosResBase() +
                  exp(fdetector->get_PosResExp() * rad);  // arXiv:1710.02752
