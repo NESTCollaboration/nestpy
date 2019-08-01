@@ -40,11 +40,8 @@ Python bindings to the NEST library:
 ```
 import nestpy
 
-# Setup a VDetector
-detector = nestpy.DetectorExample_XENON10()
-
 # This is same as C++ NEST with naming                                                                            
-nc = nestpy.NESTcalc(detector)
+nc = nestpy.NESTcalc()
 
 A = 131.293
 Z = 54.
