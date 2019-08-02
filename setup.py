@@ -85,11 +85,11 @@ setup(
     include_package_data=True,
     project_urls={
         'nestpy source': 'https://github.com/NESTCollaboration/nestpy',
-        'NEST source': 'https://github.com/NESTCollaboration/nest',
+        'NEST library': 'https://github.com/NESTCollaboration/nest',
         'NEST collaboration' : 'http://nest.physics.ucdavis.edu/'
     },
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Programming Language :: Python :: 2.7',
