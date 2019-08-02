@@ -20,25 +20,30 @@ matrix:
       - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
     language: python
-  - sudo: required
-    services:
-      - docker
-    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
-    language: python
+# No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
+#  - sudo: required
+#    services:
+#      - docker
+#    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
+#    language: python
   - os: osx
-    osx_image: xcode6.4
+    osx_image: xcode9.4
     env: PYTHON=2.7
+# No longer in conda
+#  - os: osx
+#    osx_image: xcode9.4
+#    env: PYTHON=3.4
   - os: osx
-    osx_image: xcode6.4
-    env: PYTHON=3.4
-  - os: osx
-    osx_image: xcode6.4
+    osx_image: xcode9.4
     env: PYTHON=3.5
   - os: osx
-    osx_image: xcode6.4
+    osx_image: xcode9.4
     env: PYTHON=3.6
   - os: osx
-    osx_image: xcode6.4
+    osx_image: xcode11
+    env: PYTHON=3.7
+  - os: osx	
+    osx_image: xcode9.4
     env: PYTHON=3.7
     
 before_install:

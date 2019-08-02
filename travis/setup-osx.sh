@@ -7,5 +7,5 @@ chmod +x miniconda.sh
 # Setup miniconda and environment
 export PATH=$HOME/miniconda/bin:$PATH
 conda config --set always_yes yes --set changeps1 no
-conda create -q -n nestpy python=${PYTHON}
+conda create -q -n nestpy python=${PYTHON} numpy
 source activate nestpy
