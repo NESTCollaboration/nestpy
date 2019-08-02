@@ -37,7 +37,9 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(
             os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable,
+#                      '-DCMAKE_CXX_COMPILER=/software/gcc-4.9-el6-x86_64/bin/g++'
+        ]
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -67,6 +69,7 @@ class CMakeBuild(build_ext):
 
 readme = open('README.md').read()
 history = open('HISTORY.md').read().replace('.. :changelog:', '')
+requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='nestpy',
@@ -77,6 +80,7 @@ setup(
     long_description=readme + '\n\n' + history,
     long_description_content_type="text/markdown",
     packages=find_packages('src'),
+    install_requires=requirements,
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),

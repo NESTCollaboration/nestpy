@@ -19,5 +19,5 @@ for filename in *.{cpp,hh}; do
     
 done
 cd ../..
-rm -Rf nest_source
-git commit -m "Sync with $VERSION" -a
+#rm -Rf nest_source
+#git commit -m "Sync with $VERSION" -a

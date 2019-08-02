@@ -82,8 +82,7 @@ class NESTcalcTest(unittest.TestCase):
             it = nestpy.nestpy.INTERACTION_TYPE(i)
 
     def test_nestcalc_full_calculation(self):
-        result = self.nestcalc.FullCalculation(
-            self.it, 1., 2., 3., 4, 5, [1, 1])
+        result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5, [1, 1], [1,1], False)
         assert isinstance(result, nestpy.NESTresult)
 
     def test_nestcalc_get_photon_times(self):
@@ -130,7 +129,10 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         cls.it = nestpy.INTERACTION_TYPE(0)
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
         cls.result = cls.nestcalc.FullCalculation(
-            cls.it, 1., 2., 3., 4, 5, [1, 1])
+            cls.it, 10., 3., 100., 131, 56, 
+            [11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.],
+            [1.,1.,0.1,0.5,0.07],            
+            True)
 
     def test_nestcalc_photon_time(self):
         self.nestcalc.AddPhotonTransportTime(
@@ -141,7 +143,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
             self.result.photon_times, 1.0, 2.0, 3.0)
 
     def test_nestcalc_get_quanta(self):
-        self.nestcalc.GetQuanta(self.result.yields, 10.)
+        self.nestcalc.GetQuanta(self.result.yields, 10., [1,2,3])
 
     def test_nestcalc_get_s1(self):
         self.nestcalc.GetS1(self.result.quanta, 0, 1, 10., 10.,
@@ -152,27 +154,28 @@ class testNESTTest(unittest.TestCase):
     def test_testNEST_random_pos(self):
         detector = nestpy.DetectorExample_XENON10()
         #  test with -1 for fObs and seed (1)
-        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 0.], -1, 1, True)
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, True)
 
     def test_testNEST_pos(self):
         detector = nestpy.DetectorExample_XENON10()
         #  test with actual position [0.,0.,0.] and seed(1)
-        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 10.], 1, 1, True) 
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.",
+                        1., 1, True) 
 
     def test_testNEST_pos_random_seed(self):
         detector = nestpy.DetectorExample_XENON10()
-	      #  test with actual position [0.,0.,0.] and randomSeed
-        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., 10.], 1, 1, True)
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1, 1, True)
 
     def test_testNEST_random_z(self):
         detector = nestpy.DetectorExample_XENON10()
-	      #  test with actual position [0.,0.,0.] and randomSeed
-        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [0., 0., -1], 1, 1, True)
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1, 1, True)
 
     def test_testNEST_random_xy(self):
         detector = nestpy.DetectorExample_XENON10()
-	      #  test with actual position [0.,0.,0.] and randomSeed
-        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., [-999, -999, 10.], 1, 1, True)
+	#  test with actual position [0.,0.,0.] and randomSeed
+        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1, 1, True)
 
 if __name__ == "__main__":
     unittest.main()
