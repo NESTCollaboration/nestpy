@@ -1,6 +1,8 @@
 #include <pybind11/pybind11.h>
 #include "NEST.hh"
 #include "VDetector.hh"
+#include "testNEST.hh"
+#include "DetectorExample_XENON10.hh"
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
@@ -132,6 +134,14 @@ PYBIND11_MODULE(nestpy, m) {
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
+  
+  //	Binding for example XENONnT
+  py::class_<DetectorExample_XENON10, VDetector, std::unique_ptr<DetectorExample_XENON10, py::nodelete>>(m, "DetectorExample_XENON10")
+     .def(py::init<>())
+	 .def("Initialization", &DetectorExample_XENON10::Initialization)
+	 .def("FitTBA", &DetectorExample_XENON10::FitTBA)
+	 .def("OptTrans", &DetectorExample_XENON10::OptTrans)
+	 .def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
 
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc>(m, "NESTcalc")
@@ -157,6 +167,11 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
+  
+  //	testNEST function
+  m.def("testNEST", &testNEST);
+  m.def("GetEnergyRes", &GetEnergyRes);
+  m.def("GetBand", &GetBand);
   
 }
 
