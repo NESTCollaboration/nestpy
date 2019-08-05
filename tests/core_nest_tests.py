@@ -92,6 +92,14 @@ class NESTcalcTest(unittest.TestCase):
         yields = self.nestcalc.GetYields(
             self.it, 10., 10., 10., 10., 10., [1, 1])
 
+    def test_nestcalc_get_yields_defaults(self):
+        yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
+                                         10)
+                                         
+    def test_nestcalc_get_yields_named(self):
+        yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
+                                         energy=10)
+
     def test_nestcalc_get_spike(self):
         self.nestcalc.GetSpike(10, 10., 20., 30., 10., 10., [0, 1, 2])
 
@@ -144,6 +152,9 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
 
     def test_nestcalc_get_quanta(self):
         self.nestcalc.GetQuanta(self.result.yields, 10., [1,2,3])
+        
+    def test_nestcalc_get_quanta_defaults(self):
+        self.nestcalc.GetQuanta(self.result.yields)
 
     def test_nestcalc_get_s1(self):
         self.nestcalc.GetS1(self.result.quanta, 0, 1, 10., 10.,
