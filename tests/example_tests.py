@@ -20,5 +20,6 @@ class nestpyExamplesTest(unittest.TestCase):
         print('The photon yield is:', y.PhotonYield)
         print('With statistical fluctuations', nc.GetQuanta(y).photons)
 
+
 if __name__ == "__main__":
     unittest.main()

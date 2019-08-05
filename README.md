@@ -48,7 +48,6 @@ interaction = nestpy.INTERACTION_TYPE(0)  # NR
 E = 10  # keV
 print('For an %s keV %s' % (E, interaction))
 
-
 # Get particle yields
 y = nc.GetYields(interaction,
 		 E)

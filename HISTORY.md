@@ -4,6 +4,14 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.1.2 (2019-08-02)
+------------------
+
+NESTv2.0.1
+
+* testNEST included in nestpy
+* Extensive bug fixes and testing improvements
+
 1.1.1 (2018-08-29)
 ------------------
 
