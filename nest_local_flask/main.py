@@ -2,27 +2,20 @@ import io
 import logging 
 import os
 import collections
-
 from flask import Response, Flask, send_file, request
+from benchmark_plots import makeplots
 
-from benchmark_plots import Plotting
+#  TODO: 
+# In IMAGE_OBJECTS, check version of nestpy?  Or generate file upon request?
 
 IMAGE_OBJECTS = collections.defaultdict(io.BytesIO)
-IMAGE_OBJECTS.clear()
-#  TODO: 
-# Split nest part of benchmark plots into nestpy or other file
-# In IMAGE_OBJECTS, check version of nestpy?  Or generate file upon request?
-# Check image exists
-__version__ = '0.0.3'
 
-Plotting.makeplots(IMAGE_OBJECTS)
+makeplots(IMAGE_OBJECTS)
 app = Flask(__name__)
 
 @app.route('/get_image')
 def get_image():
-    filename = request.args.get('interaction') + '_' + request.args.get('yieldtype') + '.png'
-
-    # Written file might mean have to go back to start?                                                
+    filename = request.args.get('interaction') + '_' + request.args.get('yieldtype') + '.png'                                            
     file_object = IMAGE_OBJECTS[filename]
     file_object.seek(0)
 
