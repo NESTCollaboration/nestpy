@@ -10,9 +10,9 @@ cd /root
 wget https://www.nikhef.nl/~ctunnell/v2.8.12.tar.gz
 tar xfz v2.8.12.tar.gz
 cd CMake-2.8.12
-./bootstrap > quiet_bootstrap
-make  > quiet_make
-make install > quiet_make_install
+./bootstrap 
+make  
+make install 
 export PATH=$PATH:/usr/local/bin
 
 # Compile wheels
