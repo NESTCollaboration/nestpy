@@ -2,7 +2,9 @@
 #include "NEST.hh"
 #include "VDetector.hh"
 #include "testNEST.hh"
-#include "DetectorExample_XENON10.hh"
+//#include "DetectorExample_XENON10.hh"
+#include "LUX_Run03.hh"
+
 #include <pybind11/numpy.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
@@ -37,7 +39,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def_readwrite("yields", &NEST::NESTresult::yields)
 	.def_readwrite("quanta", &NEST::NESTresult::quanta)
 	.def_readwrite("photon_times", &NEST::NESTresult::photon_times);
-  
+
   //	Binding for the enumeration INTERACTION_TYPE
   py::enum_<NEST::INTERACTION_TYPE>(m, "INTERACTION_TYPE", py::arithmetic())
     .value("NR", NEST::INTERACTION_TYPE::NR)
@@ -64,10 +66,11 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("get_sPEres", &VDetector::get_sPEres)
 	.def("get_sPEthr", &VDetector::get_sPEthr)
 	.def("get_sPEeff", &VDetector::get_sPEeff)
-	.def("get_noise", &VDetector::get_noise)
-	.def("get_P_dphe", &VDetector::get_P_dphe)
-
-	.def("get_coinWind", &VDetector::get_coinWind)
+	.def("get_noiseB", &VDetector::get_noiseB) //XX: edit
+  .def("get_noiseL", &VDetector::get_noiseL) //XX: edit
+  .def("get_P_dphe", &VDetector::get_P_dphe)
+  .def("get_P_dphe", &VDetector::get_P_dphe)
+	.def("get_extraPhot", &VDetector::get_extraPhot) //XX: added
 	.def("get_coinLevel", &VDetector::get_coinLevel)
 	.def("get_numPMTs", &VDetector::get_numPMTs)
 
@@ -86,6 +89,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("get_dt_min", &VDetector::get_dt_min)
 	.def("get_dt_max", &VDetector::get_dt_max)
 	.def("get_radius", &VDetector::get_radius)
+  .def("get_radmax", &VDetector::get_radmax) //XX: added
 	.def("get_TopDrift", &VDetector::get_TopDrift)
 	.def("get_anode", &VDetector::get_anode)
 	.def("get_cathode", &VDetector::get_cathode)
@@ -93,14 +97,17 @@ PYBIND11_MODULE(nestpy, m) {
 
 	.def("get_PosResExp", &VDetector::get_PosResExp)
 	.def("get_PosResBase", &VDetector::get_PosResBase)
+  .def("get_molarMass", &VDetector::get_molarMass) //XX: added
 
 	.def("set_g1", &VDetector::set_g1)
 	.def("set_sPEres", &VDetector::set_sPEres)
 	.def("set_sPEthr", &VDetector::set_sPEthr)
 	.def("set_sPEeff", &VDetector::set_sPEeff)
-	.def("set_noise", &VDetector::set_noise)
+	.def("set_noiseB", &VDetector::set_noiseB) //XX: edit
+  .def("set_noiseL", &VDetector::set_noiseL) //XX: edit
 	.def("set_P_dphe", &VDetector::set_P_dphe)
 
+  .def("set_extraPhot", &VDetector::set_extraPhot) //XX: added
 	.def("set_coinWind", &VDetector::set_coinWind)
 	.def("set_coinLevel", &VDetector::set_coinLevel)
 	.def("set_numPMTs", &VDetector::set_numPMTs)
@@ -120,6 +127,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("set_dt_min", &VDetector::set_dt_min)
 	.def("set_dt_max", &VDetector::set_dt_max)
 	.def("set_radius", &VDetector::set_radius)
+  .def("set_radmax", &VDetector::set_radmax) //XX: added
 	.def("set_TopDrift", &VDetector::set_TopDrift)
 	.def("set_anode", &VDetector::set_anode)
 	.def("set_cathode", &VDetector::set_cathode)
@@ -128,6 +136,9 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("set_PosResExp", &VDetector::set_PosResExp)
 	.def("set_PosResBase", &VDetector::set_PosResBase)
 
+  .def("set_molarMass", &VDetector::set_molarMass)
+
+
 	.def("FitS1", &VDetector::FitS1)
 	.def("FitEF", &VDetector::FitEF)
 	.def("FitS2", &VDetector::FitS2)
@@ -135,7 +146,9 @@ PYBIND11_MODULE(nestpy, m) {
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
-  
+
+
+  /*
   //	Binding for example XENONnT
   py::class_<DetectorExample_XENON10, VDetector, std::unique_ptr<DetectorExample_XENON10, py::nodelete>>(m, "DetectorExample_XENON10")
      .def(py::init<>())
@@ -143,14 +156,37 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("FitTBA", &DetectorExample_XENON10::FitTBA)
 	 .def("OptTrans", &DetectorExample_XENON10::OptTrans)
 	 .def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
+  */
+
+
+  py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "DetectorExample_LUX_RUN03")
+     .def(py::init<>())
+	 .def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
+	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
+	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
+	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
+
 
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc>(m, "NESTcalc")
-    .def(py::init<>())
+    // .def(py::init<>())
 	.def(py::init<VDetector*>())
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
-	.def("FullCalculation", &NEST::NESTcalc::FullCalculation, 
-			"Perform the full yield calculation with smearings")
+	// .def("FullCalculation", &NEST::NESTcalc::FullCalculation,
+	// 		"Perform the full yield calculation with smearings")
+
+  // XX: default input arguments
+  .def("FullCalculation", &NEST::NESTcalc::FullCalculation,
+      "Perform the full yield calculation with smearings",
+      py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
+      py::arg("energy") = 100,
+  		py::arg("density") = 2.9,
+      py::arg("drift_field") = 124,
+      py::arg("A") = 131.293,
+      py::arg("Z") = 54,
+      py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}),
+      py::arg("free_parameters") = std::vector<double>({1.,1.,0.1,0.5,0.07}),
+      py::arg("do_times") = false)
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
 	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
@@ -173,18 +209,18 @@ PYBIND11_MODULE(nestpy, m) {
 	//.def("GetS2", &NEST::NESTcalc::GetS2) 					Currently not working because of VDetector.FitTBA()
 	.def("CalculateG2", &NEST::NESTcalc::CalculateG2)
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
-	.def("SetDriftVelocity_MagBoltz", &NEST::NESTcalc::SetDriftVelocity_MagBoltz)
+	// .def("SetDriftVelocity_MagBoltz", &NEST::NESTcalc::SetDriftVelocity_MagBoltz)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
 	.def("SetDensity", &NEST::NESTcalc::SetDensity)
-	//.def("xyResolution", &NEST::NESTcalc::xyResolution)		Currently not working because of VDetector.FitTBA()
+  //.def("xyResolution", &NEST::NESTcalc::xyResolution)		Currently not working because of VDetector.FitTBA()
 	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
+  .def("GetDensity", &NEST::NESTcalc::GetDensity)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
-  
+
   //	testNEST function
   m.def("testNEST", &testNEST);
   m.def("GetEnergyRes", &GetEnergyRes);
   m.def("GetBand", &GetBand);
-  
-}
 
+}
