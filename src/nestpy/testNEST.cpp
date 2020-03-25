@@ -973,13 +973,13 @@ int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double i
    double driftTime = (detector->get_TopDrift() - pos_z) / vD;
 
    // check position is within TPC active region
-   double r = pos_x*pos_x+pos_y*pos_y;
+   double r = sqrt(pos_x*pos_x+pos_y*pos_y);
    if (r > detector->get_radmax()
-   || driftTime < detector->get_dt_min()
-   || driftTime > detector->get_dt_max()
    || pos_z <= 0
    || pos_z > detector->get_TopDrift()){
      cout<<"ERROR: position [" << pos_x<<" "<<pos_y<<" "<< pos_z<< "] is outside of active region \n";
+     cout<<"driftTime="<<driftTime<<"\n";
+     return 1;
    }
 
    double atomNum = 0, massNum = 0;
@@ -1023,23 +1023,101 @@ int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double i
 
 }
 
-// // XX: Added
-// int runNEST(VDetector* detector, vector<double> keV, INTERACTION_TYPE type_num, double inField, vector<double> pos_x, vector<double> pos_y, vector<double> pos_z, int seed){
-//
-//   // Construct NEST class using detector object
-//   NEST::NESTcalc n(detector);
-//
-//   // Set random seed of RandomGen class
-//   RandomGen::rndm()->SetSeed(seed);
-//
-//   // Calculate noble density based on temperature and pressure.
-//   // Use this to determine whether we are in gas phase
-//   double rho = n.SetDensity(detector->get_T_Kelvin(),detector->get_p_bar());
-//   if (rho < 1.) detector->set_inGas(true);
-//
-//   // Calculate and print g1, g2 parameters (once per detector)
-//   vector<double> g2_params = n.CalculateG2();
-//   double g2 = g2_params.back();
-//
-//
-// }
+// XX: Added
+int runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE type_num, double inField, vector<double> pos_x_vec, vector<double> pos_y_vec, vector<double> pos_z_vec, int seed){
+
+  // Construct NEST class using detector object
+  NEST::NESTcalc n(detector);
+
+  // Set random seed of RandomGen class
+  RandomGen::rndm()->SetSeed(seed);
+
+  // Calculate noble density based on temperature and pressure.
+  // Use this to determine whether we are in gas phase
+  double rho = n.SetDensity(detector->get_T_Kelvin(),detector->get_p_bar());
+  if (rho < 1.) detector->set_inGas(true);
+
+  // Calculate and print g1, g2 parameters (once per detector)
+  vector<double> g2_params = n.CalculateG2();
+  double g2 = g2_params.back();
+
+  //check vector size match
+  int n_events = (int) keV_vec.size();
+  if (pos_x_vec.size()!=n_events || pos_y_vec.size()!=n_events || pos_y_vec.size()!=n_events) {
+    cout<<"ERROR: array length mismatch detected. \n";
+    return 1;
+  }
+
+
+  ////////////////////////////////
+  // calculation at event by event basis
+  ////////////////////////////////
+  for (int i=0; i<n_events; i++){
+
+    double keV = keV_vec[i];
+    double pos_x = pos_x_vec[i];
+    double pos_y = pos_y_vec[i];
+    double pos_z = pos_z_vec[i];
+
+    // Calculate a drift velocity table for non-uniform fields,
+    // and calculate the drift velocity at detector center for normalization
+    // purposes
+    vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
+    double vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+
+    // Calculate field map, and drift time
+    double field = detector->FitEF(pos_x, pos_y, pos_z);
+    int index = int(floor(pos_z / z_step + 0.5));
+    double vD = vTable[index];
+    double driftTime = (detector->get_TopDrift() - pos_z) / vD;
+
+    // check position is within TPC active region
+    double r = sqrt(pos_x*pos_x+pos_y*pos_y);
+    if (r > detector->get_radmax()
+    || pos_z <= 0
+    || pos_z > detector->get_TopDrift()){
+      cout<<"ERROR: position [" << pos_x<<" "<<pos_y<<" "<< pos_z<< "] is outside of active region \n";
+      cout<<"driftTime="<<driftTime<<"\n";
+      return 1;
+    }
+
+    double atomNum = 0, massNum = 0;
+    if (type_num==INTERACTION_TYPE::NR) {
+      atomNum = 54;
+      massNum = detector->get_molarMass();
+    }
+
+    // best fit parameters for NEST 2.0.1 yield
+    vector<double>  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+
+    // Get yields from NEST calculator, along with number of quanta
+    YieldResult yields = n.GetYields(type_num, keV, rho, field, double(massNum),
+                         double(atomNum), NuisParam);
+    QuantaResult quanta = n.GetQuanta(yields, rho);
+
+    // Calculate S2 photons using electron lifetime correction
+    double Nphd_S2 = g2 * quanta.electrons * exp(-driftTime / detector->get_eLife_us());
+
+    // Vectors for saving times and amplitudes of waveforms (with useTiming and
+    // verbosity boolean flags both set to true in analysis.hh)
+    vector<double> wf_amp;
+    vector<long int> wf_time;
+
+    double truthPos[3] = {pos_x, pos_y, pos_z};
+    double smearPos[3] = {pos_x, pos_y, pos_z};
+
+    // Calculate the S1 based on the quanta generated
+    vector<double> scint1 = n.GetS1(quanta, truthPos, smearPos, vD, vD_middle,
+      type_num, 0, field, keV, useTiming, verbosity, wf_time, wf_amp);
+
+    // Take care of gamma-X case for positions below cathode
+    if (truthPos[2] < detector->get_cathode()) quanta.electrons = 0;
+
+    // Calcualte the S2 based on electrons
+    vector<double> scint2 = n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, 0, field, useTiming, verbosity, wf_time, wf_amp, g2_params);
+
+    cout<<"keV="<<keV<<" scint1="<<scint1[0]<<" scint2="<<scint2[0]<<"\n";
+  }
+
+  return 0;
+}

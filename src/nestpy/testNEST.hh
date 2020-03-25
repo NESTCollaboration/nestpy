@@ -20,11 +20,11 @@ int runNEST(VDetector* detector,
            double pos_x, double pos_y, double pos_z,
            int seed);
 
-// int runNEST_vec(VDetector* detector,
-//            vector<double> keV,
-//            INTERACTION_TYPE type_num,
-//            double inField,
-//            vector<double> pos_x, vector<double> pos_y, vector<double> pos_z,
-//            int seed)
+int runNEST_vec(VDetector* detector,
+           vector<double> keV_vec,
+           INTERACTION_TYPE type_num,
+           double inField,
+           vector<double> pos_x_vec, vector<double> pos_y_vec, vector<double> pos_z_vec,
+           int seed);
 
 #endif

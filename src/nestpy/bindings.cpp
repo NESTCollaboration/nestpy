@@ -222,6 +222,18 @@ PYBIND11_MODULE(nestpy, m) {
   m.def("GetBand", &GetBand);
 
   // XX: added
-  m.def("runNEST", &runNEST, "Generate (S1, S2) for a single recoil");
+  m.def("runNEST", &runNEST,
+  "Generate (S1, S2) for a single recoil",
+  py::arg("detector"),
+  py::arg("keV") = 10.,
+  py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
+  py::arg("inField") = 180,
+  py::arg("pos_x") = 0.,
+  py::arg("pos_y") = 0.,
+  py::arg("pos_z") = 0.,
+  py::arg("seed") = 0.);
+
+  m.def("runNEST_vec", &runNEST_vec,
+  "Generate (S1, S2) for a vectorized recoil energies");
 
 }
