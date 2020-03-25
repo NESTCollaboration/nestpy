@@ -7,6 +7,8 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Python Versions](https://img.shields.io/pypi/pyversions/nestpy.svg)](https://pypi.python.org/pypi/nestpy)
 
+This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy) and updated to LUX Run3 Detector template. 
+
 These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is not Pythonic at this point but just uses the existing naming conventions from the C++ library.
 
 You do *not* have to have NEST already installed to use this package.

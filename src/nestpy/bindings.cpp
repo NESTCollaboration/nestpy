@@ -172,10 +172,8 @@ PYBIND11_MODULE(nestpy, m) {
     // .def(py::init<>())
 	.def(py::init<VDetector*>())
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
-	// .def("FullCalculation", &NEST::NESTcalc::FullCalculation,
-	// 		"Perform the full yield calculation with smearings")
 
-  // XX: default input arguments
+  // XX: add default input arguments
   .def("FullCalculation", &NEST::NESTcalc::FullCalculation,
       "Perform the full yield calculation with smearings",
       py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
