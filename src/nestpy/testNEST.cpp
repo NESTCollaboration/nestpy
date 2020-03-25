@@ -960,16 +960,25 @@ NESTObservable runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_nu
    vector<double> g2_params = n.CalculateG2();
    double g2 = g2_params.back();
 
-   // Calculate a drift velocity table for non-uniform fields,
-   // and calculate the drift velocity at detector center for normalization
-   // purposes
-   vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
-   double vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+   // Calculate a drift velocity
+   double vD_middle, vD, field;
+   if (inField<0){
+     // Calculate field map, and drift time for non-uniform field in z
+     // and calculate the drift velocity at detector center for normalization
+     // purposes
+     vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
+     vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+     field = detector->FitEF(pos_x, pos_y, pos_z);
+     int index = int(floor(pos_z / z_step + 0.5));
+     vD = vTable[index];
+   } else {
+     //otherwise assume constant field
+     field = inField;
+     vD_middle = n.SetDriftVelocity(detector->get_T_Kelvin(), rho, field);
+     vD = vD_middle;
+   }
 
-   // Calculate field map, and drift time
-   double field = detector->FitEF(pos_x, pos_y, pos_z);
-   int index = int(floor(pos_z / z_step + 0.5));
-   double vD = vTable[index];
+   // Calculate drift time
    double driftTime = (detector->get_TopDrift() - pos_z) / vD;
 
    // check position is within TPC active region
@@ -1074,16 +1083,24 @@ NESTObservableArray runNEST_vec(VDetector* detector, vector<double> keV_vec, INT
     double pos_y = pos_y_vec[i];
     double pos_z = pos_z_vec[i];
 
-    // Calculate a drift velocity table for non-uniform fields,
-    // and calculate the drift velocity at detector center for normalization
-    // purposes
-    vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
-    double vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+    // Calculate a drift velocity
+    double vD_middle, vD, field;
+    if (inField<0){
+      // Calculate field map, and drift time for non-uniform field in z
+      // and calculate the drift velocity at detector center for normalization
+      // purposes
+      vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
+      vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+      field = detector->FitEF(pos_x, pos_y, pos_z);
+      int index = int(floor(pos_z / z_step + 0.5));
+      vD = vTable[index];
+    } else {
+      //otherwise assume constant field
+      field = inField;
+      vD_middle = n.SetDriftVelocity(detector->get_T_Kelvin(), rho, field);
+      vD = vD_middle;
+    }
 
-    // Calculate field map, and drift time
-    double field = detector->FitEF(pos_x, pos_y, pos_z);
-    int index = int(floor(pos_z / z_step + 0.5));
-    double vD = vTable[index];
     double driftTime = (detector->get_TopDrift() - pos_z) / vD;
 
     // check position is within TPC active region
