@@ -216,9 +216,12 @@ PYBIND11_MODULE(nestpy, m) {
   .def("GetDensity", &NEST::NESTcalc::GetDensity)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
 
-  //	testNEST function
+  // testNEST functions
   m.def("testNEST", &testNEST);
   m.def("GetEnergyRes", &GetEnergyRes);
   m.def("GetBand", &GetBand);
+
+  // XX: added
+  m.def("runNEST", &runNEST, "Generate (S1, S2) for a single recoil");
 
 }

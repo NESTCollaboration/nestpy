@@ -1,3 +1,6 @@
+#ifndef __ANALYSIS_H__
+#define __ANALYSIS_H__ 1
+
 
 // Verbosity flag (for limiting output to yields; no timing)
 bool verbosity = true;
@@ -40,3 +43,5 @@ int mode = 1;
 //0 default is to provide the ER BG discrimination & leakage frac
 //1 outputs the goodness of fit for one band (Gaussian centroids of histogram in S1 slices)
 //2 outputs wimp masses and cross-sections for given efficiency
+
+#endif

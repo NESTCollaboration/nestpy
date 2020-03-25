@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
          << endl;
     return 1;
   }
-  
+
   unsigned long int numEvts = (unsigned long)atof(argv[1]);
   if ( numEvts <= 0 ) {
     cerr << "ERROR, you must simulate at least 1 event" << endl;
@@ -194,7 +194,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     cerr << "muon or MIP or LIP or mu or mu-" << endl;
     return 1;
   }
-  
+
   if (type_num == Kr83m) {
     if (eMin == 9.4 && eMax == 9.4) {
     } else if (eMin == 32.1 && eMax == 32.1) {
@@ -225,7 +225,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
   if ( detector->get_extraPhot() )
     Wq_eV = 11.5; //11.5±0.5(syst.)±0.1(stat.) from EXO
 
-  
+
   // Calculate and print g1, g2 parameters (once per detector)
   vector<double> g2_params = n.CalculateG2(verbosity);
   g2 = fabs(g2_params[3]);
@@ -263,9 +263,9 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
   if ((g1 * yieldsMax.PhotonYield) > (2. * maxS1) && eMin != eMax)
     cerr
         << "\nWARNING: Your energy maximum may be too high given your maxS1.\n";
-  
+
   if ( type_num < 6 ) massNum = 0;
-  
+
   double keV = -999.;
   for (unsigned long int j = 0; j < numEvts; j++) {
     if (eMin == eMax && eMin >= 0. && eMax > 0.) {
@@ -314,7 +314,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       if (keV > eMax) keV = eMax;
       if (keV < eMin) keV = eMin;
     }
-    
+
     if ( keV < 0. ) {
       cerr << "ERROR: Get ready for time travel or FTL--negative energy!" << endl;
       return 1;
@@ -322,7 +322,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     if( keV == 0. ) {
       cerr << "WARNING: Zero energy has occurred, and this is not normal" << endl;
     }
-    
+
     double FudgeFactor[2] = { 1., 1. };
   Z_NEW:
     if (fPos == -1.) {  // -1 means default, random location mode
@@ -554,11 +554,11 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         quanta.excitons = 0;
       }
     }
-    
+
     if ( detector->get_noiseB()[2] != 0. || detector->get_noiseB()[3] != 0. )
       quanta.electrons += int(floor(RandomGen::rndm()->rand_gauss(
 		   detector->get_noiseB()[2],detector->get_noiseB()[3])+0.5));
-    
+
     // If we want the smeared positions (non-MC truth), then implement
     // resolution function
     double truthPos[3] = {pos_x, pos_y, pos_z};
@@ -590,14 +590,14 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       signal1.push_back(scint[7]);
     else
       signal1.push_back(-999.);
-    
+
     if (usePD == 0 && fabs(scint2[5]) > minS2 && scint2[5] < maxS2)
       signal2.push_back(scint2[5]);
     else if (usePD >= 1 && fabs(scint2[7]) > minS2 && scint2[7] < maxS2)
       signal2.push_back(scint2[7]);  // no spike option for S2
     else
       signal2.push_back(-999.);
-    
+
     if ( eMin == eMax ) {
       if ( scint[3] > maxS1 || scint[5] > maxS1 || scint[7] > maxS1 )
 	cerr << "WARNING: Some S1 pulse areas are greater than maxS1" << endl;
@@ -633,7 +633,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       signalE.push_back(0.);
     else
       signalE.push_back(keV);
-    
+
     if ( keVee == 0.00 && eMin == eMax ) { //efficiency is zero
       minS1 = -999.;
       minS2 = -999.;
@@ -647,7 +647,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       signalE.clear();
       goto NEW_RANGES;
     }
-    
+
     // Possible outputs from "scint" vector
     // scint[0] = nHits; // MC-true integer hits in same OR different PMTs, NO
     // double phe effect
@@ -810,12 +810,12 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
 
 vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
                                bool resol) {
-  
+
   if ( numBins > NUMBINS_MAX ) {
     cerr << "ERROR: Too many bins. Decrease numBins (analysis.hh) or increase NUMBINS_MAX (TestSpectra.hh)" << endl;
     exit ( EXIT_FAILURE );
   }
-  
+
   vector<vector<double>> signals;
   signals.resize(numBins, vector<double>(1, -999.));
   double binWidth, border;
@@ -938,3 +938,108 @@ void GetEnergyRes(vector<double> Es) {
   energies[2] = numerator / double(numPts);
   return;
 }
+
+
+
+
+//XX: added
+int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double inField, double pos_x, double pos_y, double pos_z, int seed){
+
+   // Construct NEST class using detector object
+   NEST::NESTcalc n(detector);
+
+   // Set random seed of RandomGen class
+   RandomGen::rndm()->SetSeed(seed);
+
+   // Calculate noble density based on temperature and pressure.
+   // Use this to determine whether we are in gas phase
+   double rho = n.SetDensity(detector->get_T_Kelvin(),detector->get_p_bar());
+   if (rho < 1.) detector->set_inGas(true);
+
+   // Calculate and print g1, g2 parameters (once per detector)
+   vector<double> g2_params = n.CalculateG2();
+   double g2 = g2_params.back();
+
+   // Calculate a drift velocity table for non-uniform fields,
+   // and calculate the drift velocity at detector center for normalization
+   // purposes
+   vector<double> vTable = n.SetDriftVelocity_NonUniform(rho, z_step, pos_x, pos_y);
+   double vD_middle = vTable[int(floor(.5 * (detector->get_gate() - 100. + detector->get_cathode() + 1.5) /z_step +0.5))];
+
+   // Calculate field map, and drift time
+   double field = detector->FitEF(pos_x, pos_y, pos_z);
+   int index = int(floor(pos_z / z_step + 0.5));
+   double vD = vTable[index];
+   double driftTime = (detector->get_TopDrift() - pos_z) / vD;
+
+   // check position is within TPC active region
+   double r = pos_x*pos_x+pos_y*pos_y;
+   if (r > detector->get_radmax()
+   || driftTime < detector->get_dt_min()
+   || driftTime > detector->get_dt_max()
+   || pos_z <= 0
+   || pos_z > detector->get_TopDrift()){
+     cout<<"ERROR: position [" << pos_x<<" "<<pos_y<<" "<< pos_z<< "] is outside of active region \n";
+   }
+
+   double atomNum = 0, massNum = 0;
+   if (type_num==INTERACTION_TYPE::NR) {
+     atomNum = 54;
+     massNum = detector->get_molarMass();
+   }
+
+   // best fit parameters for NEST 2.0.1 yield
+   vector<double>  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+
+   // Get yields from NEST calculator, along with number of quanta
+   YieldResult yields = n.GetYields(type_num, keV, rho, field, double(massNum),
+                        double(atomNum), NuisParam);
+   QuantaResult quanta = n.GetQuanta(yields, rho);
+
+   // Calculate S2 photons using electron lifetime correction
+   double Nphd_S2 = g2 * quanta.electrons * exp(-driftTime / detector->get_eLife_us());
+
+   // Vectors for saving times and amplitudes of waveforms (with useTiming and
+   // verbosity boolean flags both set to true in analysis.hh)
+   vector<double> wf_amp;
+   vector<long int> wf_time;
+
+   double truthPos[3] = {pos_x, pos_y, pos_z};
+   double smearPos[3] = {pos_x, pos_y, pos_z};
+
+   // Calculate the S1 based on the quanta generated
+   vector<double> scint1 = n.GetS1(quanta, truthPos, smearPos, vD, vD_middle,
+     type_num, 0, field, keV, useTiming, verbosity, wf_time, wf_amp);
+
+   // Take care of gamma-X case for positions below cathode
+   if (truthPos[2] < detector->get_cathode()) quanta.electrons = 0;
+
+   // Calcualte the S2 based on electrons
+   vector<double> scint2 = n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, 0, field, useTiming, verbosity, wf_time, wf_amp, g2_params);
+
+   for(int i=0; i<scint1.size(); i++) cout<<"scint1="<<scint1[i]<<"\n";
+   for(int i=0; i<scint2.size(); i++) cout<<"scint2="<<scint2[i]<<"\n";
+   return 0;
+
+}
+
+// // XX: Added
+// int runNEST(VDetector* detector, vector<double> keV, INTERACTION_TYPE type_num, double inField, vector<double> pos_x, vector<double> pos_y, vector<double> pos_z, int seed){
+//
+//   // Construct NEST class using detector object
+//   NEST::NESTcalc n(detector);
+//
+//   // Set random seed of RandomGen class
+//   RandomGen::rndm()->SetSeed(seed);
+//
+//   // Calculate noble density based on temperature and pressure.
+//   // Use this to determine whether we are in gas phase
+//   double rho = n.SetDensity(detector->get_T_Kelvin(),detector->get_p_bar());
+//   if (rho < 1.) detector->set_inGas(true);
+//
+//   // Calculate and print g1, g2 parameters (once per detector)
+//   vector<double> g2_params = n.CalculateG2();
+//   double g2 = g2_params.back();
+//
+//
+// }

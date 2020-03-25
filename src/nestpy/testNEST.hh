@@ -13,4 +13,18 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
              double eMin, double eMax, double inField, string position, string posiMuon,
              double fPos, int seed, bool no_seed);
 
+int runNEST(VDetector* detector,
+           double keV,
+           INTERACTION_TYPE type_num,
+           double inField,
+           double pos_x, double pos_y, double pos_z,
+           int seed);
+
+// int runNEST_vec(VDetector* detector,
+//            vector<double> keV,
+//            INTERACTION_TYPE type_num,
+//            double inField,
+//            vector<double> pos_x, vector<double> pos_y, vector<double> pos_z,
+//            int seed)
+
 #endif
