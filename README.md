@@ -7,15 +7,15 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Python Versions](https://img.shields.io/pypi/pyversions/nestpy.svg)](https://pypi.python.org/pypi/nestpy)
 
+These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is not Pythonic at this point but just uses the existing naming conventions from the C++ library.
+
+You do *not* have to have NEST already installed to use this package.
+
 ## Note from Xin:
 This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy) and updated to LUX Run3 Detector template. In addition,  two functions are added to `testNEST.cpp`. 
 1. A function that produce (S1, S2) observables
 2. A vectorized function that accept energy in a list as input. 
 Please see `example/demo_v0.ipynb` for the usage of the two functions.
-
-These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is not Pythonic at this point but just uses the existing naming conventions from the C++ library.
-
-You do *not* have to have NEST already installed to use this package.
 
 ## Installing from PyPI
 
