@@ -943,7 +943,7 @@ void GetEnergyRes(vector<double> Es) {
 
 
 //XX: added
-int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double inField, double pos_x, double pos_y, double pos_z, int seed){
+NESTObservable runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double inField, double pos_x, double pos_y, double pos_z, int seed){
 
    // Construct NEST class using detector object
    NEST::NESTcalc n(detector);
@@ -979,7 +979,7 @@ int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double i
    || pos_z > detector->get_TopDrift()){
      cout<<"ERROR: position [" << pos_x<<" "<<pos_y<<" "<< pos_z<< "] is outside of active region \n";
      cout<<"driftTime="<<driftTime<<"\n";
-     return 1;
+     exit(1);
    }
 
    double atomNum = 0, massNum = 0;
@@ -1017,14 +1017,27 @@ int runNEST(VDetector* detector, double keV, INTERACTION_TYPE type_num, double i
    // Calcualte the S2 based on electrons
    vector<double> scint2 = n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, 0, field, useTiming, verbosity, wf_time, wf_amp, g2_params);
 
-   for(int i=0; i<scint1.size(); i++) cout<<"scint1="<<scint1[i]<<"\n";
-   for(int i=0; i<scint2.size(); i++) cout<<"scint2="<<scint2[i]<<"\n";
-   return 0;
+   // for(int i=0; i<scint1.size(); i++) cout<<"scint1="<<scint1[i]<<"\n";
+   // for(int i=0; i<scint2.size(); i++) cout<<"scint2="<<scint2[i]<<"\n";
+
+   NESTObservable obs;
+   obs.s1_nhits_phd = scint1[0];
+   obs.s1_nhits_phe = scint1[1];
+   obs.s1r_phe = scint1[2];
+   obs.s1c_phe = scint1[3];
+   obs.s1r_phd = scint1[4];
+   obs.s1c_phd = scint1[5];
+   obs.Nee = scint2[0];
+   obs.s2r_phe =  scint2[4];
+   obs.s2c_phe  = scint2[5];
+   obs.s2r_phd =  scint2[6];
+   obs.s2c_phd  = scint2[7];
+   return obs;
 
 }
 
 // XX: Added
-int runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE type_num, double inField, vector<double> pos_x_vec, vector<double> pos_y_vec, vector<double> pos_z_vec, int seed){
+NESTObservableArray runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE type_num, double inField, vector<double> pos_x_vec, vector<double> pos_y_vec, vector<double> pos_z_vec, int seed){
 
   // Construct NEST class using detector object
   NEST::NESTcalc n(detector);
@@ -1045,13 +1058,15 @@ int runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE ty
   int n_events = (int) keV_vec.size();
   if (pos_x_vec.size()!=n_events || pos_y_vec.size()!=n_events || pos_y_vec.size()!=n_events) {
     cout<<"ERROR: array length mismatch detected. \n";
-    return 1;
+    exit(1);
   }
 
 
   ////////////////////////////////
   // calculation at event by event basis
   ////////////////////////////////
+
+  NESTObservableArray obs;
   for (int i=0; i<n_events; i++){
 
     double keV = keV_vec[i];
@@ -1078,7 +1093,7 @@ int runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE ty
     || pos_z > detector->get_TopDrift()){
       cout<<"ERROR: position [" << pos_x<<" "<<pos_y<<" "<< pos_z<< "] is outside of active region \n";
       cout<<"driftTime="<<driftTime<<"\n";
-      return 1;
+      exit(1);
     }
 
     double atomNum = 0, massNum = 0;
@@ -1116,8 +1131,21 @@ int runNEST_vec(VDetector* detector, vector<double> keV_vec, INTERACTION_TYPE ty
     // Calcualte the S2 based on electrons
     vector<double> scint2 = n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, 0, field, useTiming, verbosity, wf_time, wf_amp, g2_params);
 
-    cout<<"keV="<<keV<<" scint1="<<scint1[0]<<" scint2="<<scint2[0]<<"\n";
+    // cout<<"keV="<<keV<<" scint1="<<scint1[0]<<" scint2="<<scint2[0]<<"\n";
+
+    obs.s1_nhits_phd.push_back(scint1[0]);
+    obs.s1_nhits_phe.push_back(scint1[1]);
+    obs.s1r_phe.push_back(scint1[2]);
+    obs.s1c_phe.push_back(scint1[3]);
+    obs.s1r_phd.push_back(scint1[4]);
+    obs.s1c_phd.push_back(scint1[5]);
+
+    obs.Nee.push_back( scint2[0]);
+    obs.s2r_phe.push_back( scint2[4]);
+    obs.s2c_phe.push_back(scint2[5]);
+    obs.s2r_phd.push_back( scint2[6]);
+    obs.s2c_phd.push_back( scint2[7]);
   }
 
-  return 0;
+  return obs;
 }

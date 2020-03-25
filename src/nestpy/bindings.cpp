@@ -222,6 +222,34 @@ PYBIND11_MODULE(nestpy, m) {
   m.def("GetBand", &GetBand);
 
   // XX: added
+  py::class_<NESTObservable>(m, "NESTObservable", py::dynamic_attr())
+    .def(py::init<>())
+  .def_readwrite("s1_nhits_phd", &NESTObservable::s1_nhits_phd)
+  .def_readwrite("s1_nhits_phe", &NESTObservable::s1_nhits_phe)
+  .def_readwrite("s1r_phe", &NESTObservable::s1r_phe)
+  .def_readwrite("s1c_phe", &NESTObservable::s1c_phe)
+  .def_readwrite("s1r_phd", &NESTObservable::s1r_phd)
+  .def_readwrite("s1c_phd", &NESTObservable::s1c_phd)
+  .def_readwrite("Nee", &NESTObservable::Nee)
+  .def_readwrite("s2r_phe", &NESTObservable::s2r_phe)
+  .def_readwrite("s2c_phe", &NESTObservable::s2c_phe)
+  .def_readwrite("s2r_phd", &NESTObservable::s2r_phd)
+  .def_readwrite("s2c_phd", &NESTObservable::s2c_phd);
+
+  py::class_<NESTObservableArray>(m, "NESTObservableArray", py::dynamic_attr())
+    .def(py::init<>())
+  .def_readwrite("s1_nhits_phd", &NESTObservableArray::s1_nhits_phd)
+  .def_readwrite("s1_nhits_phe", &NESTObservableArray::s1_nhits_phe)
+  .def_readwrite("s1r_phe", &NESTObservableArray::s1r_phe)
+  .def_readwrite("s1c_phe", &NESTObservableArray::s1c_phe)
+  .def_readwrite("s1r_phd", &NESTObservableArray::s1r_phd)
+  .def_readwrite("s1c_phd", &NESTObservableArray::s1c_phd)
+  .def_readwrite("Nee", &NESTObservableArray::Nee)
+  .def_readwrite("s2r_phe", &NESTObservableArray::s2r_phe)
+  .def_readwrite("s2c_phe", &NESTObservableArray::s2c_phe)
+  .def_readwrite("s2r_phd", &NESTObservableArray::s2r_phd)
+  .def_readwrite("s2c_phd", &NESTObservableArray::s2c_phd);
+
   m.def("runNEST", &runNEST,
   "Generate (S1, S2) for a single recoil",
   py::arg("detector"),
