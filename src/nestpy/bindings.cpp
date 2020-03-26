@@ -4,6 +4,7 @@
 #include "testNEST.hh"
 //#include "DetectorExample_XENON10.hh"
 #include "LUX_Run03.hh"
+// #include "TestSpectra.hh" // XX: Added
 
 #include <pybind11/numpy.h>
 #include <pybind11/stl_bind.h>
@@ -169,7 +170,7 @@ PYBIND11_MODULE(nestpy, m) {
 
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc>(m, "NESTcalc")
-    // .def(py::init<>())
+    // .def(py::init<>()) //XX: remove
 	.def(py::init<VDetector*>())
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
 
@@ -196,7 +197,7 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("drift_field") = 124,
 	     py::arg("A") = 131.293,
 	     py::arg("Z") = 54,
-	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1.})
+	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
 	 )
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	 py::arg("yields"),
@@ -263,5 +264,16 @@ PYBIND11_MODULE(nestpy, m) {
 
   m.def("runNEST_vec", &runNEST_vec,
   "Generate (S1, S2) for a vectorized recoil energies");
+
+  // py::class_<TestSpectra>(m, "TestSpectra", py::dynamic_attr())
+  // .def(py::init<>())
+  // .def("WIMP_dRate", &TestSpectra::WIMP_dRate, "SI WIMP at 1e-36 cm2", py::arg("Er")=10., py::arg("mass")=10.)
+  // .def("CH3T_spectrum", &TestSpectra::CH3T_spectrum, py::arg("emin"), py::arg("emax"))
+  // .def("C14_spectrum", &TestSpectra::C14_spectrum, py::arg("emin"), py::arg("emax"))
+  // .def("B8_spectrum", &TestSpectra::B8_spectrum, py::arg("emin"), py::arg("emax"))
+  // .def("AmBe_spectrum", &TestSpectra::AmBe_spectrum, py::arg("emin"), py::arg("emax"))
+  // .def("Cf_spectrum", &TestSpectra::Cf_spectrum, py::arg("emin"), py::arg("emax"))
+  // .def("DD_spectrum", &TestSpectra::DD_spectrum, py::arg("emin"), py::arg("emax"));
+
 
 }
