@@ -18,7 +18,7 @@ This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy
 
 Please see `example/demo_v0.ipynb` for the usage of the two functions.
 
-## Installing from PyPI
+## Installing from PyPI (not for this repo)
 
 For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
