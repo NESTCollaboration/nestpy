@@ -18,7 +18,7 @@ This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy
 
 Please see `example/demo_v0.ipynb` for the usage of the two functions.
 
-## Installing from PyPI
+## Installing from PyPI (not for this repo)
 
 For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
@@ -35,10 +35,11 @@ Requirements: You must have CMake>=2.8.12 and a C++11 compatible compiler (GCC>=
 First, you must check out this repository then simply run the installer:
 
 ```
-git checkout https://github.com/NESTCollaboration/nestpy
+git clone https://github.com/xxiang4/nestpy.git
 cd nestpy
 python setup.py install
 ```
+
 
 ## Usage
 
