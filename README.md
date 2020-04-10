@@ -15,18 +15,9 @@ You do *not* have to have NEST already installed to use this package.
 This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy) and updated to LUX Run3 Detector template. In addition,  two functions are added to `testNEST.cpp`. 
 1. A function that produce (S1, S2) observables
 2. A vectorized function that accept energy in a list as input. 
+3. NEST built-in spectrum are binded.
 
-Please see `example/demo_v0.ipynb` for the usage of the two functions.
-
-## Installing from PyPI (not for this repo)
-
-For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
-
-```
-pip install nestpy
-```
-
-You can then test that it works by running the example above.
+Please see `example/demo_v0.ipynb` for the usage.
 
 ## Installing from source
 
