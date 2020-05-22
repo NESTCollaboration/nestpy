@@ -13,9 +13,10 @@ You do *not* have to have NEST already installed to use this package.
 
 ## Note from Xin:
 This package is forked from [nestpy](https://github.com/NESTCollaboration/nestpy) and updated to LUX Run3 Detector template. In addition,  two functions are added to `testNEST.cpp`. 
-1. A function that produce (S1, S2) observables
-2. A vectorized function that accept energy in a list as input. 
-3. NEST built-in spectrum are binded.
+1. runNEST() --- A function that takes in an energy and a position as the inputs, and output (S1, S2) observables
+2. runNEST_vec() --- A vectorized function that takes in a list of energies and positions as the inputs, and outputs a list of s1, s2 variables. 
+
+Additionally, all NEST built-in spectrum are binded as well. User has direct access to the various spectra.
 
 Please see `example/demo_v0.ipynb` for the usage.
 
