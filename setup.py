@@ -8,12 +8,39 @@ import subprocess
 from distutils.version import LooseVersion
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
+from setuptools.command.develop import develop
+
+
+class CommandMixin(object):
+    user_options = [
+        ('nest-top-dir=', None, 'Directory holding external NEST code')
+    ]
+    def initialize_options(self):
+        super().initialize_options()
+        # Initialize options
+        self.nest_top_dir = None
+
+    def finalize_options(self):
+        super().finalize_options()
+
+    def run(self):
+
+        global nest_top_dir
+        nest_top_dir = self.nest_top_dir 
+        super().run()
+
+class InstallCommand(CommandMixin, install):
+    user_options = getattr(install, 'user_options', []) + CommandMixin.user_options
+
+class DevelopCommand(CommandMixin, develop):
+    user_options = getattr(develop, 'user_options', []) + CommandMixin.user_options
+
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -38,9 +65,9 @@ class CMakeBuild(build_ext):
             os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable,
-#                      '-DCMAKE_CXX_COMPILER=/software/gcc-4.9-el6-x86_64/bin/g++'
         ]
-
+        if nest_top_dir:
+            cmake_args+=[f'-DSOURCE_DIR={nest_top_dir}/src', f'-DINCLUDE_DIR={nest_top_dir}/include']
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 
@@ -83,7 +110,11 @@ setup(
     install_requires=requirements,
     package_dir={'':'src'},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
-    cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass={
+        'install': InstallCommand,
+        'develop': DevelopCommand,
+        'build_ext': CMakeBuild
+    },
     test_suite='tests',
     zip_safe=False,
     include_package_data=True,
