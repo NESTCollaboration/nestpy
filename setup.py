@@ -73,7 +73,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='nestpy',
-    version='1.2.0',
+    version='1.2.1',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
     description='Python bindings for the NEST noble element simulations',
