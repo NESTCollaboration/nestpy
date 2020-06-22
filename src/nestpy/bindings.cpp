@@ -64,7 +64,6 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("get_sPEres", &VDetector::get_sPEres)
 	.def("get_sPEthr", &VDetector::get_sPEthr)
 	.def("get_sPEeff", &VDetector::get_sPEeff)
-	.def("get_noise", &VDetector::get_noise)
 	.def("get_P_dphe", &VDetector::get_P_dphe)
 
 	.def("get_coinWind", &VDetector::get_coinWind)
@@ -98,7 +97,6 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("set_sPEres", &VDetector::set_sPEres)
 	.def("set_sPEthr", &VDetector::set_sPEthr)
 	.def("set_sPEeff", &VDetector::set_sPEeff)
-	.def("set_noise", &VDetector::set_noise)
 	.def("set_P_dphe", &VDetector::set_P_dphe)
 
 	.def("set_coinWind", &VDetector::set_coinWind)
@@ -145,9 +143,11 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
 
   //	Binding for the NESTcalc class
-  py::class_<NEST::NESTcalc>(m, "NESTcalc")
-    .def(py::init<>())
+  py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
+    //.def(py::init<>())
 	.def(py::init<VDetector*>())
+    .def_readonly_static("default_NuisParam", &NESTcalc::default_NuisParam)
+    .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
 	.def("FullCalculation", &NEST::NESTcalc::FullCalculation, 
 			"Perform the full yield calculation with smearings")
@@ -162,18 +162,17 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("drift_field") = 124,
 	     py::arg("A") = 131.293,
 	     py::arg("Z") = 54,
-	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1.})
+	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
 	 )
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	 py::arg("yields"),
 	 py::arg("density") = 2.9,
-	 py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.07}))
+	 py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19}))
 	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
 	//.def("GetS2", &NEST::NESTcalc::GetS2) 					Currently not working because of VDetector.FitTBA()
 	.def("CalculateG2", &NEST::NESTcalc::CalculateG2)
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
-	.def("SetDriftVelocity_MagBoltz", &NEST::NESTcalc::SetDriftVelocity_MagBoltz)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
 	.def("SetDensity", &NEST::NESTcalc::SetDensity)
 	//.def("xyResolution", &NEST::NESTcalc::xyResolution)		Currently not working because of VDetector.FitTBA()

@@ -38,17 +38,20 @@ class DetectorExample_XENON10 : public VDetector {
     sPEres = 0.58;   // single phe resolution (Gaussian assumed)
     sPEthr = 0.35;   // POD threshold in phe, usually used IN PLACE of sPEeff
     sPEeff = 1.00;   // actual efficiency, can be used in lieu of POD threshold
-    noise[0] = 0.0;  // baseline noise mean and width in PE (Gaussian)
-    noise[1] = 0.0;  // baseline noise mean and width in PE (Gaussian)
+    noiseB[0] = 0.0;  // baseline noise mean in PE (Gaussian)
+    noiseB[1] = 0.0;  // baseline noise width in PE (Gaussian)
+    noiseB[2] = 0.0;  // baseline noise mean in e- (for grid wires)
+    noiseB[3] = 0.0;  // baseline noise width in e- (for grid wires)
     P_dphe = 0.2;  // chance 1 photon makes 2 phe instead of 1 in Hamamatsu PMT
 
     coinWind = 100;  // S1 coincidence window in ns
     coinLevel = 2;   // how many PMTs have to fire for an S1 to count
     numPMTs = 89;    // For coincidence calculation
 
-    //"Linear noise" terms as defined in Dahl thesis and by D. McK
-    noise[2] = 3e-2;  // S1 -> S1 Gaussian-smeared with noise[2]*S1
-    noise[3] = 3e-2;  // S2 -> S2 Gaussian-smeared with noise[3]*S2
+    extraPhot=false;  // for matching EXO-200's W measurement
+    //the "Linear noise" terms as defined in Dahl thesis and by Dan McK
+    noiseL[0] = 3e-2;  // S1->S1 Gaussian-smeared with noiseL[0]*S1
+    noiseL[1] = 3e-2;  // S2->S2 Gaussian-smeared with noiseL[1]*S2
 
     // Ionization and Secondary Scintillation (S2) parameters
     g1_gas = .0655;  // phd per S2 photon in gas, used to get SE size
@@ -90,7 +93,7 @@ class DetectorExample_XENON10 : public VDetector {
 
   // S1 PDE custom fit for function of z
   // s1polA + s1polB*z[mm] + s1polC*z^2+... (QE included, for binom dist) e.g.
-  virtual double FitS1(double xPos_mm, double yPos_mm, double zPos_mm) {
+  virtual double FitS1(double xPos_mm, double yPos_mm, double zPos_mm, LCE map) {
     return 1.;  // unitless, 1.000 at detector center
   }
 
@@ -98,12 +101,12 @@ class DetectorExample_XENON10 : public VDetector {
   // For example, use a high-order poly spline
   virtual double FitEF(double xPos_mm, double yPos_mm,
                        double zPos_mm) {  // in V/cm
-    return 730.;
+    return 730.; // NOTE: if just const don't use -1 field option at run-time
   }
 
   // S2 PDE custom fit for function of r
   // s2polA + s2polB*r[mm] + s2polC*r^2+... (QE included, for binom dist) e.g.
-  virtual double FitS2(double xPos_mm, double yPos_mm) {
+  virtual double FitS2(double xPos_mm, double yPos_mm, LCE map) {
     return 1.;  // unitless, 1.000 at detector center
   }
 
@@ -210,6 +213,7 @@ class DetectorExample_XENON10 : public VDetector {
   }
   // Vary VDetector parameters through custom functions
   virtual void ExampleFunction() { set_g1(0.0760); }
+  virtual void ExampleFunction2() { set_molarMass(131.); }
 };
 
 #endif

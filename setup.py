@@ -41,7 +41,7 @@ class CMakeBuild(build_ext):
 #                      '-DCMAKE_CXX_COMPILER=/software/gcc-4.9-el6-x86_64/bin/g++'
         ]
 
-        cfg = 'Debug' if self.debug else 'Release'
+        cfg = 'Debug' #if self.debug else 'Release'
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
@@ -73,7 +73,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='nestpy',
-    version='1.1.5',
+    version='1.2.1',
     author='Christopher Tunnell',
     author_email='tunnell@rice.edu',
     description='Python bindings for the NEST noble element simulations',

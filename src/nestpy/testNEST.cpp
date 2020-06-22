@@ -16,27 +16,41 @@
 #include "analysis.hh"
 #include "testNEST.hh"
 
-#include "DetectorExample_XENON10.hh"
+#include "LUX_Run03.hh"
+
+#define tZero 0.00 //day{of the year, 0 is average WIMP velocity}
+#define tStep 0.03
 
 using namespace std;
 using namespace NEST;
 
-double band[NUMBINS_MAX][6];
+vector<double> FreeParam,  NuisParam;
+double band[NUMBINS_MAX][7];
 double energies[3];
+bool BeenHere = false;
 
 int main(int argc, char** argv) {
   // Instantiate your own VDetector class here, then load into NEST class
   // constructor
-  DetectorExample_XENON10* detector = new DetectorExample_XENON10();
+  DetectorExample_LUX_RUN03* detector = new DetectorExample_LUX_RUN03();
 
   // Custom parameter modification functions
   // detector->ExampleFunction();
-
+  
+  /* vector<double> eList = { 1., 2., 3. }; // fast example--for PLR, ML train
+  vector<vector<double>> pos3dxyz = { {0.,-1.,60.},{-1.,0.,70.},{1.,0.,80.} };
+  runNESTvec ( detector, NEST::beta, eList, pos3dxyz );
+  return EXIT_SUCCESS; */
+  
   if (argc < 7) {
     cout << "This program takes 6 (or 7) inputs, with Z position in mm from "
             "bottom of detector:" << endl;
     cout << "\t./testNEST numEvts type_interaction E_min[keV] E_max[keV] "
             "field_drift[V/cm] x,y,z-position[mm] {optional:seed}" << endl
+         << endl;
+    cout << "For Kr83m time-dependent 9.4, 32.1, or 41.5 keV yields: " << endl;
+    cout << "\t ./testNEST numEvents Kr83m Energy[keV] maxTimeDiff[ns] "
+	    "field_drift[V/cm] x,y,z-position[mm] {optional:seed}" << endl 
          << endl;
     cout << "For 8B, numEvts is kg-days of exposure with everything else same. "
             "For WIMPs:" << endl;
@@ -51,32 +65,182 @@ int main(int argc, char** argv) {
          << endl;
     return 1;
   }
-
-  unsigned long int numEvts = atoi(argv[1]);
-  string type = argv[2];
-  double eMin = atof(argv[3]);
-  double eMax = atof(argv[4]);
-  double inField = atof(argv[5]);
-  string position = argv[6];
-  string posiMuon = argv[4];
-  double fPos = atof(argv[6]);
-
-  int seed;
-  bool no_seed;
-  if (argc == 8) {
-    seed = atoi(argv[7]);
-  } else {
+  
+  unsigned long int numEvts;
+  string type, position, posiMuon;
+  double eMin, eMax, inField, fPos;
+  int seed; bool no_seed = false;
+  if ( loopNEST ) {
+    
+    numEvts = 100000; //10,000 faster but of course less precise
+    if ( loopNEST == 1 )
+      type = "ER";
+    else
+      type = "NR";
+    eMin = 0.00;
+    eMax = 156.; //Carbon-14
+    inField = -1.;
+    position = "-1";
+    posiMuon = "-1";
+    fPos = -1.;
     seed = 0;
-    no_seed = true;
+    no_seed = false;
+    FreeParam.clear(); NuisParam.clear();
+    verbosity = false;
+    useTiming = 0; //-1 for faster (less accurate)
+    
+    if ( type == "ER" ) {
+      
+      FreeParam.push_back(atof(argv[1])); //-0.1 for LUX C-14 ~200V/cm
+      FreeParam.push_back(atof(argv[2])); //0.5
+      FreeParam.push_back(atof(argv[3])); //0.06
+      FreeParam.push_back(atof(argv[4])); //-0.6
+      FreeParam.push_back(atof(argv[5])); //1.11
+      FreeParam.push_back(atof(argv[6])); //0.95
+      FreeParam.push_back(atof(argv[7])); //8e-2
+      FreeParam.push_back(atof(argv[7])); //repeat
+      
+      NuisParam.push_back(11.);
+      NuisParam.push_back(1.1);
+      NuisParam.push_back(0.0480);
+      NuisParam.push_back(-0.0533);
+      NuisParam.push_back(12.6);
+      NuisParam.push_back(0.3);
+      NuisParam.push_back(2.);
+      NuisParam.push_back(0.3);
+      NuisParam.push_back(2.);
+      NuisParam.push_back(0.5);
+      NuisParam.push_back(1.0);
+      NuisParam.push_back(1.0);
+      
+    }
+    
+    else {
+      
+      NuisParam.push_back(atof(argv[1])); //11.0 XENON10
+      NuisParam.push_back(atof(argv[2])); //1.09
+      NuisParam.push_back(0.0480);
+      NuisParam.push_back(-0.0533);
+      NuisParam.push_back(12.6);
+      NuisParam.push_back(0.3);
+      NuisParam.push_back(2.);
+      NuisParam.push_back(0.3);
+      NuisParam.push_back(atof(argv[3])); //2.00
+      NuisParam.push_back(0.5);
+      NuisParam.push_back(1.0);
+      NuisParam.push_back(1.0);
+      detector->set_g1(atof(argv[5])); //0.0725
+      detector->set_g1_gas(atof(argv[6])); //0.0622
+      detector->set_noiseL(atof(argv[7]),atof(argv[7])); //0,0
+      FreeParam.push_back(1.00);
+      FreeParam.push_back(1.00);
+      FreeParam.push_back(atof(argv[4])); //0.070
+      FreeParam.push_back(0.50);
+      FreeParam.push_back(0.19);
+      
+    }
+    
   }
-
+  else {
+    
+    numEvts = (unsigned long)atof(argv[1]);
+    if ( numEvts <= 0 ) {
+      cerr << "ERROR, you must simulate at least 1 event" << endl;
+      return 1;
+    }
+    type = argv[2];
+    eMin = atof(argv[3]);
+    eMax = atof(argv[4]);
+    inField = atof(argv[5]);
+    position = argv[6];
+    posiMuon = argv[4];
+    fPos = atof(argv[6]);
+    
+    seed = 0; //if not given make 0
+    if (argc == 8) {
+      seed = atoi(argv[7]);
+    }
+    else {
+      RandomGen::rndm()->SetSeed(0);
+      no_seed = true;
+    }
+    
+    FreeParam.clear();
+    NuisParam.clear();
+    if ( type == "ER" ) {
+      FreeParam.push_back(0.500);//LUX Run03
+      FreeParam.push_back(0.5);
+      FreeParam.push_back(1.1);
+      FreeParam.push_back(-5.);
+      FreeParam.push_back(1.01);
+      FreeParam.push_back(0.95);
+      FreeParam.push_back(1.4e-2);
+      FreeParam.push_back(1.8e-2);
+    }
+    else {
+      FreeParam.push_back(1.00); // Fi (Fano factor for ionization)
+      FreeParam.push_back(1.00); // Fex
+      FreeParam.push_back(0.10); // amplitude for non-binomial recombination fluctuations
+      FreeParam.push_back(0.50); // center in e-Frac
+      FreeParam.push_back(0.19); // width parameter (Gaussian 1-sigma)
+    }
+    NuisParam.push_back(11.); //alpha, for NR model. See http://nest.physics.ucdavis.edu
+    NuisParam.push_back(1.1); //beta
+    NuisParam.push_back(0.0480); //gamma
+    NuisParam.push_back(-0.0533); //delta
+    NuisParam.push_back(12.6); //epsilon
+    NuisParam.push_back(0.3); //zeta
+    NuisParam.push_back(2.); //eta
+    NuisParam.push_back(0.3); //theta
+    NuisParam.push_back(2.); //iota
+    // last 3 are the secret extra parameters for additional flexibility
+    NuisParam.push_back(0.5); //changes sqrt in Qy equation
+    NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for charge
+    NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for light
+    
+  }
+  
   return testNEST(detector, numEvts, type, eMin, eMax, inField, position, posiMuon, fPos,
-                  seed, no_seed);
+                  seed, no_seed, tZero);
+}
+
+vector<vector<double>> runNESTvec ( VDetector* detector, INTERACTION_TYPE particleType, //func suggested by Xin Xiang, PD Brown U. for RG, LZ
+				    vector<double> eList, vector<vector<double>> pos3dxyz ) {
+  
+  verbosity = false; NESTcalc n(detector);
+  NESTresult result; QuantaResult quanta;
+  double x, y, z, driftTime, vD;
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+  FreeParam = {1.,1.,0.10,0.5,0.19};
+  vector<double> scint, scint2, wf_amp; vector<long int> wf_time;
+  vector<vector<double>> S1cS2cpairs; S1cS2cpairs.resize(eList.size(),vector<double>(2,-999.));
+  vector<double> g2_params = n.CalculateG2(verbosity);
+  
+  for ( long i = 0; i < eList.size(); i++ ) {
+    x = pos3dxyz[i][0];
+    y = pos3dxyz[i][1];
+    z = pos3dxyz[i][2];
+    double truthPos[3] = { x, y, z };
+    double smearPos[3] = { x, y, z }; //ignoring the difference in this quick function caused by smearing
+    result = n.FullCalculation(particleType,eList[i],DENSITY,detector->FitEF(x,y,z),detector->get_molarMass(),ATOM_NUM,NuisParam,FreeParam,verbosity);
+    quanta = result.quanta; //used default density (2.9 at time of writing)
+    vD = n.SetDriftVelocity(detector->get_T_Kelvin(),DENSITY,detector->FitEF(x,y,z));
+    scint = n.GetS1(quanta,truthPos,smearPos,vD,vD,particleType,i,detector->FitEF(x,y,z),eList[i],0,verbosity,wf_time,wf_amp); //0 means useTiming = 0
+    driftTime = (detector->get_TopDrift()-z)/vD; //vD,vDmiddle assumed same (uniform field)
+    scint2= n.GetS2(quanta.electrons,truthPos,smearPos,driftTime,vD,i,detector->FitEF(x,y,z),0,verbosity,wf_time,wf_amp,g2_params);
+    if ( scint[7] > PHE_MIN && scint2[7] > PHE_MIN ) { //unlike usual, kill (don't skip, just -> 0) sub-thr evts
+      S1cS2cpairs[0][i] = fabs(scint[7]); //default is S1c in units of spikes, 3-D XYZ corr
+      S1cS2cpairs[1][i] = log10(fabs(scint2[7])); //default is log10(S2c) in terms of log(phd) not phe a.k.a. PE
+    }
+    else { S1cS2cpairs[0][i] = 0.0; S1cS2cpairs[1][i] = 0.0; }
+  }
+  
+  return S1cS2cpairs;
 }
 
 int testNEST(VDetector* detector, unsigned long int numEvts, string type,
              double eMin, double eMax, double inField, string position, string posiMuon,
-             double fPos, int seed, bool no_seed) {
+             double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
 
@@ -87,18 +251,14 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     return 1;
   }
 
-  vector<double> signal1, signal2, signalE, vTable,
-    NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.},
-    // alpha,beta,gamma,delta,epsilon,zeta,eta,theta,iota for NR model
-    // last 2 are the secret extra parameters for additional flexibility
-    FreeParam = {1.,1.,0.1,0.5,0.07};
-    // Fi, Fex, and 3 non-binomial recombination fluctuation parameters
+  vector<double> signal1, signal2, signalE, vTable;
   string delimiter, token;
   size_t loc;
   int index;
   double g2, pos_x, pos_y, pos_z, r, phi, driftTime, field, vD,
-      vD_middle = 0., atomNum = 0, massNum = 0, keVee = 0.0;
-  YieldResult yieldsMax;
+    vD_middle = 0., atomNum = 0, keVee = 0.0;
+  double massNum = detector->get_molarMass();
+  YieldResult yieldsMax; //for warnings about S1 range
 
   if (no_seed != true) {
     if (seed == -1) {
@@ -129,7 +289,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       return 1;
     }
     type_num = WIMP;
-    spec.wimp_spectrum_prep = spec.WIMP_prep_spectrum(eMin, E_step);
+    spec.wimp_spectrum_prep = spec.WIMP_prep_spectrum(eMin, E_step, dayNumber);
     numEvts = RandomGen::rndm()->poisson_draw(spec.wimp_spectrum_prep.integral * //here eMax is cross-section
                                               1.0 * double(numEvts) * eMax / 1e-36);
   } else if (type == "B8" || type == "Boron8" || type == "8Boron" ||
@@ -163,7 +323,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     type_num = Kr83m;
   else if (type == "CH3T" || type == "tritium")
     type_num = CH3T;
-  else if (type == "C14" || type == "Carbon14" || type == "14C")
+  else if (type == "C14" || type == "Carbon14" || type == "14C" || type == "C-14" || type == "Carbon-14")
     type_num = C14;
   else if (type == "beta" || type == "ER" || type == "Compton" ||
            type == "compton" || type == "electron" || type == "e-" ||
@@ -184,18 +344,20 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     cerr << "x-ray or xray or xRay or X-ray or Xray or XRay," << endl;
     cerr << "Kr83m or 83mKr or Kr83," << endl;
     cerr << "CH3T or tritium," << endl;
-    cerr << "Carbon14 or 14C or C14," << endl;
+    cerr << "Carbon14 or 14C or C14 or C-14 or Carbon-14," << endl;
     cerr << "beta or ER or Compton or compton or electron or e-, and" << endl;
     cerr << "muon or MIP or LIP or mu or mu-" << endl;
     return 1;
   }
-
+  
+  double maxTimeSep = DBL_MAX;
   if (type_num == Kr83m) {
-    if (eMin == 9.4 && eMax == 9.4) {
-    } else if (eMin == 32.1 && eMax == 32.1) {
+    if ( (eMin == 9.4 || eMin == 32.1 || eMin == 41.5) && eMin != eMax) {
+      maxTimeSep = eMax;
     } else {
-      cerr << "ERROR: For Kr83m, put both energies as 9.4 or both as 32.1 keV "
-              "please." << endl;
+      cerr << "ERROR: For Kr83m, put E_min as 9.4, 32.1, or 41.5 keV "
+              "and E_max as the max time-separation [ns] between the two decays "
+	      "please." << endl;
       return 1;
     }
   }
@@ -214,28 +376,29 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     return 1;
   }
   if (rho < 1.75) detector->set_inGas(true);
-  double Wq_eV =
-      1.9896 +
-      (20.8 - 1.9896) /
-          (1. + pow(rho / 4.0434,
-                    1.4407));  // out-of-sync danger: copied from NEST.cpp
 
+  double Wq_eV = n.WorkFunction(rho).Wq_eV;
+  //if ( rho > 3. ) detector->set_extraPhot(true); //solid OR enriched. Units of g/mL
+  if ( detector->get_extraPhot() )
+    Wq_eV = 11.5; //11.5±0.5(syst.)±0.1(stat.) from EXO
+  
   // Calculate and print g1, g2 parameters (once per detector)
   vector<double> g2_params = n.CalculateG2(verbosity);
   g2 = fabs(g2_params[3]);
   double g1 = detector->get_g1();
-
+  
   double centralZ =
       (detector->get_gate() * 0.8 + detector->get_cathode() * 1.03) /
       2.;  // fid vol def usually shave more off the top, because of gas
   // interactions (100->10cm)
   double centralField = detector->FitEF(0.0, 0.0, centralZ);
+  if ( inField != -1. ) centralField = inField;
 
   if (type_num == WIMP) {
-    yieldsMax = n.GetYields(NR, 25.0, rho, centralField, double(massNum),
+    yieldsMax = n.GetYields(NR, 25.0, rho, centralField, detector->get_molarMass(),
                             double(atomNum), NuisParam);
   } else if (type_num == B8) {
-    yieldsMax = n.GetYields(NR, 4.00, rho, centralField, double(massNum),
+    yieldsMax = n.GetYields(NR, 4.00, rho, centralField, detector->get_molarMass(),
                             double(atomNum), NuisParam);
   } else {
     double energyMaximum;
@@ -244,7 +407,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     else
       energyMaximum = eMax;
     if (type_num == Kr83m)
-      yieldsMax = n.GetYields(NEST::beta, energyMaximum, rho, centralField,
+      yieldsMax = n.GetYields(NEST::beta, eMin, rho, centralField,
                               double(massNum), double(atomNum),
                               NuisParam);  // the reason for this: don't do the
     // special Kr stuff when just
@@ -256,10 +419,15 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
   if ((g1 * yieldsMax.PhotonYield) > (2. * maxS1) && eMin != eMax)
     cerr
         << "\nWARNING: Your energy maximum may be too high given your maxS1.\n";
-
-  double keV = -999.;
+  
+  if ( type_num < 6 ) massNum = 0;
+  if ( type_num == Kr83m ) massNum = maxTimeSep; 
+      //use massNum to input maxTimeSep into GetYields(...)
+  double keV = -999.; double timeStamp = dayNumber;
   for (unsigned long int j = 0; j < numEvts; j++) {
-    if (eMin == eMax && eMin >= 0. && eMax > 0.) {
+    timeStamp += tStep; //detector->set_eLife_us(5e1+1e3*(timeStamp/3e2));
+    //for E-recon when you've changed g1,g2-related stuff, redo line 341+
+    if ( (eMin == eMax && eMin >= 0. && eMax > 0.) || type_num == Kr83m ) {
       keV = eMin;
     } else {
       switch (type_num) {
@@ -282,9 +450,9 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         case DD:
           keV = spec.DD_spectrum(eMin, eMax);
           break;
-        case WIMP: {
-          keV = spec.WIMP_spectrum(spec.wimp_spectrum_prep, eMin);
-        } break;
+        case WIMP:
+          keV = spec.WIMP_spectrum(spec.wimp_spectrum_prep, eMin, timeStamp);
+	  break;
         default:
           if (eMin < 0.) return 1;
           if (eMax > 0.)
@@ -305,7 +473,16 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       if (keV > eMax) keV = eMax;
       if (keV < eMin) keV = eMin;
     }
-
+    
+    if ( keV < 0. ) {
+      cerr << "ERROR: Get ready for time travel or FTL--negative energy!" << endl;
+      return 1;
+    }
+    if( keV == 0. ) {
+      cerr << "WARNING: Zero energy has occurred, and this is not normal" << endl;
+    }
+    
+    double FudgeFactor[2] = { 1., 1. };
   Z_NEW:
     if (fPos == -1.) {  // -1 means default, random location mode
       pos_z = 0. +
@@ -328,6 +505,10 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         position.erase(0, loc + delimiter.length());
         i++;
       }
+      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radius() && j == 0 )
+	cerr << "WARNING: outside fiducial radius." << endl;
+      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radmax() ) {
+	cerr << "\nERROR: outside physical radius!!!" << endl; return EXIT_FAILURE; }
       pos_z = stof(position);
       if (stof(position) == -1.)
         pos_z =
@@ -379,18 +560,20 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
              << " eV\tNegative numbers are flagging things below threshold!   "
                 "phe=(1+P_dphe)*phd & phd=phe/(1+P_dphe)\n";
 
-        if (type_num == Kr83m && eMin == 9.4 && eMax == 9.4)
+        if (type_num == Kr83m && eMin != 32.1)
           fprintf(stdout,
-                  "t [ns]\t\tE [keV]\t\tfield [V/cm]\ttDrift [us]\tX,Y,Z "
-                  "[mm]\tNph\tNe-\tS1 [PE or phe]\tS1_3Dcor "
-                  "[phd]\tspikeC(NON-INT)\tNe-Extr\tS2_rawArea [PE]\tS2_3Dcorr "
-                  "[phd]\n");
-        else
-          fprintf(stdout,
-                  "E [keV]\t\tfield [V/cm]\ttDrift [us]\tX,Y,Z "
-                  "[mm]\tNph\tNe-\tS1 [PE or phe]\tS1_3Dcor "
-                  "[phd]\tspikeC(NON-INT)\tNe-Extr\tS2_rawArea [PE]\tS2_3Dcorr "
-                  "[phd]\n");
+                  "t [ns]\t\t");
+	if (type_num == WIMP)
+	  fprintf(stdout,
+		  "dayNum\t");
+	if ( eMax == eMin && numBins == 1 ) MCtruthE = false;
+	if ( MCtruthE ) fprintf(stdout,"E_truth [keV]");
+	else fprintf(stdout,"E_recon [keV]");
+	fprintf(stdout,
+		"\tfield [V/cm]\ttDrift [us]\tX,Y,Z "
+		"[mm]\tNph\tNe-\tS1 [PE or phe]\tS1_3Dcor "
+		"[phd]\tspikeC(NON-INT)\tNe-Extr\tS2_rawArea [PE]\tS2_3Dcorr "
+		"[phd]\n");
       }
     }
     if (inField == -1.) {
@@ -415,19 +598,20 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     }
 
     // The following should never happen: this is simply a just-in-case
-    // code-block dealing with user error
+    // code-block dealing with user error (rounding another possible culprit)
     if (pos_z <= 0.) {
-      cerr << "ERROR: unphysically low Z coordinate (vertical axis of "
-              "detector) of " << pos_z << " mm" << endl;
-      return 1;
+      cerr << "WARNING: unphysically low Z coordinate (vertical axis of "
+	"detector) of " << pos_z << " mm" << endl; //warn user on screen
+      pos_z = z_step;
     }
     if ((pos_z > (detector->get_TopDrift() + z_step) || driftTime < 0.0) &&
         field >= FIELD_MIN) {
-      cerr << "ERROR: unphysically big Z coordinate (vertical axis of "
-              "detector) of " << pos_z << " mm" << endl;
-      return 1;
+      cerr << "WARNING: unphysically big Z coordinate (vertical axis of "
+	"detector) of " << pos_z << " mm" << endl; // give the specifics
+      driftTime = 0.0;
+      pos_z = detector->get_TopDrift() - z_step; //just fix it and move on
     }
-
+    
     YieldResult yields;
     QuantaResult quanta;
     if (type == "muon" || type == "MIP" || type == "LIP" || type == "mu" ||
@@ -501,11 +685,11 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     } else {
       if (keV > .001 * Wq_eV) {
 	if ( type == "ER" ) {
-	  YieldResult yieldsB = n.GetYields(INTERACTION_TYPE::beta, keV, rho, field,
+	  YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
 					    double(massNum), double(atomNum), NuisParam);
 	  YieldResult yieldsG = n.GetYields(gammaRay, keV, rho, field,
 					    double(massNum), double(atomNum), NuisParam);
-	  double weightG = 0.5 + 0.5 * erf ( 1.0 * ( log ( keV ) - 5.0 ) );
+	  double weightG = FreeParam[0] + FreeParam[1] * erf ( FreeParam[2] * ( log ( keV ) + FreeParam[3] ) ); // Xe10:1,.55,-1.6,-1.0
 	  double weightB = 1. - weightG;
 	  yields.PhotonYield = weightG * yieldsG.PhotonYield + weightB * yieldsB.PhotonYield;
 	  yields.ElectronYield = weightG * yieldsG.ElectronYield + weightB * yieldsB.ElectronYield;
@@ -513,12 +697,20 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
 	  yields.Lindhard = weightG * yieldsG.Lindhard + weightB * yieldsB.Lindhard;
 	  yields.ElectricField = weightG * yieldsG.ElectricField + weightB * yieldsB.ElectricField;
 	  yields.DeltaT_Scint = weightG * yieldsG.DeltaT_Scint + weightB * yieldsB.DeltaT_Scint;
+	  FudgeFactor[0] = FreeParam[4];//0.99;
+	  FudgeFactor[1] = FreeParam[5];//1.04;
+	  yields.PhotonYield *= FudgeFactor[0];
+	  yields.ElectronYield*=FudgeFactor[1];
+	  detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
 	}
-	else
-	  yields = n.GetYields(type_num, keV, rho, field, double(massNum),
-			       double(atomNum), NuisParam);
+	else {
+	  yields = n.GetYields(type_num, keV, rho, field, double(massNum), double(atomNum), NuisParam);
+	}
+	//FreeParam.clear();
+	//FreeParam = { 1.00, 1.00, 0.100, 0.50, 0.19 };
         quanta = n.GetQuanta(yields, rho, FreeParam);
-      } else {
+      }
+      else {
         yields.PhotonYield = 0.;
         yields.ElectronYield = 0.;
         yields.ExcitonRatio = 0.;
@@ -531,7 +723,11 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         quanta.excitons = 0;
       }
     }
-
+    
+    if ( detector->get_noiseB()[2] != 0. || detector->get_noiseB()[3] != 0. )
+      quanta.electrons += int(floor(RandomGen::rndm()->rand_gauss(
+		   detector->get_noiseB()[2],detector->get_noiseB()[3])+0.5));
+    
     // If we want the smeared positions (non-MC truth), then implement
     // resolution function
     double truthPos[3] = {pos_x, pos_y, pos_z};
@@ -544,12 +740,17 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       smearPos[0] = xySmeared[0];
       smearPos[1] = xySmeared[1];
     }
-
+    
     vector<long int> wf_time;
     vector<double> wf_amp;
     vector<double> scint =
-        n.GetS1(quanta, truthPos, smearPos, vD, vD_middle, type_num, j, field,
+      n.GetS1(quanta, truthPos, smearPos, vD, vD_middle, type_num, j, field,
                 keV, useTiming, verbosity, wf_time, wf_amp);
+    if (truthPos[2] < detector->get_cathode()) quanta.electrons = 0;
+    vector<double> scint2 =
+      n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, j, field,
+	      useTiming, verbosity, wf_time, wf_amp, g2_params);
+  NEW_RANGES:
     if (usePD == 0 && fabs(scint[3]) > minS1 && scint[3] < maxS1)
       signal1.push_back(scint[3]);
     else if (usePD == 1 && fabs(scint[5]) > minS1 && scint[5] < maxS1)
@@ -558,20 +759,36 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       signal1.push_back(scint[7]);
     else
       signal1.push_back(-999.);
-
-    if (truthPos[2] < detector->get_cathode()) quanta.electrons = 0;
-    vector<double> scint2 =
-        n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, j, field,
-                useTiming, verbosity, wf_time, wf_amp, g2_params);
+    
     if (usePD == 0 && fabs(scint2[5]) > minS2 && scint2[5] < maxS2)
       signal2.push_back(scint2[5]);
     else if (usePD >= 1 && fabs(scint2[7]) > minS2 && scint2[7] < maxS2)
       signal2.push_back(scint2[7]);  // no spike option for S2
     else
       signal2.push_back(-999.);
-
+    
+    if ( eMin == eMax ) {
+      if ( (scint[3] > maxS1 || scint[5] > maxS1 || scint[7] > maxS1) && j < 10 )
+	cerr << "WARNING: Some S1 pulse areas are greater than maxS1" << endl;
+      if ( (scint2[5] > maxS2 || scint2[7] > maxS2) && j < 10 ) //don't repeat too much: only if within first 10 events then show (+above)
+	cerr << "WARNING: Some S2 pulse areas are greater than maxS2" << endl;
+    }
+    
+    double Nph = 0.0, Ne = 0.0;
     if (!MCtruthE) {
-      double Nph, Ne;
+      double MultFact = 1., eff = detector->get_sPEeff();
+      if ( useTiming >= 0 ) {
+	if ( detector->get_sPEthr() >= 0. && detector->get_sPEres() > 0. && eff > 0. ) {
+	  MultFact = 0.5*(1.+erf((detector->get_sPEthr()-1.)/(detector->get_sPEres()*sqrt(2.)))) / (detector->get_sPEres()*sqrt(2.*M_PI));
+          MultFact = 1./(1.-MultFact); MultFact = 1.02+(MultFact-1.02)/(1.+pow(scint[0]/detector->get_numPMTs(),2.)); //2% by Emily Mangus
+	  if ( eff < 1. )
+	    eff += ((1.-eff)/(1.*double(detector->get_numPMTs())))*scint[0];
+	  if ( eff > 1. ) eff = 1.;
+	  if ( eff < 0. ) eff = 0.;
+	  MultFact /= eff; //for smaller detectors leave it as 1.00
+	}
+	else MultFact = 1.;
+      }
       if (usePD == 0)
         Nph = fabs(scint[3]) / (g1 * (1. + detector->get_P_dphe()));
       else if (usePD == 1)
@@ -582,21 +799,53 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         Ne = fabs(scint2[5]) / (g2 * (1. + detector->get_P_dphe()));
       else
         Ne = fabs(scint2[7]) / g2;
+      Nph *= MultFact;
       if (signal1.back() <= 0.) Nph = 0.;
       if (signal2.back() <= 0.) Ne = 0.;
+      if ( detector->get_coinLevel() <= 0 && Nph <= PHE_MIN ) Nph = DBL_MIN;
       if (yields.Lindhard > DBL_MIN && Nph > 0. && Ne > 0.) {
-        keV = (Nph + Ne) * Wq_eV * 1e-3 / yields.Lindhard;
+	if ( detector->get_extraPhot() ) yields.Lindhard = 1.;
+	if ( yields.Lindhard == 1. )
+	  keV = (Nph/FudgeFactor[0] + Ne/FudgeFactor[1]) * Wq_eV * 1e-3;
+	else {
+	  if ( type_num <= NEST::INTERACTION_TYPE::Cf ) {
+	    keV = pow((Ne+Nph)/NuisParam[0],1./NuisParam[1]);
+	    Ne *= 1. - 1. / pow(1. + pow((keV / NuisParam[5]), NuisParam[6]), NuisParam[10]);
+	    Nph *=1. - 1. / pow(1. + pow((keV / NuisParam[7]), NuisParam[8]), NuisParam[11]);
+	    keV = pow((Ne+Nph)/NuisParam[0],1./NuisParam[1]);
+	  }
+	  else
+	    keV =(Nph + Ne) * Wq_eV * 1e-3 / yields.Lindhard; // cheating :-)
+	}
         keVee += (Nph + Ne) * Wq_eV * 1e-3;  // as alternative, use W_DEFAULT in
-                                             // both places, but won't account
+                                             // both places, but will not account
                                              // for density dependence
       } else
         keV = 0.;
     }
-    if ((signal1.back() <= 0. || signal2.back() <= 0.) && field >= FIELD_MIN)
+    if ((signal1.back() <= 0. || signal2.back() <= 0.) && field >= FIELD_MIN && detector->get_coinLevel() != 0)
       signalE.push_back(0.);
     else
       signalE.push_back(keV);
-
+    
+    if ( (Ne+Nph == 0.00 || std::isnan(keVee)) && eMin == eMax && eMin > 1E+2 && !BeenHere ) { //efficiency is zero?
+      minS1 = -999.;
+      minS2 = -999.;
+      detector->set_s2_thr(0.0); //since needs GetS2() re-run, only "catches" after the first caught event
+      if ( maxS2 > 1e10 )
+	BeenHere = true;
+      maxS1 = 1e9;
+      maxS2 = 1e11;
+      numBins = 1;
+      MCtruthE = false;
+      signal1.pop_back();
+      signal2.pop_back();
+      signalE.pop_back();
+      cerr << endl << "CAUTION: Efficiency seems to have been zero, so trying again with full S1 and S2 ranges." << endl;
+      cerr << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly!" << endl;
+      goto NEW_RANGES;
+    }
+    
     // Possible outputs from "scint" vector
     // scint[0] = nHits; // MC-true integer hits in same OR different PMTs, NO
     // double phe effect
@@ -637,9 +886,9 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     // including bottom PMTs, NO XYZ correction
     // scint2[5] = S2bc; // floating real# smeared pulse areas in phe ONLY
     // including bottom PMTs, WITH XYZ correction
-    // scint2[6] = S2b / (1.+fdetector->get_P_dphe()); // same as S2b, but
+    // scint2[6] = S2b / (1.+detector->get_P_dphe()); // same as S2b, but
     // adjusted for 2-PE effect (LUX phd units)
-    // scint2[7] = S2bc / (1.+fdetector->get_P_dphe()); // same as S2bc, but
+    // scint2[7] = S2bc / (1.+detector->get_P_dphe()); // same as S2bc, but
     // adjusted for 2-PE effect (LUX phd units)
     // scint2[8] = g2; // g2 = ExtEff * SE, light collection efficiency of EL in
     // gas gap (from CalculateG2)
@@ -650,14 +899,16 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       // other suggestions: minS1, minS2 (or s2_thr) for tighter cuts depending
       // on analysis.hh settings (think of as analysis v. trigger thresholds)
       // and using max's too, pinching both ends
-      if (type_num == Kr83m && eMin == 9.4 && eMax == 9.4)
+      if (type_num == Kr83m && eMin != 32.1 )
         printf("%.6f\t", yields.DeltaT_Scint);
+      if (type_num == WIMP)
+	printf("%.0f\t", timeStamp);
       printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t", keV, field,
              driftTime, smearPos[0], smearPos[1], smearPos[2], quanta.photons,
              quanta.electrons);  // comment this out when below line in
       // printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f,%.0f\t%lf\t%lf\t",keV,field,driftTime,smearPos[0],smearPos[1],smearPos[2],yields.PhotonYield,yields.ElectronYield);
-      // //for when you want means
-      if (truthPos[2] < detector->get_cathode() && verbosity) printf("g-X ");
+      //for when you want means
+      // if (truthPos[2] < detector->get_cathode() && verbosity) printf("g-X ");
       if (keV > 1000. || scint[5] > maxS1 || scint2[7] > maxS2 ||
           // switch to exponential notation to make output more readable, if
           // energy is too high (>1 MeV)
@@ -678,19 +929,19 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     }  // always execute statement, if(1) above, because if is just place-holder
        // in case you want to drop all sub-threshold data
   }
-
+  
   if (verbosity) {
-    if (eMin != eMax) {
+    if (eMin != eMax && type_num != Kr83m) {
       if (useS2 == 2)
-        GetBand(signal2, signal1, false);
+        GetBand(signal2, signal1, false, detector->get_coinLevel());
       else
-        GetBand(signal1, signal2, false);
+        GetBand(signal1, signal2, false, detector->get_coinLevel());
       fprintf(stderr,
               "Bin Center\tBin Actual\tHist Mean\tMean Error\tHist "
-              "Sigma\t\tEff[%%>thr]\n");
+              "Sigma\tSkewness\t\tEff[%%>thr]\n");
       for (int j = 0; j < numBins; j++) {
-        fprintf(stderr, "%lf\t%lf\t%lf\t%lf\t%lf\t\t%lf\n", band[j][0],
-                band[j][1], band[j][2], band[j][4], band[j][3],
+        fprintf(stderr,"%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t\t%lf\n", band[j][0],
+                band[j][1], band[j][2], band[j][4], band[j][3], band[j][6],
                 band[j][5] * 100.);
         if (band[j][0] <= 0.0 || band[j][1] <= 0.0 || band[j][2] <= 0.0 ||
             band[j][3] <= 0.0 || band[j][4] <= 0.0 || band[j][5] <= 0.0 ||
@@ -712,9 +963,9 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         }
       }
     } else {
-      GetBand(signal1, signal2, true);
+      GetBand(signal1, signal2, true, detector->get_coinLevel());
       GetEnergyRes(signalE);
-      if (type_num == NR) {
+      if (type_num == NR || type_num == WIMP || type_num == B8 || type_num == DD || type_num == AmBe || type_num == Cf || type_num == ion) {
         fprintf(stderr,
                 "S1 Mean\t\tS1 Res [%%]\tS2 Mean\t\tS2 Res [%%]\tEc "
                 "[keVnr]\tEc Res[%%]\tEff[%%>thr]\tEc [keVee]\n");
@@ -729,7 +980,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
                 band[j][1] / band[j][0] * 100., band[j][2],
                 band[j][3] / band[j][2] * 100., energies[0],
                 energies[1] / energies[0] * 100., energies[2] * 100.);
-        if (type_num == NR)
+        if (type_num < 7) //0-6=NR/related (WIMPs,etc.)
           fprintf(stderr, "%lf\n", keVee / energies[2]);
         else
           fprintf(stderr, "\n");
@@ -745,7 +996,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
             cerr << "CAUTION: Poor stats. You must have at least 2 events to "
                     "calculate S1 and S2 and E resolutions.\n";
         } else if ((energies[0] == eMin || energies[0] == eMax ||
-                    energies[1] <= 0.0) &&
+                    energies[1] <= 1E-6) &&
                    field >= FIELD_MIN)
           cerr << "If your energy resolution is 0% then you probably still "
                   "have MC truth energy on." << endl;
@@ -758,7 +1009,13 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
 }
 
 vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
-                               bool resol) {
+                               bool resol, int nFold) {
+  
+  if ( numBins > NUMBINS_MAX ) {
+    cerr << "ERROR: Too many bins. Decrease numBins (analysis.hh) or increase NUMBINS_MAX (TestSpectra.hh)" << endl;
+    exit ( EXIT_FAILURE );
+  }
+  
   vector<vector<double>> signals;
   signals.resize(numBins, vector<double>(1, -999.));
   double binWidth, border;
@@ -777,14 +1034,17 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
     numBins = 1;
     binWidth = DBL_MAX;
   }
-
+  
+  double ReqS1 = 0.;
+  if ( nFold == 0 )
+    ReqS1 = -DBL_MAX;
   for (i = 0; i < S1s.size(); i++) {
     for (j = 0; j < numBins; j++) {
       s1c = border + binWidth / 2. + double(j) * binWidth;
       if (i == 0 && !resol) band[j][0] = s1c;
-      if (fabs(S1s[i]) > (s1c - binWidth / 2.) &&
-          fabs(S1s[i]) <= (s1c + binWidth / 2.)) {
-        if (S1s[i] >= 0. && S2s[i] >= 0.) {
+      if ( (fabs(S1s[i]) > (s1c - binWidth / 2.) &&
+	    fabs(S1s[i]) <=(s1c + binWidth / 2.)) || !nFold ) {
+        if (S1s[i] >= ReqS1 && S2s[i] >= 0.) {
           if (resol) {
             signals[j].push_back(S2s[i]);
           } else {
@@ -837,7 +1097,7 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
         band[j][3] += pow(signals[j][i] - band[j][2], 2.);  // std dev calc
     }
     for (i = 0; i < S1s.size(); i++) {
-      if (resol && S1s[i] > 0.0 && S2s[i] > 0.0)
+      if (resol && S1s[i] > ReqS1 && S2s[i] > 0.0)
         band[j][1] += pow(S1s[i] - band[j][0], 2.);  // std dev calc
     }
     band[j][3] /= numPts - 1.;
@@ -848,6 +1108,11 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
     }
     band[j][4] = band[j][3] / sqrt(numPts);
     band[j][5] = numPts / (numPts + double(reject[j]));
+    for ( i = 0; i < (int)numPts; i++ ) {
+      if ( signals[j][i] != -999. )
+	band[j][6] += pow ( ( signals[j][i] - band[j][2] ) / band[j][3], 3. ); // skew calc
+    }
+    band[j][6] /= ( numPts - 2. );
   }
 
   return signals;

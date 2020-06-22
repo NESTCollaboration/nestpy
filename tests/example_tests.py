@@ -7,7 +7,7 @@ class nestpyExamplesTest(unittest.TestCase):
         import nestpy
 
         # This is same as C++ NEST with naming
-        nc = nestpy.NESTcalc()
+        nc = nestpy.NESTcalc(nestpy.VDetector())
         
         interaction = nestpy.INTERACTION_TYPE(0)  # NR
         
