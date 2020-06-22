@@ -19,7 +19,7 @@ def assert_equal_ref(mat):
 
 
 def assert_sparse_equal_ref(sparse_mat):
-    assert_equal_ref(sparse_mat.todense())
+    assert_equal_ref(sparse_mat.toarray())
 
 
 def test_fixed():
@@ -679,10 +679,10 @@ def test_issue1105():
     # These should still fail (incompatible dimensions):
     with pytest.raises(TypeError) as excinfo:
         m.iss1105_row(np.ones((7, 1)))
-    assert "incompatible function arguments" in str(excinfo)
+    assert "incompatible function arguments" in str(excinfo.value)
     with pytest.raises(TypeError) as excinfo:
         m.iss1105_col(np.ones((1, 7)))
-    assert "incompatible function arguments" in str(excinfo)
+    assert "incompatible function arguments" in str(excinfo.value)
 
 
 def test_custom_operator_new():

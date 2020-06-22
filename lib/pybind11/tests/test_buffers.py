@@ -1,7 +1,13 @@
+import io
 import struct
+import sys
+
 import pytest
+
 from pybind11_tests import buffers as m
 from pybind11_tests import ConstructorStats
+
+PY3 = sys.version_info[0] >= 3
 
 pytestmark = pytest.requires_numpy
 
@@ -36,17 +42,21 @@ def test_from_python():
 # https://bitbucket.org/pypy/pypy/issues/2444
 @pytest.unsupported_on_pypy
 def test_to_python():
-    mat = m.Matrix(5, 5)
-    assert memoryview(mat).shape == (5, 5)
+    mat = m.Matrix(5, 4)
+    assert memoryview(mat).shape == (5, 4)
 
     assert mat[2, 3] == 0
-    mat[2, 3] = 4
+    mat[2, 3] = 4.0
+    mat[3, 2] = 7.0
     assert mat[2, 3] == 4
+    assert mat[3, 2] == 7
+    assert struct.unpack_from('f', mat, (3 * 4 + 2) * 4) == (7, )
+    assert struct.unpack_from('f', mat, (2 * 4 + 3) * 4) == (4, )
 
     mat2 = np.array(mat, copy=False)
-    assert mat2.shape == (5, 5)
-    assert abs(mat2).sum() == 4
-    assert mat2[2, 3] == 4
+    assert mat2.shape == (5, 4)
+    assert abs(mat2).sum() == 11
+    assert mat2[2, 3] == 4 and mat2[3, 2] == 7
     mat2[2, 3] = 5
     assert mat2[2, 3] == 5
 
@@ -58,7 +68,7 @@ def test_to_python():
     del mat2  # holds a mat reference
     pytest.gc_collect()
     assert cstats.alive() == 0
-    assert cstats.values() == ["5x5 matrix"]
+    assert cstats.values() == ["5x4 matrix"]
     assert cstats.copy_constructions == 0
     # assert cstats.move_constructions >= 0  # Don't invoke any
     assert cstats.copy_assignments == 0
@@ -81,3 +91,28 @@ def test_pointer_to_member_fn():
         buf.value = 0x12345678
         value = struct.unpack('i', bytearray(buf))[0]
         assert value == 0x12345678
+
+
+@pytest.unsupported_on_pypy
+def test_readonly_buffer():
+    buf = m.BufferReadOnly(0x64)
+    view = memoryview(buf)
+    assert view[0] == 0x64 if PY3 else b'd'
+    assert view.readonly
+
+
+@pytest.unsupported_on_pypy
+def test_selective_readonly_buffer():
+    buf = m.BufferReadOnlySelect()
+
+    memoryview(buf)[0] = 0x64 if PY3 else b'd'
+    assert buf.value == 0x64
+
+    io.BytesIO(b'A').readinto(buf)
+    assert buf.value == ord(b'A')
+
+    buf.readonly = True
+    with pytest.raises(TypeError):
+        memoryview(buf)[0] = 0 if PY3 else b'\0'
+    with pytest.raises(TypeError):
+        io.BytesIO(b'1').readinto(buf)
