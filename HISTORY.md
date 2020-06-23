@@ -4,6 +4,18 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.2.1 (2020-06-20)
+------------------
+
+NESTv2.1.0beta
+
+1.1.4 (2020-06-20)
+------------------
+
+* Update pybind11 2.5.0
+* Fix manylinux build 
+* Add Python 3.8 support
+
 1.1.3 (2019-08-05)
 ------------------
 
