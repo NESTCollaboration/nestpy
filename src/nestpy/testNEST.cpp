@@ -20,6 +20,7 @@
 
 #define tZero 0.00 //day{of the year, 0 is average WIMP velocity}
 #define tStep 0.03
+#define hiEregime 1E+2 //keV
 
 using namespace std;
 using namespace NEST;
@@ -204,38 +205,74 @@ int main(int argc, char** argv) {
                   seed, no_seed, tZero);
 }
 
-vector<vector<double>> runNESTvec ( VDetector* detector, INTERACTION_TYPE particleType, //func suggested by Xin Xiang, PD Brown U. for RG, LZ
-				    vector<double> eList, vector<vector<double>> pos3dxyz ) {
+NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleType, //func suggested by Xin Xiang, PD Brown U. for RG, LZ
+				 vector<double> eList, vector<vector<double>> pos3dxyz, double inField, int seed ) {
   
   verbosity = false; NESTcalc n(detector);
   NESTresult result; QuantaResult quanta;
-  double x, y, z, driftTime, vD;
+  double x, y, z, driftTime, vD; RandomGen::rndm()->SetSeed(seed);
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
   FreeParam = {1.,1.,0.10,0.5,0.19};
   vector<double> scint, scint2, wf_amp; vector<long int> wf_time;
-  vector<vector<double>> S1cS2cpairs; S1cS2cpairs.resize(eList.size(),vector<double>(2,-999.));
+  NESTObservableArray OutputResults; double useField;
   vector<double> g2_params = n.CalculateG2(verbosity);
+  double rho = n.SetDensity(detector->get_T_Kelvin(),detector->get_p_bar());
   
   for ( long i = 0; i < eList.size(); i++ ) {
     x = pos3dxyz[i][0];
     y = pos3dxyz[i][1];
     z = pos3dxyz[i][2];
+    if ( inField <= 0. ) useField = detector->FitEF(x,y,z);
+    else useField = inField;
     double truthPos[3] = { x, y, z };
     double smearPos[3] = { x, y, z }; //ignoring the difference in this quick function caused by smearing
-    result = n.FullCalculation(particleType,eList[i],DENSITY,detector->FitEF(x,y,z),detector->get_molarMass(),ATOM_NUM,NuisParam,FreeParam,verbosity);
-    quanta = result.quanta; //used default density (2.9 at time of writing)
-    vD = n.SetDriftVelocity(detector->get_T_Kelvin(),DENSITY,detector->FitEF(x,y,z));
-    scint = n.GetS1(quanta,truthPos,smearPos,vD,vD,particleType,i,detector->FitEF(x,y,z),eList[i],0,verbosity,wf_time,wf_amp); //0 means useTiming = 0
+    result = n.FullCalculation(particleType,eList[i],rho,useField,detector->get_molarMass(),ATOM_NUM,NuisParam,FreeParam,verbosity);
+    quanta = result.quanta;
+    vD = n.SetDriftVelocity(detector->get_T_Kelvin(),rho,useField);
+    scint = n.GetS1(quanta,truthPos,smearPos,vD,vD,particleType,i,useField,eList[i],0,verbosity,wf_time,wf_amp); //0 means useTiming = 0
     driftTime = (detector->get_TopDrift()-z)/vD; //vD,vDmiddle assumed same (uniform field)
-    scint2= n.GetS2(quanta.electrons,truthPos,smearPos,driftTime,vD,i,detector->FitEF(x,y,z),0,verbosity,wf_time,wf_amp,g2_params);
+    scint2= n.GetS2(quanta.electrons,truthPos,smearPos,driftTime,vD,i,useField,0,verbosity,wf_time,wf_amp,g2_params);
     if ( scint[7] > PHE_MIN && scint2[7] > PHE_MIN ) { //unlike usual, kill (don't skip, just -> 0) sub-thr evts
-      S1cS2cpairs[0][i] = fabs(scint[7]); //default is S1c in units of spikes, 3-D XYZ corr
-      S1cS2cpairs[1][i] = log10(fabs(scint2[7])); //default is log10(S2c) in terms of log(phd) not phe a.k.a. PE
+      OutputResults.s1_nhits.push_back(abs(int(scint[0])));
+      OutputResults.s1_nhits_thr.push_back(abs(int(scint[8])));
+      OutputResults.s1_nhits_dpe.push_back(abs(int(scint[1])));
+      OutputResults.s1r_phe.push_back(fabs(scint[2]));
+      OutputResults.s1c_phe.push_back(fabs(scint[3]));
+      OutputResults.s1r_phd.push_back(fabs(scint[4]));
+      OutputResults.s1c_phd.push_back(fabs(scint[5]));
+      OutputResults.s1r_spike.push_back(fabs(scint[6]));
+      OutputResults.s1c_spike.push_back(fabs(scint[7])); //default is S1c in units of spikes, 3-D XYZ corr
+      OutputResults.Nee.push_back(abs(int(scint2[0])));
+      OutputResults.Nph.push_back(abs(int(scint2[1])));
+      OutputResults.s2_nhits.push_back(abs(int(scint2[2])));
+      OutputResults.s2_nhits_dpe.push_back(abs(int(scint2[3])));
+      OutputResults.s2r_phe.push_back(fabs(scint2[4]));
+      OutputResults.s2c_phe.push_back(fabs(scint2[5]));
+      OutputResults.s2r_phd.push_back(fabs(scint2[6]));
+      OutputResults.s2c_phd.push_back(fabs(scint2[7])); //default is S2c in terms of phd, not phe a.k.a. PE
     }
-    else { S1cS2cpairs[0][i] = 0.0; S1cS2cpairs[1][i] = 0.0; }
+    else {
+      OutputResults.s1_nhits.push_back(0);
+      OutputResults.s1_nhits_thr.push_back(0);
+      OutputResults.s1_nhits_dpe.push_back(0);
+      OutputResults.s1r_phe.push_back(0.0);
+      OutputResults.s1c_phe.push_back(0.0);
+      OutputResults.s1r_phd.push_back(0.0);
+      OutputResults.s1c_phd.push_back(0.0);
+      OutputResults.s1r_spike.push_back(0.0);
+      OutputResults.s1c_spike.push_back(0.0);
+      OutputResults.Nee.push_back(0);
+      OutputResults.Nph.push_back(0);
+      OutputResults.s2_nhits.push_back(0);
+      OutputResults.s2_nhits_dpe.push_back(0);
+      OutputResults.s2r_phe.push_back(0.);
+      OutputResults.s2c_phe.push_back(0.);
+      OutputResults.s2r_phd.push_back(0.);
+      OutputResults.s2c_phd.push_back(0.);
+    }
   }
   
-  return S1cS2cpairs;
+  return OutputResults;
 }
 
 int testNEST(VDetector* detector, unsigned long int numEvts, string type,
@@ -273,7 +310,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
   if (eMin == -1.) eMin = 0.;
 
   if (eMax == -1. && eMin == 0.)
-    eMax = 1e2;  // the default energy max is 100 keV
+    eMax = hiEregime;  // the default energy max
   if (eMax == 0.) {
     cerr << "ERROR: The maximum energy cannot be 0 keV!" << endl;
     return 1;
@@ -425,7 +462,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       //use massNum to input maxTimeSep into GetYields(...)
   double keV = -999.; double timeStamp = dayNumber;
   for (unsigned long int j = 0; j < numEvts; j++) {
-    timeStamp += tStep; //detector->set_eLife_us(5e1+1e3*(timeStamp/3e2));
+    //timeStamp += tStep; //detector->set_eLife_us(5e1+1e3*(timeStamp/3e2));
     //for E-recon when you've changed g1,g2-related stuff, redo line 341+
     if ( (eMin == eMax && eMin >= 0. && eMax > 0.) || type_num == Kr83m ) {
       keV = eMin;
@@ -556,19 +593,26 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
         cout << "Density = " << rho << " g/mL"
              << "\t";
         cout << "central vDrift = " << vD_middle << " mm/us\n";
-        cout << "\t\t\t\t\t\t\t\tW = " << Wq_eV
+        cout << "\t\t\tPRO TIP: neg s2_thr in detector->S2bot!\tW = " << Wq_eV
              << " eV\tNegative numbers are flagging things below threshold!   "
                 "phe=(1+P_dphe)*phd & phd=phe/(1+P_dphe)\n";
 
         if (type_num == Kr83m && eMin != 32.1)
           fprintf(stdout,
                   "t [ns]\t\t");
-	if (type_num == WIMP)
+	if (type_num == WIMP && timeStamp > (tZero+tStep))
 	  fprintf(stdout,
 		  "dayNum\t");
-	if ( eMax == eMin && numBins == 1 ) MCtruthE = false;
-	if ( MCtruthE ) fprintf(stdout,"E_truth [keV]");
-	else fprintf(stdout,"E_recon [keV]");
+	if ( eMax == eMin && numBins == 1 && MCtruthE == true ) {
+	  MCtruthE = false;
+	  fprintf(stderr,"Simulating a mono-E peak; setting MCtruthE false.\n");
+	}
+	if ( eMax > hiEregime )
+	  fprintf(stdout,"Energy [keV]");
+	else {
+	  if ( MCtruthE ) fprintf(stdout,"E_truth [keV]");
+	  else fprintf(stdout,"E_recon [keV]");
+	}
 	fprintf(stdout,
 		"\tfield [V/cm]\ttDrift [us]\tX,Y,Z "
 		"[mm]\tNph\tNe-\tS1 [PE or phe]\tS1_3Dcor "
@@ -828,7 +872,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
     else
       signalE.push_back(keV);
     
-    if ( (Ne+Nph == 0.00 || std::isnan(keVee)) && eMin == eMax && eMin > 1E+2 && !BeenHere ) { //efficiency is zero?
+    if ( (Ne+Nph == 0.00 || std::isnan(keVee)) && eMin == eMax && eMin > hiEregime && !BeenHere ) { //efficiency is zero?
       minS1 = -999.;
       minS2 = -999.;
       detector->set_s2_thr(0.0); //since needs GetS2() re-run, only "catches" after the first caught event
@@ -842,7 +886,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       signal2.pop_back();
       signalE.pop_back();
       cerr << endl << "CAUTION: Efficiency seems to have been zero, so trying again with full S1 and S2 ranges." << endl;
-      cerr << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly!" << endl;
+      cerr << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly! Setting MCtruthE to false." << endl;
       goto NEW_RANGES;
     }
     
@@ -901,7 +945,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       // and using max's too, pinching both ends
       if (type_num == Kr83m && eMin != 32.1 )
         printf("%.6f\t", yields.DeltaT_Scint);
-      if (type_num == WIMP)
+      if (type_num == WIMP && timeStamp > (tZero+tStep))
 	printf("%.0f\t", timeStamp);
       printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t", keV, field,
              driftTime, smearPos[0], smearPos[1], smearPos[2], quanta.photons,
@@ -909,7 +953,7 @@ int testNEST(VDetector* detector, unsigned long int numEvts, string type,
       // printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f,%.0f\t%lf\t%lf\t",keV,field,driftTime,smearPos[0],smearPos[1],smearPos[2],yields.PhotonYield,yields.ElectronYield);
       //for when you want means
       // if (truthPos[2] < detector->get_cathode() && verbosity) printf("g-X ");
-      if (keV > 1000. || scint[5] > maxS1 || scint2[7] > maxS2 ||
+      if (keV > 10.*hiEregime || scint[5] > maxS1 || scint2[7] > maxS2 ||
           // switch to exponential notation to make output more readable, if
           // energy is too high (>1 MeV)
           type == "muon" || type == "MIP" || type == "LIP" || type == "mu" ||
@@ -1092,6 +1136,8 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
     if (resol) band[j][0] /= numPts;
     band[j][1] /= numPts;
     band[j][2] /= numPts;
+    if ( numPts > signals[j].size() )
+      numPts = signals[j].size();  // seg fault prevention line
     for (i = 0; i < (int)numPts; i++) {
       if (signals[j][i] != -999.)
         band[j][3] += pow(signals[j][i] - band[j][2], 2.);  // std dev calc
