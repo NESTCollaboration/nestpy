@@ -73,7 +73,7 @@ double NESTcalc::PhotonTime(INTERACTION_TYPE species, bool exciton,
     if (!exciton) {
       tauR = exp(-0.00900 * dfield) *
 	(7.3138 + 3.8431 * log10(energy));    // arXiv:1310.1117
-      if ( tauR < 3.5 && species == gammaRay ) tauR = 3.5;
+      if ( tauR < 3.5 ) tauR = 3.5; //used to be for gammas only but helpful for matching beta data better
       if ( dfield > 8e2 ) dfield = 8e2; //to match Kubota's 4,000 V/cm
       SingTripRatio = 1.00 * pow(energy, -0.45+0.0005*dfield);  // see comment below; also, dfield may need to be fixed at ~100-200 V/cm (for NR too)
     } else
@@ -264,7 +264,7 @@ QuantaResult NESTcalc::GetQuanta(YieldResult yields, double density,
       recombProb * (1. - recombProb) * Ni + omega * omega * Ni * Ni;
   
   double skewness;
-  if ( (yields.PhotonYield+yields.ElectronYield) > 1e4 || yields.ElectricField > 5e2 || yields.ElectricField < 50. ) {
+  if ( (yields.PhotonYield+yields.ElectronYield) > 3e3 || yields.ElectricField > 5e2 || yields.ElectricField < 50. ) {
     skewness = 2.25; //make it constant when outside range of Vetri Velan's Run04 models. 0 for ion (wall BG) incl. alpha?
   }
   else { // LUX Skewness Model
@@ -466,8 +466,8 @@ YieldResult NESTcalc::GetYieldIon(double energy, double density, double dfield, 
   double fieldDep = pow(1. + pow(dfield / 95., 8.7), 0.0592);
   if (fdetector->get_inGas()) fieldDep = sqrt(dfield);
   double ThomasImel = 0.00625 * massDep / (1. + densDep) / fieldDep;
-  if ( A1 == 206. && Z1 == 82. ) { //Pb-206 (from Po-210 alpha decay)
-    ThomasImel = 79.9 * pow ( dfield, -0.868 ); //Nishat Parveen
+  if ( A1 == 206. && Z1 == 82. ) { //Pb-206 (from Po-210 alpha decay). Xe-Xe NR model matches best
+    ThomasImel = 0.048 * pow ( dfield, -.0533 ); //Nishat Parveen
   }
   const double logden = log10(density);
   double Wq_eV = 28.259 + 25.667 * logden - 33.611 * pow(logden, 2.) -
@@ -497,7 +497,7 @@ YieldResult NESTcalc::GetYieldIon(double energy, double density, double dfield, 
   return YieldResultValidity(result,energy,Wq_eV);  // everything needed to calculate fluctuations
 }
 
-YieldResult NESTcalc::GetYieldKr83m(double energy, double density, double dfield, double maxTimeSeparation)
+YieldResult NESTcalc::GetYieldKr83m(double energy, double density, double dfield, double maxTimeSeparation, double deltaT_ns=-999)
 {
   double Nq = -999;
   double Nph = -999;
@@ -505,12 +505,13 @@ YieldResult NESTcalc::GetYieldKr83m(double energy, double density, double dfield
   Wvalue wvalue = WorkFunction(density);
   double Wq_eV = wvalue.Wq_eV;
   double alpha = wvalue.alpha;
-  double deltaT_ns = DBL_MAX;
   constexpr double deltaT_ns_halflife = 154.4;
   if (energy == 9.4)
   { 
-    while (deltaT_ns > maxTimeSeparation){
-      deltaT_ns = RandomGen::rndm()->rand_exponential(deltaT_ns_halflife);
+    if (deltaT_ns < 0) {
+      while (deltaT_ns > maxTimeSeparation || deltaT_ns < 0) {
+        deltaT_ns = RandomGen::rndm()->rand_exponential(deltaT_ns_halflife);
+      }
     }
     Nq = energy * 1e3 / Wq_eV;
     double  medTlevel = 57.462 + (69.201 - 57.462 ) / pow(1. + pow(dfield / 250.13, 0.9), 1.);
@@ -530,8 +531,10 @@ YieldResult NESTcalc::GetYieldKr83m(double energy, double density, double dfield
       if (Ne < 0.)
 	      Ne = 0.;
     } else {   //merged 41.5 keV decay
-      while (deltaT_ns > maxTimeSeparation){
-        deltaT_ns = RandomGen::rndm()->rand_exponential(deltaT_ns_halflife);
+      if (deltaT_ns < 0) {
+        while (deltaT_ns > maxTimeSeparation || deltaT_ns < 0) {
+          deltaT_ns = RandomGen::rndm()->rand_exponential(deltaT_ns_halflife);
+        }
       }
       double  medTlevel = 57.462 + (69.201 - 57.462 ) / pow(1. + pow(dfield / 250.13, 0.9), 1.);
       double lowTdrop = 35. + (75. - 35.) / pow(1. + pow(dfield/60, 1), 1);
@@ -1331,31 +1334,36 @@ vector<double> NESTcalc::CalculateG2(bool verbosity) {
     SE *= fdetector->FitTBA(0., 0., fdetector->get_TopDrift() / 2.)[1];
   double g2 = ExtEff * SE;
   double StdDev = 0., Nphe, pulseArea, pulseAreaC, NphdC, phi, posDep, r,x,y; int Nph, nHits;
-  
-  for ( int i = 0; i < 10000; i++ ) { // calculate properly the width (1-sigma std dev) in the SE size
-    Nph = int(floor(RandomGen::rndm()->rand_gauss(elYield,sqrt(fdetector->get_s2Fano()*elYield))+0.5));
-    phi = 2.*M_PI*RandomGen::rndm()->rand_uniform();
-    r = fdetector->get_radius()*sqrt(RandomGen::rndm()->rand_uniform());
-    x = r * cos(phi);
-    y = r * sin(phi);
-    posDep = fdetector->FitS2(x,y,VDetector::fold) / fdetector->FitS2(0.,0.,VDetector::fold); //future upgrade: smeared pos
-    nHits = BinomFluct ( Nph, fdetector->get_g1_gas() * posDep );
-    Nphe = nHits+BinomFluct(nHits,fdetector->get_P_dphe());
-    pulseArea = RandomGen::rndm()->rand_gauss(Nphe,fdetector->get_sPEres()*sqrt(Nphe));
-    pulseArea = RandomGen::rndm()->rand_gauss(pulseArea,fdetector->get_noiseL()[1]*pulseArea);
-    pulseAreaC = pulseArea / posDep;
-    NphdC = pulseAreaC/(1.+fdetector->get_P_dphe());
-    StdDev += (SE-NphdC)*(SE-NphdC);
-  } StdDev = sqrt(StdDev)/sqrt(9999.); // N-1 from above (10,000)
-  
-  if (verbosity) {
-    cout << endl
-         << "g1 = " << fdetector->get_g1() << " phd per photon\tg2 = " << g2
-         << " phd per electron (e-EE = ";
-    cout << ExtEff * 100. << "%, SE_mean,width = " << SE << "," << StdDev
-         << ")\t";
-  }
 
+  if (verbosity) {
+    
+    for ( int i = 0; i < 10000; i++ ) { // calculate properly the width (1-sigma std dev) in the SE size
+      Nph = int(floor(RandomGen::rndm()->rand_gauss(elYield,sqrt(fdetector->get_s2Fano()*elYield))+0.5));
+      phi = 2.*M_PI*RandomGen::rndm()->rand_uniform();
+      r = fdetector->get_radius()*sqrt(RandomGen::rndm()->rand_uniform());
+      x = r * cos(phi);
+      y = r * sin(phi);
+      posDep = fdetector->FitS2(x,y,VDetector::fold) / fdetector->FitS2(0.,0.,VDetector::fold); //future upgrade: smeared pos
+      nHits = BinomFluct ( Nph, fdetector->get_g1_gas() * posDep );
+      Nphe = nHits+BinomFluct(nHits,fdetector->get_P_dphe());
+      pulseArea = RandomGen::rndm()->rand_gauss(Nphe,fdetector->get_sPEres()*sqrt(Nphe));
+      pulseArea = RandomGen::rndm()->rand_gauss(pulseArea,fdetector->get_noiseL()[1]*pulseArea);
+      if ( fdetector->get_s2_thr() < 0. )
+	pulseArea = RandomGen::rndm()->rand_gauss(fdetector->FitTBA(0.0,0.0,fdetector->get_TopDrift()/2.)[1]*pulseArea,sqrt
+						 (fdetector->FitTBA(0.0,0.0,fdetector->get_TopDrift()/2.)[1]*
+						 pulseArea*(1.-fdetector->FitTBA(0.0,0.0,fdetector->get_TopDrift()/2.)[1])));
+      pulseAreaC = pulseArea / posDep;
+      NphdC = pulseAreaC/(1.+fdetector->get_P_dphe());
+      StdDev += (SE-NphdC)*(SE-NphdC);
+    } StdDev = sqrt(StdDev)/sqrt(9999.); // N-1 from above (10,000)
+    
+    cout << endl
+	 << "g1 = " << fdetector->get_g1() << " phd per photon\tg2 = " << g2
+	 << " phd per electron (e-EE = ";
+    cout << ExtEff * 100. << "%, SE_mean,width = " << SE << "," << StdDev
+	 << ")\t";
+  }
+  
   // Store the g2 parameters in a vector for later (calculated once per
   // detector)
   g2_params[0] = elYield;
