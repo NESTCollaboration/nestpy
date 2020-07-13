@@ -167,7 +167,7 @@ PYBIND11_MODULE(nestpy, m) {
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	 py::arg("yields"),
 	 py::arg("density") = 2.9,
-	 py::arg("free_parameters") = &NESTcalc::default_FreeParam)
+	 py::arg("free_parameters") = NESTcalc::default_FreeParam)
 	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
 	//.def("GetS2", &NEST::NESTcalc::GetS2) 					Currently not working because of VDetector.FitTBA()
