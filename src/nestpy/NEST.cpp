@@ -4,11 +4,13 @@
 #define InfraredER 1.35
 #define InfraredNR 7.00
 
+#define ChargeLoss 0.20
+
 using namespace std;
 using namespace NEST;
 
 const std::vector<double> NESTcalc::default_NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.};
-const std::vector<double> NESTcalc::default_FreeParam = {1.,1.,0.1,0.5,0.19};
+const std::vector<double> NESTcalc::default_FreeParam = {1.,1.,0.1,0.5,0.19,2.25};
 
 long NESTcalc::BinomFluct(long N0, double prob) {
   double mean = N0 * prob;
@@ -37,7 +39,7 @@ NESTresult NESTcalc::FullCalculation(INTERACTION_TYPE species, double energy,
                                      double density, double dfield, double A,
                                      double Z,
                                      vector<double> NuisParam /*={11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}*/,
-				     vector<double> FreeParam /*={1.,1.,0.1,0.5,0.19}*/,
+				     vector<double> FreeParam /*={1.,1.,0.1,0.5,0.19,2.25}*/,
                                      bool do_times /*=true*/) {
   NESTresult result;
   result.yields = GetYields(species, energy, density, dfield, A, Z, NuisParam);
@@ -71,6 +73,7 @@ double NESTcalc::PhotonTime(INTERACTION_TYPE species, bool exciton,
             0.416);  // spans 2.3 (alpha) and 7.8 (Cf in Xe) from NEST v1
   else {             // ER
     if (!exciton) {
+      if ( energy > 1e3 ) energy = 1e3; // MIP above ~1 MeV. Fix thanks to Austin de St. Croix
       tauR = exp(-0.00900 * dfield) *
 	(7.3138 + 3.8431 * log10(energy));    // arXiv:1310.1117
       if ( tauR < 3.5 ) tauR = 3.5; //used to be for gammas only but helpful for matching beta data better
@@ -123,7 +126,7 @@ photonstream NESTcalc::GetPhotonTimes(INTERACTION_TYPE species,
   return return_photons;
 }
 
-double NESTcalc::RecombOmegaNR(double elecFrac,vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19}*/)
+double NESTcalc::RecombOmegaNR(double elecFrac,vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/)
 {
   double omega = FreeParam[2]*exp(-0.5*pow(elecFrac-FreeParam[3],2.)/(FreeParam[4]*FreeParam[4]));
   if ( omega < 0. )
@@ -163,13 +166,13 @@ double NESTcalc::FanoER(double density, double Nq_mean,double efield)
 
 
 QuantaResult NESTcalc::GetQuanta(YieldResult yields, double density,
-				 vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19}*/) {
+				 vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/) {
   QuantaResult result;
   bool HighE;
   int Nq_actual, Ne, Nph, Ni, Nex;
   
-  if ( FreeParam.size() < 5 ) {
-    cerr << "\nERROR: You need a minimum of 5 free parameters for the resolution model.\n";
+  if ( FreeParam.size() < 6 ) {
+    cerr << "\nERROR: You need a minimum of 6 free parameters for the resolution model.\n";
     exit(EXIT_FAILURE);
   }
   
@@ -264,8 +267,8 @@ QuantaResult NESTcalc::GetQuanta(YieldResult yields, double density,
       recombProb * (1. - recombProb) * Ni + omega * omega * Ni * Ni;
   
   double skewness;
-  if ( (yields.PhotonYield+yields.ElectronYield) > 3e3 || yields.ElectricField > 5e2 || yields.ElectricField < 50. ) {
-    skewness = 2.25; //make it constant when outside range of Vetri Velan's Run04 models. 0 for ion (wall BG) incl. alpha?
+  if ( (yields.PhotonYield+yields.ElectronYield) > 1e4 || yields.ElectricField > 4e3 || yields.ElectricField < 50. ) {
+    skewness = 0.00; //make it a constant 0 when outside the range of Vetri Velan's Run04 models.
   }
   else { // LUX Skewness Model
     Wvalue wvalue = WorkFunction(density);
@@ -283,18 +286,20 @@ QuantaResult NESTcalc::GetQuanta(YieldResult yields, double density,
     if (yields.Lindhard == 1.) {
       skewness = 1. / (1. + exp((engy - E2) / E3)) * (alpha0 + cc0 * exp(-1. * fld / F0) * (1. - exp(-1. * engy / E0))) +
         1. / (1. + exp(-1. * (engy - E2) / E3)) * cc1 * exp(-1. * engy / E1) * exp(-1. * sqrt(fld) / sqrt(F1));
+      //if ( fabs(skewness) <= DBL_MIN ) skewness = DBL_MIN;
     }
     else {
-      skewness = 2.25; //~5-20 also good (for NR). All better than zero, but 0 is OK too
-    }
+      skewness = FreeParam[5]; //2.25 but ~5-20 also good (for NR). All better than zero, but 0 is OK too
+    } //note to self: find way to make 0 for ion (wall BG) incl. alphas?
   }
   
   double widthCorrection = sqrt( 1. - (2./M_PI) * skewness*skewness/(1. + skewness*skewness));
   double muCorrection = (sqrt(Variance)/widthCorrection)*(skewness/sqrt(1.+skewness*skewness))*sqrt(2./M_PI);
-  Ne = int(floor(
-       RandomGen::rndm()->rand_skewGauss((1. - recombProb) * Ni - muCorrection, sqrt(Variance) / widthCorrection, skewness) +
-       0.5));
-
+  if ( fabs(skewness) > DBL_MIN )
+    Ne = int(floor(RandomGen::rndm()->rand_skewGauss((1.-recombProb)*Ni-muCorrection,sqrt(Variance)/widthCorrection,skewness)+0.5));
+  else
+    Ne = int(floor(RandomGen::rndm()->rand_gauss((1.-recombProb)*Ni,sqrt(Variance))+0.5));
+  
   if (Ne < 0) Ne = 0;
   if (Ne > Ni) Ne = Ni;
 
@@ -422,7 +427,7 @@ YieldResult NESTcalc::GetYieldNR(double energy, double density, double dfield, d
   double Ni = (4. / ThomasImel) * (exp(Ne * ThomasImel / 4.) - 1.);
   double Nex = (-1. / ThomasImel) * (4. * exp(Ne * ThomasImel / 4.) -
           (Ne + Nph) * ThomasImel - 4.);
-  if ( Nex <= 0. ) cerr << "\nCAUTION: You are approaching the border of NEST's validity for high-energy NR, or are beyond it, at " << energy << " keV." << endl;
+  if ( Nex <= 0. ) cerr << "\nCAUTION: You are approaching the border of NEST's validity for high-energy (OR, for LOW) NR, or are beyond it, at " << energy << " keV." << endl;
   if ( fabs(Nex + Ni -Nq) > 2. * PHE_MIN )
   {
     cerr << "\nERROR: Quanta not conserved. Tell Matthew Immediately!\n";
@@ -466,8 +471,8 @@ YieldResult NESTcalc::GetYieldIon(double energy, double density, double dfield, 
   double fieldDep = pow(1. + pow(dfield / 95., 8.7), 0.0592);
   if (fdetector->get_inGas()) fieldDep = sqrt(dfield);
   double ThomasImel = 0.00625 * massDep / (1. + densDep) / fieldDep;
-  if ( A1 == 206. && Z1 == 82. ) { //Pb-206 (from Po-210 alpha decay). Xe-Xe NR model matches best
-    ThomasImel = 0.048 * pow ( dfield, -.0533 ); //Nishat Parveen
+  if ( A1 == 206. && Z1 == 82. ) { //Pb-206 (from Po-210 alpha decay).
+    ThomasImel = 79.9 * pow ( dfield, -0.868 ); //Nishat Parveen
   }
   const double logden = log10(density);
   double Wq_eV = 28.259 + 25.667 * logden - 33.611 * pow(logden, 2.) -
@@ -486,6 +491,8 @@ YieldResult NESTcalc::GetYieldIon(double energy, double density, double dfield, 
     recombProb = 0.0;
   double Nph = Nq * NexONi / (1. + NexONi) + recombProb * Ni;
   double Ne = Nq - Nph;
+  if ( A1 == 206. && Z1 == 82. )
+    Ne = RandomGen::rndm()->rand_gauss(Ne/ChargeLoss,2.*sqrt(Ne/(ChargeLoss*ChargeLoss))); // to compensate for accidentally including Q-loss in fits to Xed data
   
   YieldResult result;
   result.PhotonYield = Nph;
@@ -708,13 +715,14 @@ NESTcalc::~NESTcalc() {
   if (fdetector) delete fdetector;
 }
 
-vector<double> NESTcalc::GetS1(QuantaResult quanta, double truthPos[3],
-                               double smearPos[3], double driftVelocity,
+vector<double> NESTcalc::GetS1(QuantaResult quanta, double truthPosX, double truthPosY, double truthPosZ,
+                               double smearPosX, double smearPosY, double smearPosZ, double driftVelocity,
                                double dV_mid, INTERACTION_TYPE type_num,
                                long evtNum, double dfield, double energy,
                                int useTiming, bool outputTiming,
                                vector<long int>& wf_time,
                                vector<double>& wf_amp) {
+  double truthPos[3] = { truthPosX, truthPosY, truthPosZ }; double smearPos[3] = { smearPosX, smearPosY, smearPosZ };
   int Nph = quanta.photons; double subtract[2] = { 0., 0. };
   
   wf_time.clear();
@@ -997,12 +1005,13 @@ vector<double> NESTcalc::GetS1(QuantaResult quanta, double truthPos[3],
   return scintillation;
 }
 
-vector<double> NESTcalc::GetS2(int Ne, double truthPos[3], double smearPos[3],
+vector<double> NESTcalc::GetS2(int Ne, double truthPosX, double truthPosY, double truthPosZ, double smearPosX, double smearPosY, double smearPosZ,
                                double dt, double driftVelocity, long evtNum,
                                double dfield, int useTiming, bool outputTiming,
                                vector<long int>& wf_time,
                                vector<double>& wf_amp,
                                vector<double>& g2_params) {
+  double truthPos[3] = { truthPosX, truthPosY, truthPosZ }; double smearPos[3] = { smearPosX, smearPosY, smearPosZ };
   double elYield = g2_params[0];
   double ExtEff = g2_params[1];
   double SE = g2_params[2];
@@ -1128,13 +1137,17 @@ vector<double> NESTcalc::GetS2(int Ne, double truthPos[3], double smearPos[3],
       newY += sigY;
       DL_time = DL / driftVelocity_gas;
       electronstream[i] += DL_time;
-      if (i >= Nee && eTrain) {  // all numbers are based on arXiv:1711.07025
-        E_liq = fdetector->get_E_gas() / (EPS_LIQ / EPS_GAS);
-        tau2 = 0.58313 * exp(0.20929 * E_liq) * 1e3;
+      if ( i >= Nee && eTrain ) {  // exponential based on arXiv:1711.07025, power on 2004.07791
+        E_liq = fdetector->get_E_gas() / (EPS_LIQ / fabs(EPS_GAS));
+        tau2 = ( fdetector->get_TopDrift() / driftVelocity );//0.58313 * exp(0.20929 * E_liq) * 1e3;
         tau1 = 1.40540 * exp(0.15578 * E_liq) * 1e3 * 1e-2;
         amp2 = 0.38157 * exp(0.21177 * E_liq) * 1e-2;
-        if (RandomGen::rndm()->rand_uniform() < (amp2 / 0.035) * ExtEff)
-          electronstream[i] -= tau2 * log(RandomGen::rndm()->rand_uniform());
+        if ( RandomGen::rndm()->rand_uniform() < (amp2 / 0.035) * ExtEff ) {
+	  tau2 /= RandomGen::rndm()->rand_uniform();
+	  if ( tau2 > 1e6 )
+	    tau2 = 1e6; // 1 sec. cap
+          electronstream[i] += tau2;
+	}
         else
           electronstream[i] -= tau1 * log(RandomGen::rndm()->rand_uniform());
       }
@@ -1289,16 +1302,22 @@ vector<double> NESTcalc::CalculateG2(bool verbosity) {
   double alpha = 0.137, beta = 177.,
          gamma = 45.7;  // note the value of alpha is similar to ~1/7eV. Not
                         // coincidence. Noted in Mock et al.
-  double epsilonRatio = EPS_LIQ / EPS_GAS;
+  double epsilonRatio = EPS_LIQ / fabs(EPS_GAS);
   if (fdetector->get_inGas())
     epsilonRatio = 1.;  // in an all-gas detector, E_liq variable below simply
                         // becomes the field value between anode and gate
 
   // Convert gas extraction field to liquid field
   double E_liq = fdetector->get_E_gas() / epsilonRatio;  // kV per cm
-  double ExtEff = -0.03754 * pow(E_liq, 2.) + 0.52660 * E_liq -
-                  0.84645;  // arXiv:1710.11032 (PIXeY)
-  if (ExtEff > 1. || fdetector->get_inGas() || E_liq > 7.) ExtEff = 1.;
+  double ExtEff;
+  if ( EPS_GAS > 0. ) {
+    ExtEff = -0.03754 * pow(E_liq, 2.) + 0.52660 * E_liq - 0.84645;  // arXiv:1710.11032 (PIXeY)
+    if ( E_liq > 7. ) ExtEff = 1.;
+  }
+  else
+    ExtEff = 1. - 1. / ( 1. + pow ( E_liq / 3.4832, 4.9443 ) );  // arXiv:1904.02885 (Livermore)
+  
+  if (ExtEff > 1. || fdetector->get_inGas()) ExtEff = 1.;
   if (ExtEff < 0. || E_liq <= 0.) ExtEff = 0.;
 
   double gasGap =
@@ -1311,12 +1330,12 @@ vector<double> NESTcalc::CalculateG2(bool verbosity) {
   }
 
   // Calculate EL yield based on gas gap, extraction field, and pressure
-  double elYield = (alpha * fdetector->get_E_gas() * 1e3 -
-                    beta * fdetector->get_p_bar() - gamma) *
-                   gasGap * 0.1;  // arXiv:1207.2292 (HA, Vitaly C.)
+  //double elYield = (alpha * fdetector->get_E_gas() * 1e3 -
+  //                beta * fdetector->get_p_bar() - gamma) *
+  //               gasGap * 0.1;  // arXiv:1207.2292 (HA, Vitaly C.)
   double rho = fdetector->get_p_bar() * 1e5 /
     (fdetector->get_T_Kelvin() * 8.314) * fdetector->get_molarMass() * 1e-6;
-  elYield = (0.137*fdetector->get_E_gas()*1e3-4.70e-18*(NEST_AVO*rho/fdetector->get_molarMass())) * gasGap * 0.1;
+  double elYield = (0.137*fdetector->get_E_gas()*1e3-4.70e-18*(NEST_AVO*rho/fdetector->get_molarMass())) * gasGap * 0.1;
   // replaced with more accurate version also from 1207.2292, but works for room temperature gas
   if (elYield <= 0.0 && E_liq != 0.) {
     cerr << "\tWARNING, the field in gas must be at least "
@@ -1546,18 +1565,23 @@ double NESTcalc::GetDriftVelocity_Liquid(double Kelvin, double Density,
     slope = (vf - vi) / (Tf - Ti);
     speed = slope * (Kelvin - Ti) + vi;
   }
-
-  if (speed <= 0.) {
-    if (eField < 1e2 && eField >= FIELD_MIN) {
-      cerr << "\nERROR: DRIFT SPEED NON-POSITIVE -- FIELD TOO LOW\n";
-      exit(EXIT_FAILURE);
+  
+  if ( speed <= 0. ) {
+    cerr << "\nWARNING: DRIFT SPEED NON-POSITIVE. Setting to 0.1 mm/us\t" <<
+      "Line Number 1551 of NEST.cpp, in function NESTcalc::GetDriftVelocity_Liquid\n";
+    if ( eField < 1e2 && eField >= FIELD_MIN ) {
+      cerr << "FIELD MAY BE TOO LOW. ";
     }
-    if (eField > 1e4) {
-      cerr << "\nERROR: DRIFT SPEED NON-POSITIVE -- FIELD TOO HIGH\n";
-      exit(EXIT_FAILURE);
+    else if ( eField > 1e4 ) {
+      cerr << "FIELD MAYBE TOO HIGH. ";
     }
+    else {
+      cerr << "Something unknown went wrong: are you in a noble element?? ";
+    }
+    cerr << "EF = " << eField << " V/cm. T = " << Kelvin << " Kelvin" << endl;
+    speed = 0.1;
   }
-  return speed;
+  return speed; //mm per microsecond
 }
 
 double NESTcalc::GetDriftVelocity_MagBoltz(
@@ -1588,7 +1612,7 @@ double NESTcalc::GetDriftVelocity_MagBoltz(
   }
   if (gasdep >= 3.8e-17) edrift = 6e21 * gasdep - 32279.;
 
-  return edrift * 1e-5;  // from cm/s into mm per microsecond
+  return fabs ( edrift ) * 1e-5;  // from cm/s into mm per microsecond
 }
 
 vector<double> NESTcalc::SetDriftVelocity_NonUniform(double rho, double zStep,
@@ -1603,7 +1627,7 @@ vector<double> NESTcalc::SetDriftVelocity_NonUniform(double rho, double zStep,
         if (!fdetector->get_inGas())
           driftTime += zStep / SetDriftVelocity(fdetector->get_T_Kelvin(), rho,
                                                 fdetector->get_E_gas() /
-                                                    (EPS_LIQ / EPS_GAS) * 1e3);
+						(EPS_LIQ / fabs(EPS_GAS)) * 1e3);
         else  // if gate == TopDrift properly set, shouldn't happen
           driftTime += zStep / GetDriftVelocity_MagBoltz(
                                    rho, fdetector->get_E_gas() * 1e3);

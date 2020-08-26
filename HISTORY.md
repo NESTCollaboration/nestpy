@@ -32,7 +32,7 @@ Default arguments for GetYields and GetQuanta (see PR #25)
 
 NESTv2.0.1
 
-* testNEST included in nestpy
+* execNEST included in nestpy
 * Extensive bug fixes and testing improvements
 
 1.1.1 (2018-08-29)

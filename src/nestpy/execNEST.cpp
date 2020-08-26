@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
       FreeParam.push_back(atof(argv[4])); //0.070
       FreeParam.push_back(0.50);
       FreeParam.push_back(0.19);
+      FreeParam.push_back(2.25);
       
     }
     
@@ -184,6 +185,7 @@ int main(int argc, char** argv) {
       FreeParam.push_back(0.10); // amplitude for non-binomial recombination fluctuations
       FreeParam.push_back(0.50); // center in e-Frac
       FreeParam.push_back(0.19); // width parameter (Gaussian 1-sigma)
+      FreeParam.push_back(2.25); // raw skewness, for NR
     }
     NuisParam.push_back(11.); //alpha, for NR model. See http://nest.physics.ucdavis.edu
     NuisParam.push_back(1.1); //beta
@@ -212,7 +214,7 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
   NESTresult result; QuantaResult quanta;
   double x, y, z, driftTime, vD; RandomGen::rndm()->SetSeed(seed);
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19};
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   vector<double> scint, scint2, wf_amp; vector<long int> wf_time;
   NESTObservableArray OutputResults; double useField;
   vector<double> g2_params = n.CalculateG2(verbosity);
@@ -229,9 +231,11 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
     result = n.FullCalculation(particleType,eList[i],rho,useField,detector->get_molarMass(),ATOM_NUM,NuisParam,FreeParam,verbosity);
     quanta = result.quanta;
     vD = n.SetDriftVelocity(detector->get_T_Kelvin(),rho,useField);
-    scint = n.GetS1(quanta,truthPos,smearPos,vD,vD,particleType,i,useField,eList[i],0,verbosity,wf_time,wf_amp); //0 means useTiming = 0
+    scint = n.GetS1(quanta,truthPos[0],truthPos[1],truthPos[2],smearPos[0],smearPos[1],smearPos[2],
+		    vD,vD,particleType,i,useField,eList[i],0,verbosity,wf_time,wf_amp); //0 means useTiming = 0
     driftTime = (detector->get_TopDrift()-z)/vD; //vD,vDmiddle assumed same (uniform field)
-    scint2= n.GetS2(quanta.electrons,truthPos,smearPos,driftTime,vD,i,useField,0,verbosity,wf_time,wf_amp,g2_params);
+    scint2= n.GetS2(quanta.electrons,truthPos[0],truthPos[1],truthPos[2],smearPos[0],smearPos[1],smearPos[2],
+		    driftTime,vD,i,useField,0,verbosity,wf_time,wf_amp,g2_params);
     if ( scint[7] > PHE_MIN && scint2[7] > PHE_MIN ) { //unlike usual, kill (don't skip, just -> 0) sub-thr evts
       OutputResults.s1_nhits.push_back(abs(int(scint[0])));
       OutputResults.s1_nhits_thr.push_back(abs(int(scint[8])));
@@ -542,9 +546,9 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
         position.erase(0, loc + delimiter.length());
         i++;
       }
-      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radius() && j == 0 )
+      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radius() && j == 0 && pos_x != -999. && pos_y != -999. )
 	cerr << "WARNING: outside fiducial radius." << endl;
-      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radmax() ) {
+      if ( sqrt ( pos_x*pos_x+pos_y*pos_y ) > detector->get_radmax() && pos_x != -999. && pos_y != -999. ) {
 	cerr << "\nERROR: outside physical radius!!!" << endl; return EXIT_FAILURE; }
       pos_z = stof(position);
       if (stof(position) == -1.)
@@ -751,7 +755,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
 	  yields = n.GetYields(type_num, keV, rho, field, double(massNum), double(atomNum), NuisParam);
 	}
 	//FreeParam.clear();
-	//FreeParam = { 1.00, 1.00, 0.100, 0.50, 0.19 };
+	//FreeParam = { 1.00, 1.00, 0.100, 0.50, 0.19, 2.25 };
         quanta = n.GetQuanta(yields, rho, FreeParam);
       }
       else {
@@ -788,18 +792,19 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     vector<long int> wf_time;
     vector<double> wf_amp;
     vector<double> scint =
-      n.GetS1(quanta, truthPos, smearPos, vD, vD_middle, type_num, j, field,
-                keV, useTiming, verbosity, wf_time, wf_amp);
+      n.GetS1(quanta, truthPos[0],truthPos[1],truthPos[2],smearPos[0],smearPos[1],smearPos[2],
+	      vD, vD_middle, type_num, j, field,
+	      keV, useTiming, verbosity, wf_time, wf_amp);
     if (truthPos[2] < detector->get_cathode()) quanta.electrons = 0;
     vector<double> scint2 =
-      n.GetS2(quanta.electrons, truthPos, smearPos, driftTime, vD, j, field,
+      n.GetS2(quanta.electrons, truthPos[0],truthPos[1],truthPos[2],smearPos[0],smearPos[1],smearPos[2], driftTime, vD, j, field,
 	      useTiming, verbosity, wf_time, wf_amp, g2_params);
   NEW_RANGES:
-    if (usePD == 0 && fabs(scint[3]) > minS1 && scint[3] < maxS1)
+    if ( usePD == 0 && fabs(scint[3]) > minS1 && scint[3] < maxS1 )
       signal1.push_back(scint[3]);
-    else if (usePD == 1 && fabs(scint[5]) > minS1 && scint[5] < maxS1)
+    else if ( usePD == 1 && fabs(scint[5]) > minS1 && scint[5] < maxS1 )
       signal1.push_back(scint[5]);
-    else if (usePD >= 2 && fabs(scint[7]) > minS1 && scint[7] < maxS1)
+    else if ( (usePD >= 2 && fabs(scint[7]) > minS1 && scint[7] < maxS1) || maxS1 >= 998.5 ) //xtra | handles bizarre bug of ~0eff, S1=999
       signal1.push_back(scint[7]);
     else
       signal1.push_back(-999.);
@@ -936,10 +941,13 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     // adjusted for 2-PE effect (LUX phd units)
     // scint2[8] = g2; // g2 = ExtEff * SE, light collection efficiency of EL in
     // gas gap (from CalculateG2)
-
-    if (1) {  // fabs(scint[7]) > PHE_MIN && fabs(scint2[7]) > PHE_MIN ) { //if
-      // you want to skip specific sub-threshold events, comment in this
-      // if statement (save screen/disk space)
+    
+    if ( PrintSubThr || (
+			 scint[0] > PHE_MIN && scint[1] > PHE_MIN && scint[2] > PHE_MIN && scint[3] > PHE_MIN && scint[4] > PHE_MIN &&
+			 scint[5] > PHE_MIN && scint[6] > PHE_MIN && scint[7] > PHE_MIN && scint[8] > PHE_MIN &&
+			 scint2[0] >PHE_MIN && scint2[1] >PHE_MIN && scint2[2] >PHE_MIN && scint2[3] >PHE_MIN && scint2[4] >PHE_MIN &&
+			 scint2[5]> PHE_MIN && scint2[6]> PHE_MIN && scint2[7]> PHE_MIN && scint2[8]> PHE_MIN ) ) {
+      // for skipping specific sub-threshold events (save screen/disk space)
       // other suggestions: minS1, minS2 (or s2_thr) for tighter cuts depending
       // on analysis.hh settings (think of as analysis v. trigger thresholds)
       // and using max's too, pinching both ends
