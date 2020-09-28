@@ -169,32 +169,32 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
 #                            [0, 1, 2],
 #                            [0, 1, 2])
 
-#class testNESTTest(unittest.TestCase):
+#class execNESTTest(unittest.TestCase):
 #
-#    def test_testNEST_random_pos(self):
+#    def test_execNEST_random_pos(self):
 #        detector = nestpy.DetectorExample_XENON10()
 #        #  test with -1 for fObs and seed (1)
-#        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, True, 1.0)
+#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, True, 1.0)
 #
-#    def test_testNEST_pos(self):
+#    def test_execNEST_pos(self):
 #        detector = nestpy.DetectorExample_XENON10()
 #        #  test with actual position [0.,0.,0.] and seed(1)
-#        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0) 
+#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0) 
 #
-#    def test_testNEST_pos_random_seed(self):
+#    def test_execNEST_pos_random_seed(self):
 #        detector = nestpy.DetectorExample_XENON10()
 #	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1, 1, True, 1.0)
+#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1, 1, True, 1.0)
 #
-#    def test_testNEST_random_z(self):
+#    def test_execNEST_random_z(self):
 #        detector = nestpy.DetectorExample_XENON10()
 #	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1, 1, True, 1.0)
+#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1, 1, True, 1.0)
 #
-#    def test_testNEST_random_xy(self):
+#    def test_execNEST_random_xy(self):
 #        detector = nestpy.DetectorExample_XENON10()
 #	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.testNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1, 1, True, 1.0)
+#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1, 1, True, 1.0)
 
 if __name__ == "__main__":
     unittest.main()

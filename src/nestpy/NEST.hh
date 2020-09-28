@@ -84,10 +84,8 @@
 #define FIELD_MIN 1.         // min elec field to make S2 (in V/cm)
 #define DENSITY 2.90         // g/cm^3, ref density for dependent effects
 
-#define EPS_GAS 1.00126
-#define EPS_LIQ \
-  1.85  // LXe dielectric constant explicitly NOT 1.96 (old). Update thx to Dan
-        // McK.
+#define EPS_GAS 1.00126  // poly-morphic: make negative to use LLNL instead of PIXeY's e- ext eff
+#define EPS_LIQ 1.85  // LXe dielectric constant explicitly NOT 1.96 (old). Update thx to Dan McK.
 
 #define SAMPLE_SIZE 10  // nano-seconds
 #define PULSE_WIDTH 10  // nano-seconds
@@ -162,14 +160,14 @@ class NESTcalc {
   long BinomFluct(long, double);
   
   static const std::vector<double> default_NuisParam; /* = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}*/
-  static const std::vector<double> default_FreeParam; /* = {1.,1.,0.1,0.5,0.19} */
+  static const std::vector<double> default_FreeParam; /* = {1.,1.,0.1,0.5,0.19,2.25} */
   // basic binomial fluctuation, which switches to Gaussian for large numbers of
   // quanta, this is called repeatedly, and built upon to produce greater,
   // non-binomial fluctuations
   NESTresult FullCalculation(INTERACTION_TYPE species, double energy,
                              double density, double dfield, double A, double Z,
                              std::vector<double> NuisParam = default_NuisParam, /* = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}*/
-			     std::vector<double> FreeParam = default_FreeParam, /* = {1.,1.,0.1,0.5,0.19} */
+			     std::vector<double> FreeParam = default_FreeParam, /* = {1.,1.,0.1,0.5,0.19,2.25} */
                              bool do_times = true);
   // the so-called full NEST calculation puts together all the individual
   // functions/calculations below
@@ -209,19 +207,19 @@ class NESTcalc {
   // Greg R. version: arXiv:1910.04211
   virtual YieldResult YieldResultValidity(YieldResult& res, const double energy, const double Wq_eV);
   // Confirms and sometimes adjusts YieldResult to make physical sense
-  virtual QuantaResult GetQuanta(YieldResult yields, double density, std::vector<double> FreeParam={1.,1.,0.1,0.5,0.19});
+  virtual QuantaResult GetQuanta(YieldResult yields, double density, std::vector<double> FreeParam={1.,1.,0.1,0.5,0.19,2.25});
   // GetQuanta takes the yields from above and fluctuates them, both the total
   // quanta (photons+electrons) with a Fano-like factor, and the "slosh" between
   // photons and electrons
   // Namely, the recombination fluctuations
-  virtual double RecombOmegaNR(double elecFrac,vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19}*/);
+  virtual double RecombOmegaNR(double elecFrac,vector<double> FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/);
   //Calculates the Omega parameter governing non-binomial recombination fluctuations for nuclear recoils and ions (Lindhard<1)
   virtual double RecombOmegaER(double efield, double elecFrac);
   //Calculates the Omega parameter governing non-binomial recombination fluctuations for gammas and betas (Lindhard==1)
   virtual double FanoER(double density, double Nq_mean,double efield);
   //Fano-factor (and Fano-like additional energy resolution model) for gammas and betas (Lindhard==1)
-  std::vector<double> GetS1(QuantaResult quanta, double truthPos[3],
-                            double smearPos[3], double driftSpeed,
+  std::vector<double> GetS1(QuantaResult quanta, double truthPosX, double truthPosY, double truthPosZ, double smearPosX, double smearPosY, double smearPosZ,
+                            double driftSpeed,
                             double dS_mid, INTERACTION_TYPE species,
                             long evtNum, double dfield, double energy,
                             int useTiming, bool outputTiming,
@@ -234,7 +232,7 @@ class NESTcalc {
                                std::vector<double> origScint);
   // GetSpike takes the extremely basic digital/integer number of spike counts
   // provided by GetS1 and does more realistic smearing
-  std::vector<double> GetS2(int Ne, double truthPos[3], double smearPos[3],
+  std::vector<double> GetS2(int Ne, double truthPosX, double truthPosY, double truthPosZ, double smearPosX, double smearPosY, double smearPosZ,
                             double dt, double driftSpeed, long evtNum,
                             double dfield, int useTiming, bool outputTiming,
                             vector<long int>& wf_time, vector<double>& wf_amp,
