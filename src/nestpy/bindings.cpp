@@ -162,7 +162,7 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("drift_field") = 124,
 	     py::arg("A") = 131.293,
 	     py::arg("Z") = 54,
-	     py::arg("nuisance_parameters") = NESTcalc::default_NuisParam)
+	     py::arg("nuisance_parameters") = NESTcalc::default_NuisParam
 	 )
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	 py::arg("yields"),
