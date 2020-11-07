@@ -127,10 +127,18 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("set_PosResBase", &VDetector::set_PosResBase)
 
 	.def("FitS1", &VDetector::FitS1)
+	.def("FitS2", &VDetector::FitS1)
 	.def("FitEF", &VDetector::FitEF)
-	.def("FitS2", &VDetector::FitS2)
 	.def("FitTBA", &VDetector::FitTBA)
-//    .def("LCE", &VDetector::LCE())
+//    .def("FitS1", &VDetector::FitS1,
+//         py::arg("xpos_mm") = 0.,
+//         py::arg("ypos_mm") = 0.,
+//         py::arg("zpos_mm") = 0.,
+//         py::arg("LCE") = VDetector::LCE::unfold)
+//	.def("FitS2", &VDetector::FitS2,
+//	     py::arg("xpos_mm") = 0.,
+//         py::arg("ypos_mm") = 0.,
+//         py::arg("LCE") = VDetector::LCE::unfold)
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);

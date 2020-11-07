@@ -1,6 +1,7 @@
 import unittest
 import nestpy
-
+from enum import Enum     # for enum34, or the stdlib version
+# LCE = Enum('Animal', 'ant bee cat dog')
 
 class ConstructorTest(unittest.TestCase):
     """Test constructors
@@ -39,24 +40,29 @@ class ConstructorTest(unittest.TestCase):
         assert isinstance(it, nestpy.INTERACTION_TYPE)
 
 
-#class VDetectorTest(unittest.TestCase):
-#
-#    @classmethod
-#    def setUpClass(cls):
-#        cls.detector = nestpy.VDetector()
-#        cls.detector.Initialization()
-#
-#    def test_fit_s1(self):
-#        self.detector.FitS1(1.0, 2.0, 3.0)
-#
-#    def test_fit_ef(self):
-#        self.detector.FitEF(1.0, 2.0, 3.0)
-#
-#    def test_fit_s2(self):
-#        self.detector.FitS2(1.0, 2.0)
-#
-#    def test_fit_tba(self):
-#        self.detector.FitTBA(1.0, 2.0, 3.0)
+class VDetectorTest(unittest.TestCase):
+
+   @classmethod
+   def setUpClass(cls):
+       cls.detector = nestpy.VDetector()
+       cls.detector.Initialization()
+       cls.it = nestpy.INTERACTION_TYPE(0)
+       cls.nestcalc = nestpy.NESTcalc(cls.detector)
+       cls.nuisance = cls.nestcalc.default_NuisParam
+       cls.free = cls.nestcalc.default_FreeParam
+       cls.nestcalc = nestpy.NESTcalc(cls.detector)
+
+   # def test_fit_s1(self):
+   #     self.detector.FitS1(1.0, 2.0, 3.0, 'fold')
+   #
+   # def test_fit_ef(self):
+   #     self.detector.FitEF(1.0, 2.0, 3.0)
+
+   # def test_fit_s2(self):
+   #     self.detector.FitS2(1.0, 2.0, 3.0)
+
+   def test_fit_tba(self):
+       self.detector.FitTBA(1.0, 2.0, 3.0)
 
 
 class NESTcalcTest(unittest.TestCase):
@@ -96,7 +102,7 @@ class NESTcalcTest(unittest.TestCase):
     def test_nestcalc_get_yields_defaults(self):
         yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
                                          10)
-                                         
+
     def test_nestcalc_get_yields_named(self):
         yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
                                          energy=10)
@@ -135,66 +141,84 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         cls.it = nestpy.INTERACTION_TYPE(0)
 
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
-
         cls.nuisance = cls.nestcalc.default_NuisParam
         cls.free = cls.nestcalc.default_FreeParam
-
-        cls.nestcalc = nestpy.NESTcalc(cls.detector)
         cls.result = cls.nestcalc.FullCalculation(
-            cls.it, 10., 3., 100., 131, 56, 
+            cls.it, 10., 3., 100., 131, 56,
             cls.nuisance,
             cls.free,
             True)
 
         cls.position = [2,3,4]
 
-#    def test_nestcalc_add_photon_transport_time(self):
-#        print(self.result.photon_times)
-#        self.nestcalc.AddPhotonTransportTime(
-#            self.result.photon_times, 1.0, 2.0, 3.0)
+    def test_nestcalc_add_photon_transport_time(self):
+       # print(self.result.photon_times)
+       self.nestcalc.AddPhotonTransportTime(
+           self.result.photon_times, 1.0, 2.0, 3.0)
 
     def test_nestcalc_get_quanta(self):
         self.nestcalc.GetQuanta(self.result.yields, 10., self.free)
-        
+
     def test_nestcalc_get_quanta_defaults(self):
         self.nestcalc.GetQuanta(self.result.yields)
 
-#    def test_nestcalc_get_s1(self):
-#        self.nestcalc.GetS1(self.result.quanta, 
-#                            self.position,
-#                            self.position,
-#                            10., 10.,
-#                            self.it, 100, 10., 10.,
-#                            False, False,
-#                            [0, 1, 2],
-#                            [0, 1, 2])
+    def test_nestcalc_get_s1(self):
+        self.nestcalc.GetS1(self.result.quanta,
+                            10., 10., -30.,
+                            10., 10., -30.,
+                            10., 10.,
+                            self.it,
+                            100, 10., 10.,
+                            0, False,
+                            [0, 1, 2],
+                            [0., 1., 2.])
 
-#class execNESTTest(unittest.TestCase):
-#
-#    def test_execNEST_random_pos(self):
-#        detector = nestpy.DetectorExample_XENON10()
-#        #  test with -1 for fObs and seed (1)
-#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, True, 1.0)
-#
-#    def test_execNEST_pos(self):
-#        detector = nestpy.DetectorExample_XENON10()
-#        #  test with actual position [0.,0.,0.] and seed(1)
-#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0) 
-#
-#    def test_execNEST_pos_random_seed(self):
-#        detector = nestpy.DetectorExample_XENON10()
-#	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1, 1, True, 1.0)
-#
-#    def test_execNEST_random_z(self):
-#        detector = nestpy.DetectorExample_XENON10()
-#	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1, 1, True, 1.0)
-#
-#    def test_execNEST_random_xy(self):
-#        detector = nestpy.DetectorExample_XENON10()
-#	#  test with actual position [0.,0.,0.] and randomSeed
-#        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1, 1, True, 1.0)
+    def test_nestcalc_get_s2(self):
+        self.nestcalc.GetS2(self.result.quanta.electrons, #int ne
+                            10., 10., -30., #truth pos x y z
+                            10., 10., -30., #smear pos x y z
+                            10., 10.,
+                            100, 10.,
+                            0, False,
+                            [0, 1, 2],
+                            [0., 1., 2.],
+                            [0., 82., 2., 3., 4.])
+
+    def test_nestcalc_get_xyresolution(self):
+        self.detector = nestpy.DetectorExample_XENON10()
+        self.detector.Initialization()
+        self.nestcalc = nestpy.NESTcalc(self.detector)
+        self.nestcalc.xyResolution(
+                            0., 1.,2.)
+
+class execNESTTest(unittest.TestCase):
+    def test_execNEST_random_pos(self):
+        # test with -1 for fObs and seed (1)
+        detector = nestpy.DetectorExample_XENON10()
+        detector.Initialization()
+        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, False, 1.)
+
+    def test_execNEST_pos(self):
+        #  test with actual position [0.,0.,0.] and seed(1)
+        detector = nestpy.DetectorExample_XENON10()
+        detector.Initialization()
+        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", 1., 1, False, 1.)
+
+    def test_execNEST_pos_random_seed(self):
+        # test with actual position [0.,0.,0.] and randomSeed
+        detector = nestpy.DetectorExample_XENON10()
+        detector.Initialization()
+        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0)
+
+    def test_execNEST_random_z(self):
+        detector = nestpy.DetectorExample_XENON10()
+        detector.Initialization()
+        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1., 1, True, 1.0)
+
+    def test_execNEST_random_xy(self):
+        detector = nestpy.DetectorExample_XENON10()
+        detector.Initialization()
+        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1., 1, True, 1.0)
 
 if __name__ == "__main__":
     unittest.main()
