@@ -130,6 +130,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("FitEF", &VDetector::FitEF)
 	.def("FitS2", &VDetector::FitS2)
 	.def("FitTBA", &VDetector::FitTBA)
+//    .def("LCE", &VDetector::LCE())
 
 	.def("OptTrans", &VDetector::OptTrans)
   	.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
@@ -154,7 +155,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
 	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
-        .def("GetYields",
+    .def("GetYields",
 	     &NEST::NESTcalc::GetYields,
 	     py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
 	     py::arg("energy") = 100,
@@ -165,17 +166,19 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
 	 )
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
-	 py::arg("yields"),
-	 py::arg("density") = 2.9,
-	 py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19, 2.25}))
+	    py::arg("yields"),
+	    py::arg("density") = 2.9,
+	    py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19, 2.25}))
 	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
-	//.def("GetS2", &NEST::NESTcalc::GetS2) 					Currently not working because of VDetector.FitTBA()
+	// Currently VDetector.FitTBA() requires we reinitialize the detector every time:
+	.def("GetS2", &NEST::NESTcalc::GetS2)
 	.def("CalculateG2", &NEST::NESTcalc::CalculateG2)
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
 	.def("SetDensity", &NEST::NESTcalc::SetDensity)
-	//.def("xyResolution", &NEST::NESTcalc::xyResolution)		Currently not working because of VDetector.FitTBA()
+	// Currently VDetector.FitTBA() requires we reinitialize the detector every time:
+	.def("xyResolution", &NEST::NESTcalc::xyResolution)
 	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
