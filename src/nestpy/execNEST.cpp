@@ -29,12 +29,6 @@ vector<double> FreeParam,  NuisParam;
 double band[NUMBINS_MAX][7];
 double energies[3];
 bool BeenHere = false;
-//FreeParam.push_back(1.00);
-//FreeParam.push_back(1.00);
-//FreeParam.push_back(atof(argv[4])); //0.070
-//FreeParam.push_back(0.50);
-//FreeParam.push_back(0.19);
-//FreeParam.push_back(2.25);
 int main(int argc, char** argv) {
   // Instantiate your own VDetector class here, then load into NEST class
   // constructor
@@ -441,7 +435,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
 
   if (type_num == WIMP) {
     yieldsMax = n.GetYields(NR, 25.0, rho, centralField, detector->get_molarMass(),
-                            double(atomNum), NuisParam); //found the issue. NuisParam is nothing.
+                            double(atomNum), NuisParam);
 
   } else if (type_num == B8) {
     yieldsMax = n.GetYields(NR, 4.00, rho, centralField, detector->get_molarMass(),
