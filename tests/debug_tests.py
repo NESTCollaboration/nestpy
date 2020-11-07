@@ -1,7 +1,5 @@
 import unittest
 import nestpy
-from enum import Enum     # for enum34, or the stdlib version
-# LCE = Enum('Animal', 'ant bee cat dog')
 
 class ConstructorTest(unittest.TestCase):
     """Test constructors
