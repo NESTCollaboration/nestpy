@@ -17,7 +17,7 @@ Main ingredients for the above steps:
 import numpy as np
 
 import nestpy
-from interaction_keys import GetInteractionObject
+from nestpy.interaction_keys import GetInteractionObject
 
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.
