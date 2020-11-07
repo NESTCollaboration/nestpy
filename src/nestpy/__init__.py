@@ -3,3 +3,4 @@ __nest_version__ = '2.1.1'
 
 from .nestpy import *
 from interaction_keys import GetInteractionObject
+from vectorized_yields import *
