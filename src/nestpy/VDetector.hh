@@ -117,10 +117,10 @@ class VDetector {
   //Xenon properties
   void set_molarMass(double param) {molarMass = param;}
   
-  typedef enum LCE {
+  typedef enum {
     fold = 0,
     unfold = 1
-  }LCE ;
+  } LCE;
   // S1 PDE custom fit for function of z
   // s1polA + s1polB*z[mm] + s1polC*z^2+... (QE included, for binom dist) e.g.
   virtual double FitS1(double xPos_mm, double yPos_mm, double zPos_mm, LCE map) {
