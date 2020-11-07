@@ -77,7 +77,6 @@ int main(int argc, char** argv) {
   double eMin, eMax, inField, fPos;
   int seed; bool no_seed = false;
   if ( loopNEST ) {
-    
     numEvts = 100000; //10,000 faster but of course less precise
     if ( loopNEST == 1 )
       type = "ER";
@@ -205,7 +204,6 @@ int main(int argc, char** argv) {
     NuisParam.push_back(0.5); //changes sqrt in Qy equation
     NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for charge
     NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for light
-    
   }
   
   return execNEST(detector, numEvts, type, eMin, eMax, inField, position, posiMuon, fPos,
@@ -289,7 +287,8 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
              double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
-
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
     cerr << "ERROR, unphysical value(s) of position within the detector "
@@ -441,9 +440,8 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
   if ( inField != -1. ) centralField = inField;
 
   if (type_num == WIMP) {
-//    for (double x: NuisParam)
     yieldsMax = n.GetYields(NR, 25.0, rho, centralField, detector->get_molarMass(),
-                            double(atomNum), {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}); //found the issue. NuisParam is nothing.
+                            double(atomNum), NuisParam); //found the issue. NuisParam is nothing.
 
   } else if (type_num == B8) {
     yieldsMax = n.GetYields(NR, 4.00, rho, centralField, detector->get_molarMass(),
@@ -462,10 +460,8 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     // special Kr stuff when just
     // checking max
     else
-//     cerr
-//         << "\nHey I'm here.\n";
       yieldsMax = n.GetYields(type_num, energyMaximum, rho, centralField,
-                              double(massNum), double(atomNum), {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
+                              double(massNum), double(atomNum), NuisParam);
   }
   if ((g1 * yieldsMax.PhotonYield) > (2. * maxS1) && eMin != eMax)
     cerr
@@ -539,7 +535,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       pos_z = 0. +
               (detector->get_TopDrift() - 0.) *
                   RandomGen::rndm()->rand_uniform();  // initial guess
-      r = 50. * .5; // detector->get_radius() * sqrt(RandomGen::rndm()->rand_uniform());
+      r = detector->get_radius() * sqrt(RandomGen::rndm()->rand_uniform());
       phi = 2. * M_PI * RandomGen::rndm()->rand_uniform();
       pos_x = r * cos(phi);
       pos_y = r * sin(phi);
@@ -761,11 +757,9 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
 	  detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
 	}
 	else {
-	  yields = n.GetYields(type_num, keV, rho, field, double(massNum), double(atomNum), {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
+	  yields = n.GetYields(type_num, keV, rho, field, double(massNum), double(atomNum), NuisParam);
 	}
-//	FreeParam.clear();
-//	FreeParam = { 1.00, 1.00, 0.100, 0.50, 0.19, 2.25 };
-     quanta = n.GetQuanta(yields, rho, { 1.00, 1.00, 0.100, 0.50, 0.19, 2.25 });
+     quanta = n.GetQuanta(yields, rho, FreeParam);
       }
       else {
         yields.PhotonYield = 0.;
@@ -780,6 +774,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
         quanta.excitons = 0;
       }
     }
+
     if ( detector->get_noiseB()[2] != 0. || detector->get_noiseB()[3] != 0. )
       quanta.electrons += int(floor(RandomGen::rndm()->rand_gauss(
 		   detector->get_noiseB()[2],detector->get_noiseB()[3])+0.5));
@@ -864,7 +859,6 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
 	  keV = (Nph/FudgeFactor[0] + Ne/FudgeFactor[1]) * Wq_eV * 1e-3;
 	else {
 	  if ( type_num <= NEST::INTERACTION_TYPE::Cf ) {
-	  NuisParam = { 1.00, 1.00, 0.100, 0.50, 0.19, 2.25 };
 	    keV = pow((Ne+Nph)/NuisParam[0],1./NuisParam[1]);
 	    Ne *= 1. - 1. / pow(1. + pow((keV / NuisParam[5]), NuisParam[6]), NuisParam[10]);
 	    Nph *=1. - 1. / pow(1. + pow((keV / NuisParam[7]), NuisParam[8]), NuisParam[11]);
