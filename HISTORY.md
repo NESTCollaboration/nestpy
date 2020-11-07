@@ -4,6 +4,15 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+NESTv2.1.2
+
+1.3.2 (2020-11-07)
+-----------------
+  * New free parameters registered
+  * Cases of void initialization in tests fixed
+  * Introduced files for debugging tests as we improve code
+  * Prepared for NEST v.2.2 which is imminent
+  * Solved half of GetS1 and GetS2 issues opened in #37
 
 NESTv2.1.1
 
