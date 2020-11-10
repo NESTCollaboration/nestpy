@@ -1,14 +1,6 @@
 import nestpy
 
-#GetInteractionObject grabs the number for the interaction you want so you don't have to always reference the dictionary. Just type e.g., 'ion'
-#It just changes the name to a number for nestpy to do its work.
-def GetInteractionObject(name):
-    name = name.lower()
-    
-    if name == 'er':
-        raise ValueError("For 'er', specify either 'gammaray' or 'beta'")
-    
-    nest_interaction_number = dict(
+NEST_INTERACTION_NUMBER = dict(
         nr=0,
         wimp=1,
         b8=2,
@@ -23,6 +15,20 @@ def GetInteractionObject(name):
         kr83m=11,
         nonetype=12,
     )
+
+def ListInteractionTypes():
+    return NEST_INTERACTION_NUMBER.keys()
+    #list_interaction_types
+
+#GetInteractionObject grabs the number for the interaction you want so you don't have to always reference the dictionary. Just type e.g., 'ion'
+#It just changes the name to a number for nestpy to do its work.
+def GetInteractionObject(name):
+    name = name.lower()
     
-    interaction_object = nestpy.INTERACTION_TYPE(nest_interaction_number[name])
+    if name == 'er':
+        raise ValueError("For 'er', specify either 'gammaray' or 'beta'")
+    
+
+    
+    interaction_object = nestpy.INTERACTION_TYPE(NEST_INTERACTION_NUMBER[name])
     return interaction_object
