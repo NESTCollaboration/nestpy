@@ -1,4 +1,4 @@
-import nestpy
+from .nestpy import INTERACTION_TYPE
 
 NEST_INTERACTION_NUMBER = dict(
         nr=0,
@@ -20,9 +20,17 @@ def ListInteractionTypes():
     return NEST_INTERACTION_NUMBER.keys()
     #list_interaction_types
 
-#GetInteractionObject grabs the number for the interaction you want so you don't have to always reference the dictionary. Just type e.g., 'ion'
-#It just changes the name to a number for nestpy to do its work.
 def GetInteractionObject(name):
+    '''
+    This function returns the NEST interaction object for a given string.
+    Parameters:
+        name (str): interaction type (e.g. 'NR' or 'nr'.)
+                    To see all options available, run nestpy.ListInteractionTypes().
+
+    Returns:
+        nestpy.INTERACTION_TYPE(Number), where Number corresponds to the string you provided.
+    '''
+
     name = name.lower()
     
     if name == 'er':
@@ -30,5 +38,5 @@ def GetInteractionObject(name):
     
 
     
-    interaction_object = nestpy.INTERACTION_TYPE(NEST_INTERACTION_NUMBER[name])
+    interaction_object = INTERACTION_TYPE(NEST_INTERACTION_NUMBER[name])
     return interaction_object

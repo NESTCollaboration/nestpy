@@ -16,14 +16,14 @@ Main ingredients for the above steps:
 
 import numpy as np
 
-import nestpy
-from nestpy.interaction_keys import GetInteractionObject
+from .nestpy import * #bad practice but keeps it from being circular
+from .interaction_keys import GetInteractionObject
 
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.
 # Yields are ambivalent to detector.
-detector = nestpy.DetectorExample_XENON10()
-nc = nestpy.NESTcalc(detector)
+detector = DetectorExample_XENON10()
+nc = NESTcalc(detector)
 
 @np.vectorize
 def GetYieldsVectorized(interaction, yield_type, nc=nc, **kwargs):
