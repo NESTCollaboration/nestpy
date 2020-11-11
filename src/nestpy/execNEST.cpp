@@ -282,6 +282,8 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
 int execNEST(VDetector* detector, unsigned long int numEvts, string type,
              double eMin, double eMax, double inField, string position, string posiMuon,
              double fPos, int seed, bool no_seed, double dayNumber ) {
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   // Construct NEST class using detector object
   NESTcalc n(detector);
 
