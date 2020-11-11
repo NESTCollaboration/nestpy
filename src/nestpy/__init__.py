@@ -3,8 +3,7 @@ __nest_version__ = '2.1.1'
 
 from .nestpy import *
 
-from vectorized_yields import Yield, PhotonYield, ElectronYield, GetYieldsVectorized
-from interaction_keys import GetInteractionObject, ListInteractionTypes
+from .helpers import Yield, PhotonYield, ElectronYield, GetYieldsVectorized, GetInteractionObject, ListInteractionTypes
 
 # Populate namespace with interaction types to allow e.g. nestpy.NR
 for interaction_type in ListInteractionTypes(): # interaction_type is string
