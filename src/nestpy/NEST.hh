@@ -112,7 +112,9 @@ typedef enum {
   CH3T = 9,
   C14 = 10,
   Kr83m = 11,
-  NoneType = 12
+  ppSolar = 12,
+  atmNu = 13,
+  NoneType =14
 
 } INTERACTION_TYPE;
 
@@ -293,6 +295,18 @@ class NESTcalc {
   //calculate exciton/ion 
   VDetector* GetDetector() { return fdetector; }
   void SetDetector(VDetector* detector) { fdetector = detector; }  
+
+
+  //Access the diffusion coefficient for transverse diffusion in liquid
+  double GetDiffTran_Liquid(double dfield, bool highFieldModel=false, double T=175.);
+  //Access the diffusion coefficient for longitudinal diffusion in liquid
+  double GetDiffLong_Liquid(double dfield, bool highFieldModel=false, double T=175.);
+  //Function helpful for interpolation of the new diffusion coefficient model (Boyle)
+  double interpolateFunction(const std::vector<std::pair<double,double> > func, double x, bool isLogLog );
+  //Read in the Boyle model data for DT
+  const std::vector<std::pair<double,double> > GetBoyleModelDT();
+  //Read in the Boyle model data for DL
+  const std::vector<std::pair<double,double> > GetBoyleModelDL();  
 };
 }
 

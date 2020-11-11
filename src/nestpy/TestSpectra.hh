@@ -22,8 +22,8 @@
 #define ATOM_NUM 54.  // ibid.
 
 #define RHO_NAUGHT 0.3  // local DM halo density in [GeV/cm^3]
-#define V_EARTH \
-  245.  // for LUX Run03; if you want Run04 use 230 km/s (arXiv:1705.03380)
+#define V_SUN 233.
+// works out to mean V_EARTH of 245 for LUX Run03; Run04, 230 km/s (arXiv:1705.03380)
 #define V_WIMP 220.
 #define V_ESCAPE 544.
 
@@ -48,6 +48,8 @@ class TestSpectra {
   double AmBe_spectrum(double emin, double emax);
   double Cf_spectrum(double emin, double emax);
   double DD_spectrum(double emin, double emax);
+  double ppSolar_spectrum(double emin, double emax);
+  double atmNu_spectrum(double emin, double emax);
   double WIMP_dRate(double ER, double mWimp, double day);
   WIMP_spectrum_prep WIMP_prep_spectrum(double mass, double eStep, double day);
   double WIMP_spectrum(WIMP_spectrum_prep wprep, double mass, double day);

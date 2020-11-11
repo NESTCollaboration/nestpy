@@ -18,7 +18,7 @@
 
 #include "LUX_Run03.hh"
 
-#define tZero 0.00 //day{of the year, 0 is average WIMP velocity}
+#define tZero 0.00 //day{of the year, 0 is ~Jan. 1}
 #define tStep 0.03
 #define hiEregime 1E+2 //keV
 
@@ -29,6 +29,7 @@ vector<double> FreeParam,  NuisParam;
 double band[NUMBINS_MAX][7];
 double energies[3];
 bool BeenHere = false;
+
 int main(int argc, char** argv) {
   // Instantiate your own VDetector class here, then load into NEST class
   // constructor
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
     cout << "\t ./execNEST numEvents Kr83m Energy[keV] maxTimeDiff[ns] "
 	    "field_drift[V/cm] x,y,z-position[mm] {optional:seed}" << endl 
          << endl;
-    cout << "For 8B, numEvts is kg-days of exposure with everything else same. "
+    cout << "For 8B or pp or atmNu, numEvts is kg-days of exposure with everything else same. "
             "For WIMPs:" << endl;
     cout << "\t./execNEST exposure[kg-days] {WIMP} m[GeV] x-sect[cm^2] "
             "field_drift[V/cm] x,y,z-position[mm] {optional:seed}" << endl
@@ -71,6 +72,7 @@ int main(int argc, char** argv) {
   double eMin, eMax, inField, fPos;
   int seed; bool no_seed = false;
   if ( loopNEST ) {
+    
     numEvts = 100000; //10,000 faster but of course less precise
     if ( loopNEST == 1 )
       type = "ER";
@@ -113,7 +115,7 @@ int main(int argc, char** argv) {
       NuisParam.push_back(1.0);
       
     }
-
+    
     else {
       
       NuisParam.push_back(atof(argv[1])); //11.0 XENON10
@@ -198,6 +200,7 @@ int main(int argc, char** argv) {
     NuisParam.push_back(0.5); //changes sqrt in Qy equation
     NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for charge
     NuisParam.push_back(1.0); //makes low-E sigmoid an asymmetric one, for light
+    
   }
   
   return execNEST(detector, numEvts, type, eMin, eMax, inField, position, posiMuon, fPos,
@@ -279,10 +282,11 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
 int execNEST(VDetector* detector, unsigned long int numEvts, string type,
              double eMin, double eMax, double inField, string position, string posiMuon,
              double fPos, int seed, bool no_seed, double dayNumber ) {
-  // Construct NEST class using detector object
-  NESTcalc n(detector);
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
   FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
+  // Construct NEST class using detector object
+  NESTcalc n(detector);
+
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
     cerr << "ERROR, unphysical value(s) of position within the detector "
@@ -369,6 +373,14 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
            type == "muon" || type == "MIP" || type == "LIP" || type == "mu" ||
            type == "mu-")
     type_num = NEST::beta;  // default electron recoil model
+  else if ( type == "pp" || type == "ppsolar" || type == "ppSolar" || type == "pp_Solar" || type == "pp_solar" || type == "pp-Solar" || type == "pp-solar" ) {
+    type_num = ppSolar;
+    numEvts = RandomGen::rndm()->poisson_draw(0.0011794 * double(numEvts)); //normalization: counts per kg-day from 0-250 keV(ee)
+  }
+  else if ( type == "atmNu" || type == "AtmNu" || type == "atm_Nu" || type == "Atm_Nu" || type == "atm-Nu" || type == "Atm-Nu" || type == "atm_nu" || type == "atm-nu" ) {
+    type_num = atmNu; numEvts = RandomGen::rndm()->
+			poisson_draw(1.5764e-7*double(numEvts));
+  }
   else {
     cerr << "UNRECOGNIZED PARTICLE TYPE!! VALID OPTIONS ARE:" << endl;
     cerr << "NR or neutron," << endl;
@@ -384,11 +396,13 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     cerr << "Kr83m or 83mKr or Kr83," << endl;
     cerr << "CH3T or tritium," << endl;
     cerr << "Carbon14 or 14C or C14 or C-14 or Carbon-14," << endl;
-    cerr << "beta or ER or Compton or compton or electron or e-, and" << endl;
+    cerr << "beta or ER or Compton or compton or electron or e-," << endl;
+    cerr << "pp or ppSolar with many various underscore, hyphen and capitalization permutations permitted," << endl;
+    cerr << "atmNu, and" << endl;
     cerr << "muon or MIP or LIP or mu or mu-" << endl;
     return 1;
   }
-
+  
   double maxTimeSep = DBL_MAX;
   if (type_num == Kr83m) {
     if ( (eMin == 9.4 || eMin == 32.1 || eMin == 41.5) && eMin != eMax) {
@@ -425,7 +439,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
   vector<double> g2_params = n.CalculateG2(verbosity);
   g2 = fabs(g2_params[3]);
   double g1 = detector->get_g1();
-
+  
   double centralZ =
       (detector->get_gate() * 0.8 + detector->get_cathode() * 1.03) /
       2.;  // fid vol def usually shave more off the top, because of gas
@@ -436,7 +450,6 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
   if (type_num == WIMP) {
     yieldsMax = n.GetYields(NR, 25.0, rho, centralField, detector->get_molarMass(),
                             double(atomNum), NuisParam);
-
   } else if (type_num == B8) {
     yieldsMax = n.GetYields(NR, 4.00, rho, centralField, detector->get_molarMass(),
                             double(atomNum), NuisParam);
@@ -446,7 +459,6 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       energyMaximum = 1. / fabs(eMax);
     else
       energyMaximum = eMax;
-
     if (type_num == Kr83m)
       yieldsMax = n.GetYields(NEST::beta, eMin, rho, centralField,
                               double(massNum), double(atomNum),
@@ -465,7 +477,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
   if ( type_num == Kr83m ) massNum = maxTimeSep; 
       //use massNum to input maxTimeSep into GetYields(...)
   double keV = -999.; double timeStamp = dayNumber;
-  for (unsigned long int j = 0; j < numEvts; ++j) {
+  for (unsigned long int j = 0; j < numEvts; j++) {
     //timeStamp += tStep; //detector->set_eLife_us(5e1+1e3*(timeStamp/3e2));
     //for E-recon when you've changed g1,g2-related stuff, redo line 341+
     if ( (eMin == eMax && eMin >= 0. && eMax > 0.) || type_num == Kr83m ) {
@@ -494,6 +506,12 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
         case WIMP:
           keV = spec.WIMP_spectrum(spec.wimp_spectrum_prep, eMin, timeStamp);
 	  break;
+        case ppSolar:
+	  keV = spec.ppSolar_spectrum(eMin, eMax);
+	  break;
+        case atmNu:
+	  keV = spec.atmNu_spectrum(eMin, eMax);
+	  break;
         default:
           if (eMin < 0.) return 1;
           if (eMax > 0.)
@@ -510,7 +528,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       }
     }
 
-    if (type_num != WIMP && type_num != B8 && eMax > 0.) {
+    if ( type_num != WIMP && type_num != B8 && type_num != ppSolar && type_num != atmNu && eMax > 0. ) {
       if (keV > eMax) keV = eMax;
       if (keV < eMin) keV = eMin;
     }
@@ -659,6 +677,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       driftTime = 0.0;
       pos_z = detector->get_TopDrift() - z_step; //just fix it and move on
     }
+    
     YieldResult yields;
     QuantaResult quanta;
     if (type == "muon" || type == "MIP" || type == "LIP" || type == "mu" ||
@@ -732,6 +751,11 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     } else {
       if (keV > .001 * Wq_eV) {
 	if ( type == "ER" ) {
+	  if ( verbosity && j == 0 ) {
+	    cerr << "CAUTION: Are you sure you don't want beta model instead of ER? This is a weighted average of the beta and gamma models" << endl;
+	    cerr << "with weight values of " << FreeParam[0] << " " << FreeParam[1] << " " << FreeParam[2] << " " << FreeParam[3] << " " << FreeParam[4]
+		 << " " << FreeParam[5] << " " << FreeParam[6] << " " << FreeParam[7] << endl;
+	  }
 	  YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
 					    double(massNum), double(atomNum), NuisParam);
 	  YieldResult yieldsG = n.GetYields(gammaRay, keV, rho, field,
@@ -751,9 +775,12 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
 	  detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
 	}
 	else {
+	  if ( seed < 0 && seed != -1 ) massNum = detector->get_molarMass();
 	  yields = n.GetYields(type_num, keV, rho, field, double(massNum), double(atomNum), NuisParam);
 	}
-     quanta = n.GetQuanta(yields, rho, FreeParam);
+	//FreeParam.clear();
+	//FreeParam = { 1.00, 1.00, 0.100, 0.50, 0.19, 2.25 };
+        quanta = n.GetQuanta(yields, rho, FreeParam);
       }
       else {
         yields.PhotonYield = 0.;
@@ -768,24 +795,24 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
         quanta.excitons = 0;
       }
     }
-
+    
     if ( detector->get_noiseB()[2] != 0. || detector->get_noiseB()[3] != 0. )
       quanta.electrons += int(floor(RandomGen::rndm()->rand_gauss(
 		   detector->get_noiseB()[2],detector->get_noiseB()[3])+0.5));
-
+    
     // If we want the smeared positions (non-MC truth), then implement
     // resolution function
     double truthPos[3] = {pos_x, pos_y, pos_z};
     double smearPos[3] = {pos_x, pos_y, pos_z};
     double Nphd_S2 =
         g2 * quanta.electrons * exp(-driftTime / detector->get_eLife_us());
-
     if (!MCtruthPos && Nphd_S2 > PHE_MIN) {
       vector<double> xySmeared(2);
       xySmeared = n.xyResolution(pos_x, pos_y, Nphd_S2);
       smearPos[0] = xySmeared[0];
       smearPos[1] = xySmeared[1];
     }
+    
     vector<long int> wf_time;
     vector<double> wf_amp;
     vector<double> scint =
@@ -812,12 +839,14 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       signal2.push_back(scint2[7]);  // no spike option for S2
     else
       signal2.push_back(-999.);
+    
     if ( eMin == eMax ) {
       if ( (scint[3] > maxS1 || scint[5] > maxS1 || scint[7] > maxS1) && j < 10 )
 	cerr << "WARNING: Some S1 pulse areas are greater than maxS1" << endl;
       if ( (scint2[5] > maxS2 || scint2[7] > maxS2) && j < 10 ) //don't repeat too much: only if within first 10 events then show (+above)
 	cerr << "WARNING: Some S2 pulse areas are greater than maxS2" << endl;
     }
+    
     double Nph = 0.0, Ne = 0.0;
     if (!MCtruthE) {
       double MultFact = 1., eff = detector->get_sPEeff();
@@ -889,6 +918,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
       cerr << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly! Setting MCtruthE to false." << endl;
       goto NEW_RANGES;
     }
+    
     // Possible outputs from "scint" vector
     // scint[0] = nHits; // MC-true integer hits in same OR different PMTs, NO
     // double phe effect
@@ -935,6 +965,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     // adjusted for 2-PE effect (LUX phd units)
     // scint2[8] = g2; // g2 = ExtEff * SE, light collection efficiency of EL in
     // gas gap (from CalculateG2)
+    
     if ( PrintSubThr || (
 			 scint[0] > PHE_MIN && scint[1] > PHE_MIN && scint[2] > PHE_MIN && scint[3] > PHE_MIN && scint[4] > PHE_MIN &&
 			 scint[5] > PHE_MIN && scint[6] > PHE_MIN && scint[7] > PHE_MIN && scint[8] > PHE_MIN &&
@@ -948,11 +979,10 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
         printf("%.6f\t", yields.DeltaT_Scint);
       if (type_num == WIMP && timeStamp > (tZero+tStep))
 	printf("%.0f\t", timeStamp);
-      printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t", keV, field,
-             driftTime, smearPos[0], smearPos[1], smearPos[2], quanta.photons,
-             quanta.electrons);  // comment this out when below line in
-      // printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f,%.0f\t%lf\t%lf\t",keV,field,driftTime,smearPos[0],smearPos[1],smearPos[2],yields.PhotonYield,yields.ElectronYield);
-      //for when you want means
+      if ( seed < 0 && seed != -1 ) //for when you want means
+	printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%lf\t%lf\t",keV,field,driftTime,smearPos[0],smearPos[1],smearPos[2],yields.PhotonYield,yields.ElectronYield);
+      else
+	printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t",  keV,field,driftTime,smearPos[0],smearPos[1],smearPos[2],quanta.photons,quanta.electrons);
       // if (truthPos[2] < detector->get_cathode() && verbosity) printf("g-X ");
       if (keV > 10.*hiEregime || scint[5] > maxS1 || scint2[7] > maxS2 ||
           // switch to exponential notation to make output more readable, if
@@ -974,7 +1004,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, string type,
     }  // always execute statement, if(1) above, because if is just place-holder
        // in case you want to drop all sub-threshold data
   }
-
+  
   if (verbosity) {
     if (eMin != eMax && type_num != Kr83m) {
       if (useS2 == 2)
