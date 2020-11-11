@@ -49,11 +49,12 @@ class VDetectorTest(unittest.TestCase):
        cls.nuisance = cls.nestcalc.default_NuisParam
        cls.free = cls.nestcalc.default_FreeParam
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
-   # def test_fit_s1(self):
-   #     self.detector.FitS1(1.0, 2.0, 3.0)
 
-   def test_fit_ef(self):
-       self.detector.FitEF(1.0, 2.0, 3.0)
+   # def test_fit_s1(self):
+   #     self.detector.FitS1(1.0, 2.0, 3.0, 'fold')
+   #
+   # def test_fit_ef(self):
+   #     self.detector.FitEF(1.0, 2.0, 3.0)
 
    # def test_fit_s2(self):
    #     self.detector.FitS2(1.0, 2.0, 3.0)
