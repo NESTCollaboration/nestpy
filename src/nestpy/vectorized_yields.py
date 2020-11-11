@@ -16,8 +16,8 @@ Main ingredients for the above steps:
 
 import numpy as np
 
-from .nestpy import * #bad practice but keeps it from being circular
-from .interaction_keys import GetInteractionObject
+from .nestpy import DetectorExample_XENON10, NESTcalc
+from interaction_keys import GetInteractionObject
 
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.

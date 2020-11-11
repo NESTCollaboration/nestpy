@@ -18,7 +18,6 @@ NEST_INTERACTION_NUMBER = dict(
 
 def ListInteractionTypes():
     return NEST_INTERACTION_NUMBER.keys()
-    #list_interaction_types
 
 def GetInteractionObject(name):
     '''
@@ -35,8 +34,6 @@ def GetInteractionObject(name):
     
     if name == 'er':
         raise ValueError("For 'er', specify either 'gammaray' or 'beta'")
-    
-
     
     interaction_object = INTERACTION_TYPE(NEST_INTERACTION_NUMBER[name])
     return interaction_object
