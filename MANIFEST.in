@@ -2,3 +2,4 @@ recursive-include src *.cpp
 recursive-include src *.hh
 recursive-include include *.h
 include *.md
+include *.txt
