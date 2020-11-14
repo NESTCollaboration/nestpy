@@ -158,7 +158,7 @@ PYBIND11_MODULE(nestpy, m) {
     .def_readonly_static("default_NuisParam", &NESTcalc::default_NuisParam)
     .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
     .def("BinomFluct", &NEST::NESTcalc::BinomFluct)
-	.def("FullCalculation", &NEST::NESTcalc::FullCalculation, 
+	.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 			"Perform the full yield calculation with smearings")
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
