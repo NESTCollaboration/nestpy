@@ -4,6 +4,11 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.0beta (2020-11-14)
+-----------------
+
+NESTv2.2.0beta
+
 1.3.2 (2020-11-11)
 -----------------
 
