@@ -1,5 +1,6 @@
 import unittest
 import nestpy
+import platform
 
 class ConstructorTest(unittest.TestCase):
     """Test constructors
@@ -75,6 +76,10 @@ class NESTcalcTest(unittest.TestCase):
         cls.free = cls.nestcalc.default_FreeParam
 
     def test_nestcalc_binom_fluct(self):
+        if platform.python_version()[0] != '3':
+            print('Python2 is no longer maintained as of Jan 1, 2021. \n',
+                   'Features like BinomFluct are only supported in Python3>.')
+            return
         binom = nestpy.NESTcalc.BinomFluct(20, 1.)
         assert binom > 0
 
