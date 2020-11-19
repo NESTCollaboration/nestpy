@@ -1,6 +1,7 @@
 
 #include <exception>
 #include "NEST.hh"
+#include <stdexcept>
 
 #define InfraredER 1.35
 #define InfraredNR 7.00
