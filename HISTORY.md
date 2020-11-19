@@ -4,6 +4,14 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.0 (2020-11-19)
+-----------------
+Minor changes all are to fix software bugs, no physics changes. 
+
+  * MANIFEST.in include requirements
+  * Make sure to include all dependencies. 
+  * Fix travis builds. 
+
 1.4.0beta (2020-11-14)
 -----------------
 
