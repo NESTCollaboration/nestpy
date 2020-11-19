@@ -1,5 +1,6 @@
 import unittest
 import nestpy
+import platform
 
 class ConstructorTest(unittest.TestCase):
     """Test constructors
@@ -75,7 +76,11 @@ class NESTcalcTest(unittest.TestCase):
         cls.free = cls.nestcalc.default_FreeParam
 
     def test_nestcalc_binom_fluct(self):
-        binom = self.nestcalc.BinomFluct(1, 20.)
+        if platform.python_version()[0] != '3':
+            print('Python2 is no longer maintained as of Jan 1, 2021. \n',
+                   'Features like BinomFluct are only supported in Python3>.')
+            return
+        binom = nestpy.NESTcalc.BinomFluct(20, 1.)
         assert binom > 0
 
     def test_interaction_type_constructor(self):
@@ -123,7 +128,7 @@ class NESTcalcTest(unittest.TestCase):
         self.nestcalc.PhotonEnergy(True, True, 190)
 
     def test_nestcalc_calc_electron_LET(self):
-        self.nestcalc.CalcElectronLET(100)
+        self.nestcalc.CalcElectronLET(100., 54) # energy, atom num.(Xe)
 
     def test_nest_calc_get_detector(self):
         self.nestcalc.GetDetector()
