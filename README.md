@@ -28,7 +28,7 @@ Requirements: You must have CMake>=2.8.12 and a C++11 compatible compiler (GCC>=
 First, you must check out this repository then simply run the installer:
 
 ```
-git checkout https://github.com/NESTCollaboration/nestpy
+git clone https://github.com/NESTCollaboration/nestpy
 cd nestpy
 python setup.py install
 ```
