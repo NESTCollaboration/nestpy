@@ -4,6 +4,11 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.1 (2020-12-15)
+-----------------
+Sync with v2.2.0 NEST. 
+Includes all files in MANIFEST.in, so that pip install will work.
+
 1.4.0 (2020-11-19)
 -----------------
 Minor changes all are to fix software bugs, no physics changes. 
