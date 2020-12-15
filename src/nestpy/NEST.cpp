@@ -163,7 +163,7 @@ double NESTcalc::RecombOmegaER(double efield, double elecFrac)
   double cntr = 0.5; //0.41 agrees better with Dahl thesis. Odd! Reduces fluctuations for high e-Frac (high EF,low E)
   //for gamma-rays larger than 100 keV at least in XENON10 use 0.43 as the best fit. 0.62-0.37 for LUX Run03
   double skew = -0.2;
-  double mode = cntr + sqrt(2./M_PI)*skew*wide/sqrt(1.+skew*skew);
+  //double mode = cntr + sqrt(2./M_PI)*skew*wide/sqrt(1.+skew*skew);
   double norm = 0.988;//1./(exp(-0.5*pow(mode-cntr,2.)/(wide*wide))*(1.+erf(skew*(mode-cntr)/(wide*sqrt(2.))))); //makes sure omega never exceeds ampl
   double omega = norm*ampl*exp(-0.5*pow(elecFrac-cntr,2.)/(wide*wide))*(1.+erf(skew*(elecFrac-cntr)/(wide*sqrt(2.))));
   if ( omega < 0. )
@@ -627,7 +627,7 @@ YieldResult NESTcalc::GetYieldBeta(double energy, double density, double dfield)
   Wvalue wvalue = WorkFunction(density,fdetector->get_molarMass());
   double Qy, Nq;
   double Wq_eV = wvalue.Wq_eV;
-  double alpha = wvalue.alpha;
+  //double alpha = wvalue.alpha; // duplicate definition below. We don't even need this here (it is Nex/Ni)
   
   if ( ATOM_NUM == 18. ) { // Liquid Argon
     double alpha = 32.988 - 552.988/(15.5578+pow(dfield/(-4.7+0.025115*exp(1.3954/0.265360653)), 0.208889));
@@ -738,7 +738,7 @@ YieldResult NESTcalc::GetYields(INTERACTION_TYPE species, double energy, double 
       return GetYieldKr83m(energy,density,dfield,massNum);
       //not actually massNumber, but a place holder for maxTime
     break;
-    default:  // beta, CH3T, 14C, and the pp solar neutrino background
+    default:  // beta, CH3T, 14C, the pp solar neutrino background, and Grant B's new or full gamma
       return GetYieldBeta(energy,density,dfield);
       //return GetYieldBetaGR(energy,density,dfield);
     break;
@@ -1381,8 +1381,11 @@ vector<double> NESTcalc::CalculateG2(bool verbosity) {
       ExtEff = -0.03754 * pow(E_liq, 2.) + 0.52660 * E_liq - 0.84645;  // arXiv:1710.11032 (PIXeY)
       if ( E_liq > 7. ) ExtEff = 1.;
     }
-    else
+    else {
       ExtEff = 1. - 1. / ( 1. + pow ( E_liq / 3.4832, 4.9443 ) );  // arXiv:1904.02885 (Livermore)
+      //ExtEff = -0.0012052 + 0.1638 * fdetector->get_E_gas() - 0.0063782 * pow ( fdetector->get_E_gas(), 2. );  // Aprile 2004 IEEE No. 5
+      //ExtEff = 1. - 1.3558 * exp ( -0.074312 * pow ( E_liq, 2.4259 ) );//Gus, favored by RED-100
+    } //the alternative options
   }
   if (ExtEff > 1. || fdetector->get_inGas()) ExtEff = 1.;
   if (ExtEff < 0. || E_liq <= 0.) ExtEff = 0.;
@@ -1505,8 +1508,12 @@ double NESTcalc::GetDensity(double Kelvin,
                             double bara, bool &inGas, double molarMass) {  // currently only for fixed pressure
                                             // (saturated vapor pressure); will
                                             // add pressure dependence later
-  if ( ATOM_NUM == 18. && DENSITY > 2. )
-    { inGas = false; return 1.4; }
+  if ( ATOM_NUM == 18. ) {
+    inGas = false;
+    if ( DENSITY > 2. ) return 1.4;
+    else
+      return DENSITY;
+  }
   
   //if (MOLAR_MASS > 134.5) //enrichment for 0vBB expt (~0.8 Xe-136)
   //return 3.0305; // ±0.0077 g/cm^3, EXO-200 @167K: arXiv:1908.04128
@@ -1838,19 +1845,20 @@ double NESTcalc::CalcElectronLET ( double E, int Z ) {
 
 NESTcalc::Wvalue NESTcalc::WorkFunction(double density, double MolarMass) {
   
+  double alpha, Wq_eV;
   if ( ATOM_NUM == 18. ) { // Liquid argon
-    double alpha = 0.21; double Wq_eV = 1000. / 51.9; //23.6/1.21; // ~19.2-5 eV
+    alpha = 0.21; Wq_eV = 1000. / 51.9; //23.6/1.21; // ~19.2-5 eV
     return Wvalue{.Wq_eV=Wq_eV,.alpha=alpha};
   }
   
-  double alpha = 0.067366 + density * 0.039693;
+  alpha = 0.067366 + density * 0.039693;
   /*double xi_se = 9./(1.+pow(density/2.,2.));
   double I_ion = 9.+(12.13-9.)/(1.+pow(density/2.953,65.));
   double I_exc = I_ion / 1.46;
   double Wq_eV = I_exc*(alpha/(1.+alpha))+I_ion/(1.+alpha)
   +xi_se/(1.+alpha);*/
   double eDensity = ( density / MolarMass ) * NEST_AVO * ATOM_NUM;
-  double Wq_eV = 20.7 - 1.01e-23 * eDensity;
+  Wq_eV = 20.7 - 1.01e-23 * eDensity;
   
   return Wvalue{.Wq_eV=Wq_eV,.alpha=alpha}; //W and Nex/Ni together
   

@@ -13,12 +13,20 @@
 
 #include <exception>
 #include "TestSpectra.hh"
+#include "GammaHandler.hh"
 #include <stdexcept>
+
 
 using namespace std;
 
 double power =
     3.7488;  // this is a global variable because it is for both AmBe and 252Cf
+
+double TestSpectra::Gamma_spectrum(double xMin, double xMax, string source) {
+  GammaHandler gh;
+
+  return gh.combineSpectra(xMin, xMax, source);
+}
 
 double TestSpectra::CH3T_spectrum(double xMin, double xMax) {
   double m_e = 510.9989461;     // e- rest mass-energy [keV]
@@ -178,7 +186,7 @@ double TestSpectra::DD_spectrum(
 }
 
 double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
-
+  
   if ( xMax > 250. ) xMax = 250.;
   if ( xMin < 0.00 ) xMin = 0.00;
   double yMax = 0.000594;
@@ -194,7 +202,7 @@ double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
 }
 
 double TestSpectra::atmNu_spectrum ( double xMin, double xMax ) {
-
+  
   if ( xMax > 85. ) xMax = 85.;
   if ( xMin < 0.0 ) xMin = 0.0;
   vector<double> xyTry = {
@@ -232,7 +240,7 @@ double TestSpectra::WIMP_dRate(double ER, double mWimp, double dayNum) {
   double v_esc = V_ESCAPE * cmPerkm; // escape velocity
   double v_e = ( V_SUN + ( 0.49 * 29.8 * cos ( ( dayNum * 2. * M_PI / 365.24 ) - ( 0.415 * 2. * M_PI ) ) ) ) * cmPerkm;  // the Earth's velocity
   // used Eq. 18 for SHM w/ June 1 as reference date (MAX!) from arXiv 0607121 [Savage, Freese, Gondolo 2006] - Juergen Reichenbacher 09/17/2020
-
+  
   // Define the detector Z and A and the mass of the target nucleus
   double Z = ATOM_NUM;
   double A = (double)RandomGen::rndm()->SelectRanXeAtom();
@@ -374,7 +382,7 @@ TestSpectra::WIMP_spectrum_prep TestSpectra::WIMP_prep_spectrum(double mass, dou
     spectrum.integral += WIMP_dRate(double(i) / 1e4, mass, dayNum) / 1e4;
   }
   spectrum.xMax = ( (double) EnergySpec.size() - 1. )/divisor;
-                //defualt value -- will be overwritten if
+                //defualt value -- will be overwritten if 
                 //xMax is acutally smaller
   for (int i = 0; i < (int) EnergySpec.size() - 1; ++i) {
     x1 = double(i) / divisor;
@@ -429,12 +437,12 @@ double TestSpectra::WIMP_spectrum(WIMP_spectrum_prep wimp_spectrum,
     }  // end inner for loop
     xyTry = RandomGen::rndm()->VonNeumann(xMin, wimp_spectrum.xMax, 0., yMax,
                                           xyTry[0], xyTry[1], FuncValue);
-
+    
     ++count; // for avoiding an infinite loop
     if ( count >= 100 ) { xyTry[0] = 0.; break; }
-
+    
   }
-
+  
   return xyTry[0];
 }
 

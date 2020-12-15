@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
   
   if ( ATOM_NUM == 18. ) {
     detector->set_molarMass(39.948);
-    cerr << "\nWARNING: Argon is currently only in alpha testing mode!! Many features copied over from Xenon wholesale still. Use models at your own risk." << endl;
+    cerr << "\nWARNING: Argon is currently only in alpha testing mode!! Many features copied over from Xenon wholesale still. Use models at your own risk.\n" << endl;
   }
   
   /* vector<double> eList = { 1., 2., 3. }; // fast example--for PLR, ML train
@@ -285,7 +285,6 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
   
   delete detector;
   return OutputResults;
-  
 }
 
 int execNEST(VDetector* detector, unsigned long int numEvts, const string& type,
@@ -293,8 +292,7 @@ int execNEST(VDetector* detector, unsigned long int numEvts, const string& type,
              double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
-  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
+
 
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
@@ -332,6 +330,8 @@ vector<double> signal1, signal2, signalE, vTable;
   }
 
   INTERACTION_TYPE type_num;
+  string gamma_source;
+
   TestSpectra spec;
   if (type == "NR" || type == "neutron" || type == "-1")
     type_num = NR;  //-1: default particle type is also NR
@@ -389,8 +389,15 @@ vector<double> signal1, signal2, signalE, vTable;
   else if ( type == "atmNu" || type == "AtmNu" || type == "atm_Nu" || type == "Atm_Nu" || type == "atm-Nu" || type == "Atm-Nu" || type == "atm_nu" || type == "atm-nu" ) {
     type_num = atmNu; numEvts = RandomGen::rndm()->
 			poisson_draw(1.5764e-7*double(numEvts));
-  }
-  else {
+  } else if ( type == "newGamma" ) {
+    type_num = fullGamma;
+    cerr << "Please choose gamma source. The allowed sources are:\n\"Co57\"\n\"Co60\"\n\"Cs137\"\nSource: ";
+    cin >> gamma_source;
+    if ( gamma_source == "Co60" ) {
+      cerr << "WARNING: This source is in the pair production range. Electron/positron pairs are not accounted for after initial interaction, and some"
+	   << "photons and electrons may go unaccounted." << endl;
+    }
+  } else {
     cerr << "UNRECOGNIZED PARTICLE TYPE!! VALID OPTIONS ARE:" << endl;
     cerr << "NR or neutron," << endl;
     cerr << "WIMP," << endl;
@@ -407,8 +414,10 @@ vector<double> signal1, signal2, signalE, vTable;
     cerr << "Carbon14 or 14C or C14 or C-14 or Carbon-14," << endl;
     cerr << "beta or ER or Compton or compton or electron or e-," << endl;
     cerr << "pp or ppSolar with many various underscore, hyphen and capitalization permutations permitted," << endl;
-    cerr << "atmNu, and" << endl;
-    cerr << "muon or MIP or LIP or mu or mu-" << endl;
+    cerr << "atmNu," << endl;
+    cerr << "muon or MIP or LIP or mu or mu-, and" << endl;
+    cerr << "newGamma" << endl;
+
     return 1;
   }
   
@@ -438,7 +447,7 @@ vector<double> signal1, signal2, signalE, vTable;
     cerr << "ERR: Unphysical thermodynamic property!";
     return 1;
   }
-  if (rho < 1.75) detector->set_inGas(true);
+  if ( rho < 1.75 && ATOM_NUM == 54. ) detector->set_inGas(true);
 
   double Wq_eV = NESTcalc::WorkFunction(rho,detector->get_molarMass()).Wq_eV;
   //if ( rho > 3. ) detector->set_extraPhot(true); //solid OR enriched. Units of g/mL
@@ -483,7 +492,6 @@ vector<double> signal1, signal2, signalE, vTable;
       //use massNum to input maxTimeSep into GetYields(...)
   double keV = -999.; double timeStamp = dayNumber;
   for (unsigned long int j = 0; j < numEvts; ++j) {
-
     try {
       //timeStamp += tStep; //detector->set_eLife_us(5e1+1e3*(timeStamp/3e2));
       //for E-recon when you've changed g1,g2-related stuff, redo line 341+
@@ -518,6 +526,9 @@ vector<double> signal1, signal2, signalE, vTable;
             break;
           case atmNu:
             keV = TestSpectra::atmNu_spectrum(eMin, eMax);
+            break;
+           case fullGamma:
+              keV = spec.Gamma_spectrum(eMin, eMax, gamma_source);
             break;
           default:
             if(eMin < 0.) return 1;
@@ -987,7 +998,12 @@ vector<double> signal1, signal2, signalE, vTable;
       // adjusted for 2-PE effect (LUX phd units)
       // scint2[8] = g2; // g2 = ExtEff * SE, light collection efficiency of EL in
       // gas gap (from CalculateG2)
-
+      
+      if ( truthPos[2] < detector->get_cathode() && verbosity && !BeenHere ) {
+	BeenHere = true;
+	fprintf ( stderr, "gamma-X i.e. MSSI may be happening. This may be why even high-E eff is <100%%. Check your cathode position definition.\n\n" );
+      }
+      
       if(PrintSubThr || (
               scint[0] > PHE_MIN && scint[1] > PHE_MIN && scint[2] > PHE_MIN && scint[3] > PHE_MIN &&
               scint[4] > PHE_MIN &&
@@ -1009,10 +1025,6 @@ vector<double> signal1, signal2, signalE, vTable;
         else
           printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t", keV, field, driftTime, smearPos[0], smearPos[1],
                  smearPos[2], quanta.photons, quanta.electrons);
-        if ( truthPos[2] < detector->get_cathode() && verbosity && !BeenHere ) {
-	  BeenHere = true;
-	  fprintf ( stderr, "gamma-X i.e. MSSI may be happening. This may be why even high-E eff is <100%%. Check your cathode position definition.\n\n" );
-	}
         if(keV > 10. * hiEregime || scint[5] > maxS1 || scint2[7] > maxS2 ||
            // switch to exponential notation to make output more readable, if
            // energy is too high (>1 MeV)
