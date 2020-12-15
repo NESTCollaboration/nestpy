@@ -293,6 +293,9 @@ int execNEST(VDetector* detector, unsigned long int numEvts, const string& type,
   // Construct NEST class using detector object
   NESTcalc n(detector);
 
+  //Needed for python runability. THese are only valid for NR
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
 
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
@@ -380,8 +383,10 @@ vector<double> signal1, signal2, signalE, vTable;
   else if (type == "beta" || type == "ER" || type == "Compton" ||
            type == "compton" || type == "electron" || type == "e-" ||
            type == "muon" || type == "MIP" || type == "LIP" || type == "mu" ||
-           type == "mu-")
+           type == "mu-"){
     type_num = NEST::beta;  // default electron recoil model
+    FreeParam = {.5,.5,1.1,-5.,1.01,.95,1.4e-2,1.8e-2};
+  }
   else if ( type == "pp" || type == "ppsolar" || type == "ppSolar" || type == "pp_Solar" || type == "pp_solar" || type == "pp-Solar" || type == "pp-solar" ) {
     type_num = ppSolar;
     numEvts = RandomGen::rndm()->poisson_draw(0.0011794 * double(numEvts)); //normalization: counts per kg-day from 0-250 keV(ee)
