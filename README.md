@@ -13,6 +13,13 @@ You do *not* have to have NEST already installed to use this package.
 
 ## Installing from PyPI
 
+**Currently, a bug exists on including pybind11 in the pypi package. Please follow the following installation instructions for non-Mac machines:**
+<br>
+```
+module load cmake 
+pip install git+https://github.com/NESTCollaboration/nestpy.git
+```
+
 For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
 ```
