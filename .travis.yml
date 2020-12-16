@@ -3,6 +3,7 @@
 
 notifications:
   email: false
+  slack: xenonnt:NrEonhkbwD6r0BxAdFYTvoSe
 
 language: generic  # This needs to be set for OSX support
 
