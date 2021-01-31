@@ -4,7 +4,6 @@
 
 #include "VDetector.hh"
 using namespace std;
-
 //NOTES: best g1 for DD 0.1193, but for tritium 0.1146; S2 noise 1.9, 7.5%; g1_gas 0.1019, 0.1012
 //s2fano 3.6, 0.9; eField in gas 6.25, 6.2; e- life 650, 750 us; fid vol 80-130, 38-305 us; gasGap 4.25, 4.5 mm
 //DISCLAIMER: Slight differences from official published values due to private LUX algorithms
@@ -14,8 +13,6 @@ class DetectorExample_LUX_RUN03: public VDetector {
 public:
   
   DetectorExample_LUX_RUN03() {
-    if ( verbosity ) cerr << "*** Detector definition message ***" << endl;
-    if ( verbosity ) cerr << "You are currently using the LUX Run03 template detector." << endl << endl;
     
     // Call the initialization of all the parameters
     Initialization();

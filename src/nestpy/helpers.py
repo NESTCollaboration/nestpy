@@ -91,7 +91,8 @@ def GetYieldsVectorized(interaction, yield_type, nc=NC, **kwargs):
     '''
     if type(interaction) == str:
         interaction_object = GetInteractionObject(interaction)
-    else interaction_object = interaction
+    else:
+        interaction_object = interaction
 
     if 'energy' in kwargs.keys():
         if interaction_object == GetInteractionObject('nr') and kwargs['energy'] > 2e2:
