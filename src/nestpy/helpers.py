@@ -89,8 +89,11 @@ def GetYieldsVectorized(interaction, yield_type, nc=NC, **kwargs):
         getattr(yield_object, yield_type) (array): array of yield values for a given yield_object (nr, etc)
         and a given yield_type (photon, electron yield as defined in parameters.)
     '''
+    if type(interaction) == str:
+        interaction_object = GetInteractionObject(interaction)
+    else:
+        interaction_object = interaction
 
-    interaction_object = GetInteractionObject(interaction)
     if 'energy' in kwargs.keys():
         if interaction_object == GetInteractionObject('nr') and kwargs['energy'] > 2e2:
             return np.nan
