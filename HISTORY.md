@@ -4,6 +4,12 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.2 (2021-02-01)
+-----------------
+  * Bind with LUX detector file 
+  * Fix interaction key interpretation in helpers
+  * Attempt to fix builds (TBA)
+
 1.4.1 (2020-12-15)
 -----------------
 Sync with v2.2.0 NEST. 
