@@ -8,7 +8,6 @@ Patch releases mean (the Z number in X.Y.Z version) that the underlying physics 
 -----------------
   * Bind with LUX detector file 
   * Fix interaction key interpretation in helpers
-  * Attempt to fix builds (TBA)
 
 1.4.1 (2020-12-15)
 -----------------
