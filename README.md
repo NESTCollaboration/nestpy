@@ -18,7 +18,6 @@ You do *not* have to have NEST already installed to use this package.
 For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
 ```
-module load cmake
 pip install nestpy
 ```
 
@@ -60,7 +59,7 @@ print('With statistical fluctuations',
       nc.GetQuanta(y).photons)
 ```
 
-For more examples on possible calls, please see the tests folder.
+For more examples on possible calls, please see the tests and tutorials folders.
 
 ### Support
 
