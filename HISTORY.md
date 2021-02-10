@@ -4,6 +4,15 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.4 (2021-02-10)
+-----------------
+  * PyPi calls improved to compile for linux
+
+1.4.3 (2021-02-08)
+-----------------
+  * Attempted bug fix (fixed properly in 1.4.4)
+  * New tutorials directory
+
 1.4.2 (2021-02-01)
 -----------------
   * Bind with LUX detector file 
