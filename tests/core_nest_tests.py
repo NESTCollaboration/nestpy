@@ -133,6 +133,10 @@ class NESTcalcTest(unittest.TestCase):
     def test_nest_calc_get_detector(self):
         self.nestcalc.GetDetector()
 
+    def test_equality(self):
+        # Will call a test for the nearlyEqual function to ensure it still works.
+        self.nestcalc.GetYields(nestpy.NR, 100., 2.9, 100., 0., 54)
+
 
 class NESTcalcFullCalculationTest(unittest.TestCase):
 
