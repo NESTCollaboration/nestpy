@@ -22,14 +22,14 @@ using namespace std;
 double power =
     3.7488;  // this is a global variable because it is for both AmBe and 252Cf
 
-double TestSpectra::Gamma_spectrum(double xMin, double xMax, string source) {
+const vector<double> TestSpectra::Gamma_spectrum(double xMin, double xMax, string source) {
   GammaHandler gh;
 
   return gh.combineSpectra(xMin, xMax, source);
 }
 
 double TestSpectra::CH3T_spectrum(double xMin, double xMax) {
-  double m_e = 510.9989461;     // e- rest mass-energy [keV]
+  double m_e = ElectronRestMassEnergy;     // e- rest mass-energy [keV]
   double aa = 0.0072973525664;  // fine structure constant
   double ZZ = 2.;
   double qValue = 18.5898;  // tritium beta decay endpoint [keV]
@@ -58,7 +58,7 @@ double TestSpectra::CH3T_spectrum(double xMin, double xMax) {
 }
 
 double TestSpectra::C14_spectrum(double xMin, double xMax) {
-  double m_e = 510.9989461;     // e- rest mass-energy [keV]
+  double m_e = ElectronRestMassEnergy;     // e- rest mass-energy [keV]
   double aa = 0.0072973525664;  // fine structure constant
   double ZZ = 7.;
   double V0 = 0.495;  // effective offset in T due to screening of the nucleus
@@ -186,7 +186,7 @@ double TestSpectra::DD_spectrum(
 }
 
 double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
-  
+
   if ( xMax > 250. ) xMax = 250.;
   if ( xMin < 0.00 ) xMin = 0.00;
   double yMax = 0.000594;
@@ -202,7 +202,7 @@ double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
 }
 
 double TestSpectra::atmNu_spectrum ( double xMin, double xMax ) {
-  
+
   if ( xMax > 85. ) xMax = 85.;
   if ( xMin < 0.0 ) xMin = 0.0;
   vector<double> xyTry = {
@@ -240,7 +240,7 @@ double TestSpectra::WIMP_dRate(double ER, double mWimp, double dayNum) {
   double v_esc = V_ESCAPE * cmPerkm; // escape velocity
   double v_e = ( V_SUN + ( 0.49 * 29.8 * cos ( ( dayNum * 2. * M_PI / 365.24 ) - ( 0.415 * 2. * M_PI ) ) ) ) * cmPerkm;  // the Earth's velocity
   // used Eq. 18 for SHM w/ June 1 as reference date (MAX!) from arXiv 0607121 [Savage, Freese, Gondolo 2006] - Juergen Reichenbacher 09/17/2020
-  
+
   // Define the detector Z and A and the mass of the target nucleus
   double Z = ATOM_NUM;
   double A = (double)RandomGen::rndm()->SelectRanXeAtom();
@@ -373,7 +373,7 @@ TestSpectra::WIMP_spectrum_prep TestSpectra::WIMP_prep_spectrum(double mass, dou
   int nZeros = 0; //keep track of the number of zeros in a row
   for (int i = 0; i < (numberPoints + 1); ++i) {
     EnergySpec.push_back( WIMP_dRate(double(i) / divisor, mass, dayNum) );
-    if ( EnergySpec[i] == 0. ) ++nZeros;
+    if ( ValidityTests::nearlyEqual(EnergySpec[i], 0.) ) ++nZeros;
     else nZeros = 0; //reset the count if EnergySpec[i] != zero
     if ( nZeros == 100 ) break; //quit the for-loop once we're sure we're only getting zeros
   }

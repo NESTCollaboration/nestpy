@@ -4,17 +4,18 @@
 #include "execNEST.hh"
 #include "DetectorExample_XENON10.hh"
 #include "LUX_Run03.hh"
+#include "RandomGen.hh"
 #include <pybind11/numpy.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
-
-
 namespace py = pybind11;
 
 PYBIND11_MODULE(nestpy, m) {
   //	Binding for YieldResult struct
+  RandomGen::rndm()->SetSeed( time(nullptr) );
+
   py::class_<NEST::YieldResult>(m, "YieldResult", py::dynamic_attr())
     .def(py::init<>())
 	.def_readwrite("PhotonYield", &NEST::YieldResult::PhotonYield)
