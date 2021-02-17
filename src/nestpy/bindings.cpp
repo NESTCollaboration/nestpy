@@ -173,6 +173,14 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
 	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
+    .def("GetYieldKr83m",
+	     &NEST::NESTcalc::GetYieldKr83m,
+	     py::arg("energy") = 41.5,
+	     py::arg("density") = 2.9,
+	     py::arg("drift_field") = 124,
+	     py::arg("maxTimeSeparation") = 2000,
+	     py::arg("deltaT_ns") = -999.
+	 )
     .def("GetYields",
 	     &NEST::NESTcalc::GetYields,
 	     py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
