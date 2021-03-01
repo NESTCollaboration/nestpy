@@ -186,7 +186,7 @@ double TestSpectra::DD_spectrum(
 }
 
 double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
-
+  
   if ( xMax > 250. ) xMax = 250.;
   if ( xMin < 0.00 ) xMin = 0.00;
   double yMax = 0.000594;
@@ -202,7 +202,7 @@ double TestSpectra::ppSolar_spectrum ( double xMin, double xMax ) {
 }
 
 double TestSpectra::atmNu_spectrum ( double xMin, double xMax ) {
-
+  
   if ( xMax > 85. ) xMax = 85.;
   if ( xMin < 0.0 ) xMin = 0.0;
   vector<double> xyTry = {
@@ -240,7 +240,7 @@ double TestSpectra::WIMP_dRate(double ER, double mWimp, double dayNum) {
   double v_esc = V_ESCAPE * cmPerkm; // escape velocity
   double v_e = ( V_SUN + ( 0.49 * 29.8 * cos ( ( dayNum * 2. * M_PI / 365.24 ) - ( 0.415 * 2. * M_PI ) ) ) ) * cmPerkm;  // the Earth's velocity
   // used Eq. 18 for SHM w/ June 1 as reference date (MAX!) from arXiv 0607121 [Savage, Freese, Gondolo 2006] - Juergen Reichenbacher 09/17/2020
-
+  
   // Define the detector Z and A and the mass of the target nucleus
   double Z = ATOM_NUM;
   double A = (double)RandomGen::rndm()->SelectRanXeAtom();
@@ -378,7 +378,7 @@ TestSpectra::WIMP_spectrum_prep TestSpectra::WIMP_prep_spectrum(double mass, dou
     if ( nZeros == 100 ) break; //quit the for-loop once we're sure we're only getting zeros
   }
 
-  for (long i = 0; i < 1000000; ++i) {
+  for (uint64_t i = 0; i < 1000000; ++i) {
     spectrum.integral += WIMP_dRate(double(i) / 1e4, mass, dayNum) / 1e4;
   }
   spectrum.xMax = ( (double) EnergySpec.size() - 1. )/divisor;

@@ -35,13 +35,13 @@ public:
 
   /*Return pair production spectrum from pair production energy equation */
 	double pairProduction(const vector<vector<double>>& sourceInfo, const vector<double>& xyTry);
-
+  
   /*return energies, branching ratios, and mass attenuation coefficients for a given source*/
 
 	const vector<vector<double>>& sourceLookupTable(const std::string& source);
 };
+ 
 
 
 
-
-#endif
+#endif 
