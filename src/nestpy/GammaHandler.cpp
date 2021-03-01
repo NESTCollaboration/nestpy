@@ -56,7 +56,7 @@ const vector<double> GammaHandler::combineSpectra(double emin, double emax, stri
       emin + (emax - emin) * RandomGen::rndm()->rand_uniform(),
       yMax * RandomGen::rndm()->rand_uniform(), 1.};
 
-     while(xyTry[2] > 0.) {
+     while(xyTry[2] > 0.) {	
      		pe = GammaHandler::photoIonization(sourceInfo, xyTry);
      		compton = GammaHandler::compton(sourceInfo, xyTry);
      		pp =  GammaHandler::pairProduction(sourceInfo, xyTry);

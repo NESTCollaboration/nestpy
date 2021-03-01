@@ -3,7 +3,6 @@
 #include "VDetector.hh"
 #include "execNEST.hh"
 #include "DetectorExample_XENON10.hh"
-#include "LUX_Run03.hh"
 #include "RandomGen.hh"
 #include <pybind11/numpy.h>
 #include <pybind11/stl_bind.h>
@@ -152,14 +151,14 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("FitTBA", &DetectorExample_XENON10::FitTBA)
 	 .def("OptTrans", &DetectorExample_XENON10::OptTrans)
 	 .def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
-
-  //	Binding for example LUX_Run03
-  py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "LUX_RUN3")
-     .def(py::init<>())
-	 .def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
-	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
-	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
-	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
+//
+//  //	Binding for example LUX_Run03
+//  py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "LUX_RUN3")
+//     .def(py::init<>())
+//	 .def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
+//	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
+//	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
+//	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
 
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
