@@ -4,12 +4,26 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.5 (2021-03-01)
+-----------------
+Sync with [NEST v2.2.1](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1)
+  * Cleaned up MANIFEST so pypi dist packages are less bulky
+    [#56](https://github.com/NESTCollaboration/nestpy/pull/56)
+  * Added floating point comparison method for equality checks
+    [#54](https://github.com/NESTCollaboration/nestpy/pull/54)
+  * Random Number Generation in bindings.cpp to ensure quanta are truly randomized.
+    [#54](https://github.com/NESTCollaboration/nestpy/pull/54)
+  * Binding to Kr83m yields model directly so users can specify explicity deltaT_ns between decay modes.
+    [#55](https://github.com/NESTCollaboration/nestpy/pull/55)
+    
 1.4.4 (2021-02-10)
 -----------------
+NEST v2.2.0 (no NEST changes)
   * PyPi calls improved to compile for linux
 
 1.4.3 (2021-02-08)
 -----------------
+NEST v2.2.0 (no NEST changes)
   * Attempted bug fix (fixed properly in 1.4.4)
   * New tutorials directory
 
