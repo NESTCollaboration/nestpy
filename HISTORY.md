@@ -4,7 +4,7 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
-1.4.6 (2021-03-03)
+1.4.7 (2021-03-03)
 -----------------
 Sync with [NEST v2.2.1](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1)
   * Cleaned up MANIFEST so pypi dist packages are less bulky
@@ -16,9 +16,9 @@ Sync with [NEST v2.2.1](https://github.com/NESTCollaboration/nest/releases/tag/v
   * Binding to Kr83m yields model directly so users can specify explicity deltaT_ns between decay modes.
     [#55](https://github.com/NESTCollaboration/nestpy/pull/55)
     
-1.4.5 (2021-03-01)
+1.4.5-1.4.6 (2021-03-01)
 -----------------
-(Pre-release, see version 1.4.6 for distributions)
+(Pre-releases, see version 1.4.7 for distributions)
 <br>
 Sync with [NEST v2.2.1](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1)
 
