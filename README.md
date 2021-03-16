@@ -6,6 +6,7 @@
 [![PyPi version](https://pypip.in/v/nestpy/badge.png)](https://pypi.org/project/nestpy/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Python Versions](https://img.shields.io/pypi/pyversions/nestpy.svg)](https://pypi.python.org/pypi/nestpy)
+[![PyPI downloads](https://img.shields.io/pypi/dm/nestpy.svg)](https://pypistats.org/packages/nestpy)
 
 Visit the tutorials directory for tutorials on the nestpy calls, maintenance, and benchmark plots. 
 
@@ -18,7 +19,6 @@ You do *not* have to have NEST already installed to use this package.
 For 64-bit Linux or Mac systems, instally 'nestpy' should just require running:
 
 ```
-module load cmake
 pip install nestpy
 ```
 
@@ -60,7 +60,7 @@ print('With statistical fluctuations',
       nc.GetQuanta(y).photons)
 ```
 
-For more examples on possible calls, please see the tests folder.
+For more examples on possible calls, please see the tests and tutorials folders.
 
 ### Support
 

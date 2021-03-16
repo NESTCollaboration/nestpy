@@ -23,9 +23,6 @@ matrix: # No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
     language: python
   - os: osx
     osx_image: xcode9.4
-    env: PYTHON=2.7
-  - os: osx
-    osx_image: xcode9.4
     env: PYTHON=3.6
   - os: osx
     osx_image: xcode11
@@ -52,7 +49,7 @@ script:
     - if [ "${PYTHON}" == "3.7" ]; then python setup.py sdist ; fi
 
 after_success:
-    - pip install twine
+    - python -m pip install --upgrade --upgrade-strategy eager twine
     - echo TRAVIS_TAG $TRAVIS_TAG
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" wheelhouse/*.whl; fi
     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*; fi

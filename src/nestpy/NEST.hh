@@ -64,6 +64,7 @@
 
 #include "RandomGen.hh"
 #include "VDetector.hh"
+#include "ValidityTests.hh"
 
 #include <cassert>
 #include <cfloat>
@@ -81,7 +82,6 @@
 #define ATOM_NUM 54.         // period to make float. 18 for LAr. If changed here go to TestSpectra.hh too
 
 #define PHE_MIN 1e-6         // area
-#define ELEC_MASS 9.109e-31  // kg
 #define FIELD_MIN 1.         // min elec field to make S2 (in V/cm)
 #define DENSITY 2.90         // g/cm^3, ref density for dependent effects. ~1.4 for LAr
 
@@ -95,6 +95,12 @@
   0.005                 // threshold height, in PE, for writing to photon_times
 #define SPIKES_MAXM 120  // above this switch to pulse area (70 phd in 1 array)
 #define PHE_MAX 180 // saturation threshold, in PE per bin i.e. sample
+
+static const int XYcorr = 3;  // 0 means no corrections, 1 is for S1, 2 for S2, 3 for both
+
+static const double RidealGas= 8.31446261815324;  // Joules/mole/Kelvin
+static const double RealGasA = 0.4250;  // m^6*Pa/mol^2 or m^4*N/mol^2. For Ar: 0.1355
+static const double RealGasB = 5.105e-5;  // m^3/mol. For Ar: 3.201e-5
 
 namespace NEST {
 
@@ -117,7 +123,9 @@ typedef enum {
   ppSolar = 12,
   atmNu = 13,
   fullGamma = 14,
-  NoneType =15
+  fullGamma_PE = 15,
+  fullGamma_Compton_PP = 16,
+  NoneType =17
 
 } INTERACTION_TYPE;
 
@@ -162,7 +170,7 @@ class NESTcalc {
   explicit NESTcalc(VDetector* detector);
   virtual ~NESTcalc();
 
-  static long BinomFluct(long, double);
+  static int64_t BinomFluct(int64_t, double);
   
   static const std::vector<double> default_NuisParam; /* = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}*/
   static const std::vector<double> default_FreeParam; /* = {1.,1.,0.1,0.5,0.19,2.25} */
@@ -198,17 +206,17 @@ class NESTcalc {
   virtual YieldResult GetYieldGamma(double energy, double density, double dfield);
   // Called by GetYields in the Gamma/x-ray/Photoabsorption Case
   virtual YieldResult GetYieldNR(double energy, double density, double dfield, double massNum,
-                  std::vector<double> NuisParam={11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
+                  const std::vector<double>& NuisParam={11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
   // Called by GetYields in the NR (and related) cases
   virtual YieldResult GetYieldNROld ( double energy, int alt );
   // Quick and dirty simple analytical approximations saved for earlier NEST versions that were first principles: power laws, ln, sigmoid, exponentials
-  virtual YieldResult GetYieldIon(double energy, double density, double dfield, double massNum, double atomNum, const vector<double>& NuisParam={11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
+  virtual YieldResult GetYieldIon(double energy, double density, double dfield, double massNum, double atomNum, const std::vector<double>& NuisParam={11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.});
   // Called by GetYields in the ion case
   virtual YieldResult GetYieldKr83m(double energy, double density, double dfield, double maxTimeSeparation, double deltaT_ns);
   // Called by GetYields in the K383m case
   virtual YieldResult GetYieldBeta(double energy, double density, double dfield);
   // Called by GetYields in the Beta/Compton/etc.(IC,Auger,EC) Case
-  virtual YieldResult GetYieldBetaGR(double energy, double density, double dfield);
+  virtual YieldResult GetYieldBetaGR(double energy, double density, double dfield, const std::vector<double>& NuisParam);
   // Greg R. version: arXiv:1910.04211
   virtual YieldResult YieldResultValidity(YieldResult& res, const double energy, const double Wq_eV);
   // Confirms and sometimes adjusts YieldResult to make physical sense
@@ -217,18 +225,18 @@ class NESTcalc {
   // quanta (photons+electrons) with a Fano-like factor, and the "slosh" between
   // photons and electrons
   // Namely, the recombination fluctuations
-  virtual double RecombOmegaNR(double elecFrac,const vector<double>& FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/);
+  virtual double RecombOmegaNR(double elecFrac,const std::vector<double>& FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/);
   //Calculates the Omega parameter governing non-binomial recombination fluctuations for nuclear recoils and ions (Lindhard<1)
-  virtual double RecombOmegaER(double efield, double elecFrac);
+  virtual double RecombOmegaER(double efield, double elecFrac, const std::vector<double>& FreeParam);
   //Calculates the Omega parameter governing non-binomial recombination fluctuations for gammas and betas (Lindhard==1)
   virtual double FanoER(double density, double Nq_mean,double efield);
   //Fano-factor (and Fano-like additional energy resolution model) for gammas and betas (Lindhard==1)
   std::vector<double> GetS1(const QuantaResult& quanta, double truthPosX, double truthPosY, double truthPosZ, double smearPosX, double smearPosY, double smearPosZ,
                             double driftSpeed,
                             double dS_mid, INTERACTION_TYPE species,
-                            long evtNum, double dfield, double energy,
+                            uint64_t evtNum, double dfield, double energy,
                             int useTiming, bool outputTiming,
-                            vector<long int>& wf_time, vector<double>& wf_amp);
+                            vector<int64_t>& wf_time, vector<double>& wf_amp);
   // Very comprehensive conversion of the "original" intrinsic scintillation
   // photons into the many possible definitions of S1 as measured by
   // photo-sensors
@@ -238,9 +246,9 @@ class NESTcalc {
   // GetSpike takes the extremely basic digital/integer number of spike counts
   // provided by GetS1 and does more realistic smearing
   std::vector<double> GetS2(int Ne, double truthPosX, double truthPosY, double truthPosZ, double smearPosX, double smearPosY, double smearPosZ,
-                            double dt, double driftSpeed, long evtNum,
+                            double dt, double driftSpeed, uint64_t evtNum,
                             double dfield, int useTiming, bool outputTiming,
-                            vector<long int>& wf_time, vector<double>& wf_amp,
+                            vector<int64_t>& wf_time, vector<double>& wf_amp,
                             const vector<double>& g2_params);
   // Exhaustive conversion of the intrinsic ionization electrons into the many
   // possible definitions of S2 pulse areas as observed in the photo-tubes

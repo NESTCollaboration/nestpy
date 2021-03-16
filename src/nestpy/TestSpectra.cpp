@@ -22,14 +22,14 @@ using namespace std;
 double power =
     3.7488;  // this is a global variable because it is for both AmBe and 252Cf
 
-double TestSpectra::Gamma_spectrum(double xMin, double xMax, string source) {
+const vector<double> TestSpectra::Gamma_spectrum(double xMin, double xMax, string source) {
   GammaHandler gh;
 
   return gh.combineSpectra(xMin, xMax, source);
 }
 
 double TestSpectra::CH3T_spectrum(double xMin, double xMax) {
-  double m_e = 510.9989461;     // e- rest mass-energy [keV]
+  double m_e = ElectronRestMassEnergy;     // e- rest mass-energy [keV]
   double aa = 0.0072973525664;  // fine structure constant
   double ZZ = 2.;
   double qValue = 18.5898;  // tritium beta decay endpoint [keV]
@@ -58,7 +58,7 @@ double TestSpectra::CH3T_spectrum(double xMin, double xMax) {
 }
 
 double TestSpectra::C14_spectrum(double xMin, double xMax) {
-  double m_e = 510.9989461;     // e- rest mass-energy [keV]
+  double m_e = ElectronRestMassEnergy;     // e- rest mass-energy [keV]
   double aa = 0.0072973525664;  // fine structure constant
   double ZZ = 7.;
   double V0 = 0.495;  // effective offset in T due to screening of the nucleus
@@ -373,12 +373,12 @@ TestSpectra::WIMP_spectrum_prep TestSpectra::WIMP_prep_spectrum(double mass, dou
   int nZeros = 0; //keep track of the number of zeros in a row
   for (int i = 0; i < (numberPoints + 1); ++i) {
     EnergySpec.push_back( WIMP_dRate(double(i) / divisor, mass, dayNum) );
-    if ( EnergySpec[i] == 0. ) ++nZeros;
+    if ( ValidityTests::nearlyEqual(EnergySpec[i], 0.) ) ++nZeros;
     else nZeros = 0; //reset the count if EnergySpec[i] != zero
     if ( nZeros == 100 ) break; //quit the for-loop once we're sure we're only getting zeros
   }
 
-  for (long i = 0; i < 1000000; ++i) {
+  for (uint64_t i = 0; i < 1000000; ++i) {
     spectrum.integral += WIMP_dRate(double(i) / 1e4, mass, dayNum) / 1e4;
   }
   spectrum.xMax = ( (double) EnergySpec.size() - 1. )/divisor;
