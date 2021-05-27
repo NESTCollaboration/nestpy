@@ -54,6 +54,7 @@ PYBIND11_MODULE(nestpy, m) {
     .value("C14", NEST::INTERACTION_TYPE::C14)
     .value("Kr83m", NEST::INTERACTION_TYPE::Kr83m)
     .value("NoneType", NEST::INTERACTION_TYPE::NoneType)
+    .value("betaGR", NEST::INTERACTION_TYPE::betaGR)
     .export_values();
 
   //	Binding for the VDetector class
