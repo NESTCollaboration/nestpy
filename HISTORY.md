@@ -4,6 +4,20 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.9 (2021-06-01)
+-----------------
+Sync with [NEST v2.2.1patch2](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1patch2)
+
+Code Quality and/or Misc Bug Fixes:
+  * Added default density argument for LXe case, forcing an argument re-ordering (Sophia)
+  * Moved position of "delete detector" in execNEST to solve python problem (Albert Baker, Greg R.)
+  * Approx eff func for single phe made simpler, for FlameDisx (Robert James, Sophia, Matthew)
+  * More robust rule used for when to approximate binomial as Gaussian (Sophia, Greg R.)
+  * Warn that you are in a region of too-low time between S1a and S1b for Kr83m only 1x (Sophia)
+  * Bad-order if-statements simplified with a min within a max for <0, >1 checks (Luke K., Matthew)
+New Physics:
+  * Liquid Ar model for ER fits all the data better now, in both energy and dE/dx bases (Kate K.)
+
 1.4.8 (2021-04-09)
 -----------------
 Sync with [NEST v2.2.1patch1](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1patch1)
