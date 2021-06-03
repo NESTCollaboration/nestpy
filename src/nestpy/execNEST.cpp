@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
   /* vector<double> eList = { 1., 2., 3. }; // fast example--for PLR, ML train
   vector<vector<double>> pos3dxyz = { {0.,-1.,60.},{-1.,0.,70.},{1.,0.,80.} };
   runNESTvec ( detector, NEST::beta, eList, pos3dxyz );
+  delete detector;
   return EXIT_SUCCESS; */
   
   if (argc < 7) {
@@ -304,7 +305,6 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
     }
   }
   
-  delete detector;
   return OutputResults;
 }
 
@@ -314,7 +314,7 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
   // Construct NEST class using detector object
   NESTcalc n(detector);
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};  
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25}; 
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
     cerr << "ERROR, unphysical value(s) of position within the detector "
@@ -1019,8 +1019,7 @@ vector<double> signal1, signal2, signalE, vTable;
 	      MultFact = 1. + MultFact * detector->get_P_dphe(); //correction factor discovered by UA student Emily Mangus
             if(eff < 1.)
               eff += ((1. - eff) / (2. * double(detector->get_numPMTs()))) * scint[0];
-            if(eff > 1.) eff = 1.;
-            if(eff < 0.) eff = 0.;
+	    eff = max ( 0., min ( eff, 1. ) );
             MultFact /= eff; //for smaller detectors leave it as 1.00
           } else MultFact = 1.;
         }
