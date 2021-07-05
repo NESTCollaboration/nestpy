@@ -21,17 +21,11 @@ matrix: # No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
       - docker
     env: DOCKER_IMAGE=nestpy/nestpy_manylinux
     language: python
-  - os: osx
-    osx_image: xcode9.4
-    env: PYTHON=3.6
+  #- os: osx
+  #  osx_image: xcode9.4
+  #  env: PYTHON=3.7
   - os: osx
     osx_image: xcode11
-    env: PYTHON=3.7
-  - os: osx
-    osx_image: xcode9.4
-    env: PYTHON=3.7
-  - os: osx
-    osx_image: xcode9.4
     env: PYTHON=3.8
 
 before_install:
