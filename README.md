@@ -1,7 +1,7 @@
 # nestpy
 
 [![Join the chat at https://gitter.im/NESTCollaboration/nestpy](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NESTCollaboration/nestpy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/NESTCollaboration/nestpy.svg?branch=master)](https://travis-ci.org/NESTCollaboration/nestpy)
+[![Build Status](https://www.travis-ci.com/NESTCollaboration/nestpy.svg?branch=master)](https://www.travis-ci.com/NESTCollaboration/nestpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1345595.svg)](https://doi.org/10.5281/zenodo.1345595)
 [![PyPi version](https://pypip.in/v/nestpy/badge.png)](https://pypi.org/project/nestpy/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
