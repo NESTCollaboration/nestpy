@@ -11,6 +11,7 @@
  * Created on August 1, 2017, 1:03 PM
  */
 
+#include <iterator>
 #include "NEST.hh"
 #include "TestSpectra.hh"
 #include "analysis.hh"
@@ -41,7 +42,8 @@ int main(int argc, char** argv) {
   
   if ( ValidityTests::nearlyEqual(ATOM_NUM, 18.) ) {
     detector->set_molarMass(39.948);
-    cerr << "\nWARNING: Argon is currently only in alpha testing mode!! Many features copied over from Xenon wholesale still. Use models at your own risk.\n" << endl;
+    if ( verbosity )
+      cerr << "\nWARNING: Argon is currently only in alpha testing mode!! Many features copied over from Xenon wholesale still. Use models at your own risk.\n" << endl;
   }
   
   /* vector<double> eList = { 1., 2., 3. }; // fast example--for PLR, ML train
@@ -159,7 +161,7 @@ int main(int argc, char** argv) {
     
     numEvts = (uint64_t)atof(argv[1]);
     if ( numEvts <= 0 ) {
-      cerr << "ERROR, you must simulate at least 1 event, or 1 kg*day" << endl;
+      if ( verbosity ) cerr << "ERROR, you must simulate at least 1 event, or 1 kg*day" << endl;
       return 1;
     }
     type = argv[2];
@@ -266,23 +268,23 @@ NESTObservableArray runNESTvec ( VDetector* detector, INTERACTION_TYPE particleT
     scint2= n.GetS2(quanta.electrons,truthPos[0],truthPos[1],truthPos[2],smearPos[0],smearPos[1],smearPos[2],
 		    driftTime,vD,i,useField,0,verbosity,wf_time,wf_amp,g2_params);
     if ( scint[7] > PHE_MIN && scint2[7] > PHE_MIN ) { //unlike usual, kill (don't skip, just -> 0) sub-thr evts
-      OutputResults.s1_nhits.push_back(abs(int(scint[0])));
-      OutputResults.s1_nhits_thr.push_back(abs(int(scint[8])));
-      OutputResults.s1_nhits_dpe.push_back(abs(int(scint[1])));
-      OutputResults.s1r_phe.push_back(fabs(scint[2]));
-      OutputResults.s1c_phe.push_back(fabs(scint[3]));
-      OutputResults.s1r_phd.push_back(fabs(scint[4]));
-      OutputResults.s1c_phd.push_back(fabs(scint[5]));
-      OutputResults.s1r_spike.push_back(fabs(scint[6]));
-      OutputResults.s1c_spike.push_back(fabs(scint[7])); //default is S1c in units of spikes, 3-D XYZ corr
-      OutputResults.Nee.push_back(abs(int(scint2[0])));
-      OutputResults.Nph.push_back(abs(int(scint2[1])));
-      OutputResults.s2_nhits.push_back(abs(int(scint2[2])));
-      OutputResults.s2_nhits_dpe.push_back(abs(int(scint2[3])));
-      OutputResults.s2r_phe.push_back(fabs(scint2[4]));
-      OutputResults.s2c_phe.push_back(fabs(scint2[5]));
-      OutputResults.s2r_phd.push_back(fabs(scint2[6]));
-      OutputResults.s2c_phd.push_back(fabs(scint2[7])); //default is S2c in terms of phd, not phe a.k.a. PE
+      OutputResults.s1_nhits.push_back(std::abs(int(scint[0])));
+      OutputResults.s1_nhits_thr.push_back(std::abs(int(scint[8])));
+      OutputResults.s1_nhits_dpe.push_back(std::abs(int(scint[1])));
+      OutputResults.s1r_phe.push_back(std::abs(scint[2]));
+      OutputResults.s1c_phe.push_back(std::abs(scint[3]));
+      OutputResults.s1r_phd.push_back(std::abs(scint[4]));
+      OutputResults.s1c_phd.push_back(std::abs(scint[5]));
+      OutputResults.s1r_spike.push_back(std::abs(scint[6]));
+      OutputResults.s1c_spike.push_back(std::abs(scint[7])); //default is S1c in units of spikes, 3-D XYZ corr
+      OutputResults.Nee.push_back(std::abs(int(scint2[0])));
+      OutputResults.Nph.push_back(std::abs(int(scint2[1])));
+      OutputResults.s2_nhits.push_back(std::abs(int(scint2[2])));
+      OutputResults.s2_nhits_dpe.push_back(std::abs(int(scint2[3])));
+      OutputResults.s2r_phe.push_back(std::abs(scint2[4]));
+      OutputResults.s2c_phe.push_back(std::abs(scint2[5]));
+      OutputResults.s2r_phd.push_back(std::abs(scint2[6]));
+      OutputResults.s2c_phd.push_back(std::abs(scint2[7])); //default is S2c in terms of phd, not phe a.k.a. PE
     }
     else {
       OutputResults.s1_nhits.push_back(0);
@@ -313,12 +315,11 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
              double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
-  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25}; 
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.};
+  FreeParam = {1.,1.,0.1,0.5,0.19,2.25}; 
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
-    cerr << "ERROR, unphysical value(s) of position within the detector "
-            "geometry.";  // negative or 0 for cathode position is OK (e.g., LZ)
+    if ( verbosity ) cerr << "ERROR, unphysical value(s) of position within the detector geometry.";  // negative or 0 for cathode position is OK (e.g., LZ)
     return 1;
   }
 
@@ -347,7 +348,7 @@ vector<double> signal1, signal2, signalE, vTable;
     eMax = hiEregime;  // the default energy max
   if ( ValidityTests::nearlyEqual(eMax, 0.) &&
        type != "muon" && type != "MIP" && type != "LIP" && type != "mu" && type != "mu-" ) {
-    cerr << "ERROR: The maximum energy (or Kr time sep) cannot be 0 keV (or 0 ns)!" << endl;
+    if ( verbosity ) cerr << "ERROR: The maximum energy (or Kr time sep) cannot be 0 keV (or 0 ns)!" << endl;
     return 1;
   }
 
@@ -359,7 +360,7 @@ vector<double> signal1, signal2, signalE, vTable;
     type_num = NR;  //-1: default particle type is also NR
   else if (type == "WIMP") {
     if (eMin < 0.44) { //here eMin is WIMP mass
-      cerr << "WIMP mass too low, you're crazy!" << endl;
+      if ( verbosity ) cerr << "WIMP mass too low, you're crazy!" << endl;
       return 1;
     }
     type_num = WIMP;
@@ -415,33 +416,36 @@ vector<double> signal1, signal2, signalE, vTable;
 			poisson_draw(1.5764e-7*double(numEvts));
   } else if ( type == "fullGamma" ) {
     type_num = fullGamma;
-    cerr << "Please choose gamma source. The allowed sources are:\n\"Co57\"\n\"Co60\"\n\"Cs137\"\nSource: ";
+    if ( verbosity ) cerr << "Please choose gamma source. The allowed sources are:\n\"Co57\"\n\"Co60\"\n\"Cs137\"\nSource: ";
     cin >> gamma_source;
-    if ( gamma_source == "Co60" ) {
+    if ( gamma_source == "Co60" && verbosity ) {
       cerr << "WARNING: This source is in the pair production range. Electron/positron pairs are not accounted for after initial interaction, and some "
 	   << "photons and electrons may go unaccounted." << endl;
     }
-  } else {
-    cerr << "UNRECOGNIZED PARTICLE TYPE!! VALID OPTIONS ARE:" << endl;
-    cerr << "NR or neutron," << endl;
-    cerr << "WIMP," << endl;
-    cerr << "B8 or Boron8 or 8Boron or 8B or Boron-8," << endl;
-    cerr << "DD or D-D," << endl;
-    cerr << "AmBe," << endl;
-    cerr << "Cf or Cf252 or 252Cf or Cf-252," << endl;
-    cerr << "ion or nucleus," << endl;
-    cerr << "alpha," << endl;
-    cerr << "gamma or gammaRay," << endl;
-    cerr << "x-ray or xray or xRay or X-ray or Xray or XRay," << endl;
-    cerr << "Kr83m or 83mKr or Kr83," << endl;
-    cerr << "CH3T or tritium," << endl;
-    cerr << "Carbon14 or 14C or C14 or C-14 or Carbon-14," << endl;
-    cerr << "beta or ER or Compton or compton or electron or e-," << endl;
-    cerr << "pp or ppSolar with many various underscore, hyphen and capitalization permutations permitted," << endl;
-    cerr << "atmNu," << endl;
-    cerr << "muon or MIP or LIP or mu or mu-, and" << endl;
-    cerr << "fullGamma" << endl;
-
+  }
+  else {
+    if ( verbosity ) {
+      string particleTypes = "UNRECOGNIZED PARTICLE TYPE!! VALID OPTIONS ARE:\n"
+	"NR or neutron,\n"
+	"WIMP,\n"
+	"B8 or Boron8 or 8Boron or 8B or Boron-8,\n"
+	"DD or D-D,\n"
+	"AmBe,\n"
+	"Cf or Cf252 or 252Cf or Cf-252,\n"
+	"ion or nucleus,\n"
+	"alpha,\n"
+	"gamma or gammaRay,\n"
+	"x-ray or xray or xRay or X-ray or Xray or XRay,\n"
+	"Kr83m or 83mKr or Kr83,\n"
+	"CH3T or tritium,\n"
+	"Carbon14 or 14C or C14 or C-14 or Carbon-14,\n"
+	"beta or ER or Compton or compton or electron or e-,\n"
+	"pp or ppSolar with many various underscore, hyphen and capitalization permutations permitted,\n"
+	"atmNu,\n"
+	"muon or MIP or LIP or mu or mu-, and\n"
+	"fullGamma\n";
+      copy(particleTypes.begin(),particleTypes.end(),std::ostream_iterator<char>(cerr,""));
+    }
     return 1;
   }
   
@@ -449,16 +453,14 @@ vector<double> signal1, signal2, signalE, vTable;
   if (type_num == Kr83m) {
     if ( (ValidityTests::nearlyEqual(eMin, 9.4) || ValidityTests::nearlyEqual(eMin, 32.1) || ValidityTests::nearlyEqual(eMin, 41.5) || ValidityTests::nearlyEqual(eMin, 41.55) || ValidityTests::nearlyEqual(eMin, 41.6)) && eMin != eMax ) {
       maxTimeSep = eMax;
-      if ( eMax <= 0. ) { cerr << "Max t sep must be +." << endl; return 1; }
+      if ( eMax <= 0. ) { if ( verbosity ) cerr << "Max t sep must be +." << endl; return 1; }
     } else {
-      cerr << "ERROR: For Kr83m, put E_min as 9.4, 32.1, or 41.5 keV "
-              "and E_max as the max time-separation [ns] between the two decays "
-	      "please." << endl;
+      if ( verbosity ) cerr << "ERROR: For Kr83m, put E_min as 9.4, 32.1, or 41.5 keV and E_max as the max time-separation [ns] between the two decays please." << endl;
       return 1;
     }
   }
 
-  if ((eMin < 10. || eMax < 10.) && type_num == gammaRay) {
+  if ((eMin < 10. || eMax < 10.) && type_num == gammaRay && verbosity) {
     cerr << "WARNING: Typically beta model works better for ER BG at low "
             "energies as in a WS." << endl;
     cerr << "ER data is often best matched by a weighted average of the beta & "
@@ -468,7 +470,7 @@ vector<double> signal1, signal2, signalE, vTable;
   double rho = n.SetDensity(detector->get_T_Kelvin(), detector->get_p_bar());
   if (rho <= 0. || detector->get_T_Kelvin() <= 0. ||
       detector->get_p_bar() <= 0.) {
-    cerr << "ERR: Unphysical thermodynamic property!";
+    if ( verbosity ) cerr << "ERR: Unphysical thermodynamic property!";
     return 1;
   }
   if ( rho < 1.75 && ValidityTests::nearlyEqual(ATOM_NUM, 54.) ) detector->set_inGas(true);
@@ -480,7 +482,7 @@ vector<double> signal1, signal2, signalE, vTable;
   
   // Calculate and print g1, g2 parameters (once per detector)
   vector<double> g2_params = n.CalculateG2(verbosity);
-  g2 = fabs(g2_params[3]);
+  g2 = std::abs(g2_params[3]);
   double g1 = detector->get_g1();
   
   double centralZ =
@@ -499,7 +501,7 @@ vector<double> signal1, signal2, signalE, vTable;
   } else {
     double energyMaximum;
     if (eMax < 0.)
-      energyMaximum = 1. / fabs(eMax);
+      energyMaximum = 1. / std::abs(eMax);
     else
       energyMaximum = eMax;
     if ( type_num == Kr83m )
@@ -508,7 +510,7 @@ vector<double> signal1, signal2, signalE, vTable;
       yieldsMax = n.GetYields(type_num, energyMaximum, rho, centralField,
                               double(massNum), double(atomNum), NuisParam);
   }
-  if ( ( g1 * yieldsMax.PhotonYield ) > ( 2. * maxS1 ) && eMin != eMax && type_num != Kr83m )
+  if ( ( g1 * yieldsMax.PhotonYield ) > ( 2. * maxS1 ) && eMin != eMax && type_num != Kr83m && verbosity )
     cerr << "\nWARNING: Your energy maximum may be too high given your maxS1.\n";
   
   if ( type_num < 6 ) massNum = 0;
@@ -627,10 +629,10 @@ vector<double> signal1, signal2, signalE, vTable;
       
       if ( !dEOdxBasis ) {
 	if ( keV < 0 ) {
-	  cerr << "ERROR: Get ready for time travel or FTL--negative energy!" << endl;
+	  if ( verbosity ) cerr << "ERROR: Get ready for time travel or FTL--negative energy!" << endl;
 	  return 1;
 	}
-	if ( ValidityTests::nearlyEqual ( keV, 0. ) ) {
+	if ( ValidityTests::nearlyEqual ( keV, 0. ) && verbosity ) {
 	  cerr << "WARNING: Zero energy has occurred, and this is not normal" << endl;
 	}
       }
@@ -660,10 +662,10 @@ vector<double> signal1, signal2, signalE, vTable;
           ++i;
         }
 	if ( !dEOdxBasis ) {
-	  if ( pos_x != -999. && pos_y != -999. && (pos_x * pos_x + pos_y * pos_y) > detector->get_radius()*detector->get_radius() && j == 0 )
+	  if ( pos_x != -999. && pos_y != -999. && (pos_x * pos_x + pos_y * pos_y) > detector->get_radius()*detector->get_radius() && j == 0 && verbosity )
 	    cerr << "WARNING: outside fiducial radius." << endl;
 	  if ( pos_x != -999. && pos_y != -999. && (pos_x * pos_x + pos_y * pos_y) > detector->get_radmax()*detector->get_radmax() ) {
-	    cerr << "\nERROR: outside physical radius!!!" << endl;
+	    if ( verbosity ) cerr << "\nERROR: outside physical radius!!!" << endl;
 	    return EXIT_FAILURE;
 	  }
 	  pos_z = stof(position);
@@ -690,14 +692,13 @@ vector<double> signal1, signal2, signalE, vTable;
         field = inField;  // no fringing
 
       if(field < 0. || detector->get_E_gas() < 0.) {
-        cerr << "\nERROR: Neg field is not permitted. We don't simulate field "
-                "dir (yet). Put in magnitude.\n";
+        if ( verbosity ) cerr << "\nERROR: Neg field is not permitted. We don't simulate field dir (yet). Put in magnitude.\n";
         return 1;
       }
-      if(ValidityTests::nearlyEqual(field, 0.) || std::isnan(field))
+      if((ValidityTests::nearlyEqual(field, 0.) || std::isnan(field)) && verbosity)
         cerr << "\nWARNING: A LITERAL ZERO (or undefined) FIELD MAY YIELD WEIRD "
                 "RESULTS. USE A SMALL VALUE INSTEAD.\n";
-      if(field > 12e3 || detector->get_E_gas() > 17e3)
+      if((field > 12e3 || detector->get_E_gas() > 17e3) && verbosity)
         cerr << "\nWARNING: Your field is >12,000 V/cm. No data out here. Are "
                 "you sure about this?\n";
 
@@ -727,7 +728,7 @@ vector<double> signal1, signal2, signalE, vTable;
           if ( timeStamp > tZero ) fprintf ( stdout, "dayNum\t\t" );
           if ( (ValidityTests::nearlyEqual(eMax, eMin) || type_num == Kr83m) && numBins == 1 && MCtruthE ) {
             MCtruthE = false;
-            fprintf(stderr, "Simulating a mono-E peak; setting MCtruthE false.\n");
+            if ( verbosity ) fprintf(stderr, "Simulating a mono-E peak; setting MCtruthE false.\n");
           }
           if(eMax > hiEregime)
             fprintf(stdout, "Energy [keV]");
@@ -750,7 +751,7 @@ vector<double> signal1, signal2, signalE, vTable;
       if(inField != -1. &&
          detector->get_dt_min() > (detector->get_TopDrift() - 0.) / vD &&
          field >= FIELD_MIN) {
-        cerr << "ERROR: dt_min is too restrictive (too large)" << endl;
+        if ( verbosity ) cerr << "ERROR: dt_min is too restrictive (too large)" << endl;
         return 1;
       }
       if((driftTime > detector->get_dt_max() ||
@@ -758,7 +759,7 @@ vector<double> signal1, signal2, signalE, vTable;
          (ValidityTests::nearlyEqual(fPos, -1.) || ValidityTests::nearlyEqual(stof(position), -1.)) && field >= FIELD_MIN)
         goto Z_NEW;
       if(detector->get_dt_max() > (detector->get_TopDrift() - 0.) / vD && !j &&
-         field >= FIELD_MIN) {
+         field >= FIELD_MIN && verbosity) {
         cerr << "WARNING: dt_max is greater than max possible" << endl;
       }
 
@@ -766,11 +767,11 @@ vector<double> signal1, signal2, signalE, vTable;
       // code-block dealing with user error (rounding another possible culprit)
       if ( !dEOdxBasis ) {
 	if(pos_z <= 0) {
-	  cerr << "WARNING: unphysically low Z coordinate (vertical axis of detector) of " << pos_z << " mm" << endl; //warn user on screen
+	  if ( verbosity ) cerr << "WARNING: unphysically low Z coordinate (vertical axis of detector) of " << pos_z << " mm" << endl; //warn user on screen
 	  pos_z = z_step;
 	}
 	if((pos_z > (detector->get_TopDrift() + z_step) || driftTime < 0.0) && field >= FIELD_MIN) {
-	  cerr << "WARNING: unphysically big Z coordinate (vertical axis of detector) of " << pos_z << " mm" << endl; // give the specifics
+	  if ( verbosity ) cerr << "WARNING: unphysically big Z coordinate (vertical axis of detector) of " << pos_z << " mm" << endl; // give the specifics
 	  driftTime = 0.0;
 	  pos_z = detector->get_TopDrift() - z_step; //just fix it and move on
 	}
@@ -826,7 +827,7 @@ vector<double> signal1, signal2, signalE, vTable;
         norm[0] = (xf - xi) / distance;
         norm[1] = (yf - yi) / distance;
         norm[2] = (zf - zi) / distance;
-        while ( zz > zf && ( xx * xx + yy * yy ) < detector->get_radmax()*detector->get_radmax() && fabs(refEnergy) > PHE_MIN ) {
+        while ( zz > zf && ( xx * xx + yy * yy ) < detector->get_radmax()*detector->get_radmax() && std::abs(refEnergy) > PHE_MIN ) {
 	  // stop making S1 and S2 if particle exits Xe volume, OR runs out of energy (in case of beta)
 	  if ( eMin < 0. ) {
 	    if ( (keV+eStep) > -eMin ) eStep = -eMin - keV;
@@ -964,11 +965,11 @@ vector<double> signal1, signal2, signalE, vTable;
       }
       
     NEW_RANGES:
-      if(usePD == 0 && fabs(scint[3]) > minS1 && scint[3] < maxS1)
+      if(usePD == 0 && std::abs(scint[3]) > minS1 && scint[3] < maxS1)
         signal1.push_back(scint[3]);
-      else if(usePD == 1 && fabs(scint[5]) > minS1 && scint[5] < maxS1)
+      else if(usePD == 1 && std::abs(scint[5]) > minS1 && scint[5] < maxS1)
         signal1.push_back(scint[5]);
-      else if((usePD >= 2 && fabs(scint[7]) > minS1 && scint[7] < maxS1) ||
+      else if((usePD >= 2 && std::abs(scint[7]) > minS1 && scint[7] < maxS1) ||
               maxS1 >= 998.5) //xtra | handles bizarre bug of ~0eff, S1=999
         signal1.push_back(scint[7]);
       else
@@ -981,28 +982,28 @@ vector<double> signal1, signal2, signalE, vTable;
       if ( (useS2 == 0 && logMax <= log10(maxS2/maxS1)) ||
 	   (useS2 == 1 && logMax <= log10(maxS2)) ||
 	   (useS2 == 2 && logMax <= log10(maxS2/maxS1)) ) {
-	if ( j == 0 )
+	if ( j == 0 && verbosity )
 	  cerr << "err: You may be chopping off the upper half of your (ER?) band; increase logMax and/or maxS2" << endl;
       }
       if ( (useS2 == 0 && logMin >= log10(lowest2/lowest1)) ||
            (useS2 == 1 && logMin >= log10(lowest2)) ||
            (useS2 == 2 && logMin >= log10(lowest2/lowest1)) ) {
-        if ( j == 0 )
+        if ( j == 0 && verbosity )
           cerr << "err: You may be chopping off the lower half of your (NR?) band; decrease logMin and/or minS2" << endl;
       }
       
-      if(usePD == 0 && fabs(scint2[5]) > minS2 && scint2[5] < maxS2)
+      if(usePD == 0 && std::abs(scint2[5]) > minS2 && scint2[5] < maxS2)
         signal2.push_back(scint2[5]);
-      else if(usePD >= 1 && fabs(scint2[7]) > minS2 && scint2[7] < maxS2)
+      else if(usePD >= 1 && std::abs(scint2[7]) > minS2 && scint2[7] < maxS2)
         signal2.push_back(scint2[7]);  // no spike option for S2
       else
         signal2.push_back(-999.);
 
       if ( ValidityTests::nearlyEqual(eMin, eMax) || type_num == Kr83m ) {
-        if((scint[3] > maxS1 || scint[5] > maxS1 || scint[7] > maxS1) && j < 10)
+        if((scint[3] > maxS1 || scint[5] > maxS1 || scint[7] > maxS1) && j < 10 && verbosity)
           cerr << "WARNING: Some S1 pulse areas are greater than maxS1" << endl;
         if((scint2[5] > maxS2 || scint2[7] > maxS2) &&
-           j < 10) //don't repeat too much: only if within first 10 events then show (+above)
+           j < 10 && verbosity) //don't repeat too much: only if within first 10 events then show (+above)
           cerr << "WARNING: Some S2 pulse areas are greater than maxS2" << endl;
       }
 
@@ -1024,15 +1025,15 @@ vector<double> signal1, signal2, signalE, vTable;
           } else MultFact = 1.;
         }
         if(usePD == 0)
-          Nph = fabs(scint[3]) / (g1 * (1. + detector->get_P_dphe()));
+          Nph = std::abs(scint[3]) / (g1 * (1. + detector->get_P_dphe()));
         else if(usePD == 1)
-          Nph = fabs(scint[5]) / g1;
+          Nph = std::abs(scint[5]) / g1;
         else
-          Nph = fabs(scint[7]) / g1;
+          Nph = std::abs(scint[7]) / g1;
         if(usePD == 0)
-          Ne = fabs(scint2[5]) / (g2 * (1. + detector->get_P_dphe()));
+          Ne = std::abs(scint2[5]) / (g2 * (1. + detector->get_P_dphe()));
         else
-          Ne = fabs(scint2[7]) / g2;
+          Ne = std::abs(scint2[7]) / g2;
         Nph *= MultFact;
         if ( signal1.back() <= 0. && timeStamp == tZero ) Nph= 0.;
         if ( signal2.back() <= 0. && timeStamp == tZero ) Ne = 0.;
@@ -1081,11 +1082,13 @@ vector<double> signal1, signal2, signalE, vTable;
         signal1.pop_back();
         signal2.pop_back();
         signalE.pop_back();
-        cerr << endl << "CAUTION: Efficiency seems to have been zero, so trying again with full S1 and S2 ranges."
-             << endl;
-        cerr
-                << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly! Setting MCtruthE to false."
-                << endl;
+	if ( verbosity ) {
+	  cerr << endl << "CAUTION: Efficiency seems to have been zero, so trying again with full S1 and S2 ranges."
+	       << endl;
+	  cerr
+	    << "OR, you tried to simulate a mono-energetic peak with MC truth E turned on. Silly! Setting MCtruthE to false."
+	    << endl;
+	}
         goto NEW_RANGES;
       }
 
@@ -1139,7 +1142,7 @@ vector<double> signal1, signal2, signalE, vTable;
       if ( truthPos[2] < detector->get_cathode() && verbosity && !BeenHere &&
 	   !dEOdxBasis ) {
 	BeenHere = true;
-	fprintf ( stderr, "gamma-X i.e. MSSI may be happening. This may be why even high-E eff is <100%%. Check your cathode position definition.\n\n" );
+	if ( verbosity ) fprintf ( stderr, "gamma-X i.e. MSSI may be happening. This may be why even high-E eff is <100%%. Check your cathode position definition.\n\n" );
       }
       
       if(PrintSubThr || (
@@ -1185,7 +1188,7 @@ vector<double> signal1, signal2, signalE, vTable;
       // in case you want to drop all sub-threshold data
     }
     catch(exception &e) {
-      cerr << e.what() << endl;
+      if ( verbosity ) cerr << e.what() << endl;
       return 1;
     }
   } //end of the gigantic primary event number loop
@@ -1212,7 +1215,7 @@ vector<double> signal1, signal2, signalE, vTable;
             std::isnan(band[j][0]) || std::isnan(band[j][1]) ||
             std::isnan(band[j][2]) || std::isnan(band[j][3]) ||
             std::isnan(band[j][4]) || std::isnan(band[j][5])) {
-          if (eMax != -999.) {
+          if (eMax != -999. && verbosity) {
             if (((g1 * yieldsMax.PhotonYield) < maxS1 ||
                  (g2 * yieldsMax.ElectronYield) < maxS2) &&
                 j != 0)
@@ -1263,8 +1266,7 @@ vector<double> signal1, signal2, signalE, vTable;
         } else if ((ValidityTests::nearlyEqual(energies[0], eMin) || ValidityTests::nearlyEqual(energies[0], eMax) ||
                     energies[1] <= 1E-6) &&
                    field >= FIELD_MIN)
-          cerr << "If your energy resolution is 0% then you probably still "
-                  "have MC truth energy on." << endl;
+          if ( verbosity ) cerr << "If your energy resolution is 0% then you probably still have MC truth energy on." << endl;
         else
           ;
       }
@@ -1276,7 +1278,7 @@ vector<double> signal1, signal2, signalE, vTable;
 vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
                                bool resol, int nFold) {
   if ( numBins > NUMBINS_MAX ) {
-    cerr << "ERROR: Too many bins. Decrease numBins (analysis.hh) or increase NUMBINS_MAX (TestSpectra.hh)" << endl;
+    if ( verbosity ) cerr << "ERROR: Too many bins. Decrease numBins (analysis.hh) or increase NUMBINS_MAX (TestSpectra.hh)" << endl;
     exit ( EXIT_FAILURE );
   }
   
@@ -1306,8 +1308,8 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
     for (j = 0; j < numBins; ++j) {
       s1c = border + binWidth / 2. + double(j) * binWidth;
       if (i == 0 && !resol) band[j][0] = s1c;
-      if ( (fabs(S1s[i]) > (s1c - binWidth / 2.) &&
-	    fabs(S1s[i]) <=(s1c + binWidth / 2.)) || !nFold ) {
+      if ( (std::abs(S1s[i]) > (s1c - binWidth / 2.) &&
+	    std::abs(S1s[i]) <=(s1c + binWidth / 2.)) || !nFold ) {
         if (S1s[i] >= ReqS1 && S2s[i] >= 0.) {
           if (resol) {
             signals[j].push_back(S2s[i]);
@@ -1350,7 +1352,7 @@ vector<vector<double>> GetBand(vector<double> S1s, vector<double> S2s,
     signals[j].erase(signals[j].begin());
     numPts = (double)signals[j].size();
     if (numPts <= 0 && resol) {
-      for (i = 0; i < S1s.size(); ++i) band[j][0] += fabs(S1s[i]);
+      for (i = 0; i < S1s.size(); ++i) band[j][0] += std::abs(S1s[i]);
       numPts = S1s.size();
     }
     if (resol) band[j][0] /= numPts;

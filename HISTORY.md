@@ -4,6 +4,29 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+
+1.4.10 (2021-07-08)
+-----------------
+Sync with [NEST v2.2.2](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.2)
+
+Code Quality and/or Misc Bug Fixes:
+  * Added default density argument for LXe case, forcing an argument re-ordering (Sophia)
+  * Moved position of "delete detector" in execNEST to solve python problem (Albert Baker, Greg R.)
+  * Approx eff func for single phe made simpler, for FlameDisx (Robert James, Sophia, Matthew)
+  * More robust rule used for when to approximate binomial as Gaussian (Sophia, Greg R.)
+  * Warn that you are in a region of too-low time between S1a and S1b for Kr83m only 1x (Sophia)
+  * Bad-order if-statements simplified with a min within a max for <0, >1 checks (Luke K., Matthew)
+New Physics:
+  * Liquid Ar model for ER fits all the data better now, in both energy and dE/dx bases (Kate K.)
+
+Code Quality and/or Miscellaneous Bug Fixes:
+  * Deleted unused redundant line in GetS1 that re-calculated the drift time (Quentin Riffard, LBNL/LZ)
+  * Only print most error and warning messages if verbosity on (Quentin Riffard, LBNL/LZ)
+  * Updated TravisCI link in README and added note about OSX builds (Chris Tunnell, Rice/XENON)
+  * Use of abs value func standardized, lines broken up, multi-line string for cerr (Matthew at behest of Luke Kreczko, Bristol/LZ)
+New Physics:
+  * Liquid Xe model for NR is now better behaved at few hundred keV and few hundred in S1: no odd increase in band width caused by Nex/Ni zeroing out and kinking the recombination probability. Mean yields model unchanged, nor recombination fluctuations / skewness. (Matthew and Greg R., UAlbany/LZ)
+
 1.4.9 (2021-06-01)
 -----------------
 Sync with [NEST v2.2.1patch2](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.1patch2)
