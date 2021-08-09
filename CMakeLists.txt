@@ -1,6 +1,7 @@
 set (CMAKE_CXX_STANDARD 11)
 cmake_minimum_required(VERSION 2.8.12)
 project(nestpy)
+include(FetchContent)
 include(cmake/gcem.cmake)
 
 # Set source directory
@@ -15,4 +16,4 @@ include_directories("${SOURCE_DIR}/include")
 add_subdirectory(lib/pybind11)
 pybind11_add_module(nestpy ${SOURCES} "${SOURCE_DIR}/bindings.cpp")
 
-target_link_libraries(nestpy PRIVATE gcem)
+target_link_libraries(nestpy PUBLIC gcem)
