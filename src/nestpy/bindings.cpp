@@ -56,6 +56,21 @@ PYBIND11_MODULE(nestpy, m) {
     .value("NoneType", NEST::INTERACTION_TYPE::NoneType)
     .export_values();
 
+
+  py::enum_<NEST::S1CalculationMode>(m, "S1CalculationMode", py::arithmetic())
+    .value("Full", NEST::S1CalculationMode::Full)
+    .value("Parametric", NEST::S1CalculationMode::Parametric)
+    .value("Hybrid", NEST::S1CalculationMode::Hybrid)
+    .value("Waveform", NEST::S1CalculationMode::Waveform)
+    .export_values();
+
+  py::enum_<NEST::S2CalculationMode>(m, "S2CalculationMode", py::arithmetic())
+    .value("Full", NEST::S2CalculationMode::Full)
+    .value("Waveform", NEST::S2CalculationMode::Waveform)
+    .value("WaveformWithEtrain", NEST::S2CalculationMode::WaveformWithEtrain)
+    .export_values();
+
+
   //	Binding for the VDetector class
   py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")	//	py::nodelete added so that NESTcalc() deconstructor does
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	//	not delete instance of VDetector()
