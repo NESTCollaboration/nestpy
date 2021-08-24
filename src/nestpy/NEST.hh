@@ -184,10 +184,10 @@ namespace NEST {
         vector<double> newSpike;  // for re-doing spike counting more precisely
         vector<double> ionization;
 
-        static constexpr double two_PI = 2. * M_PI;
-        static constexpr double sqrt2 = sqrt(2.);
-        static constexpr double sqrt2_PI = sqrt( 2. * M_PI );
-        static constexpr double inv_sqrt2_PI = 1./sqrt( 2. * M_PI );
+        double two_PI = 2. * M_PI;
+        double sqrt2 = sqrt(2.);
+        double sqrt2_PI = sqrt( 2. * M_PI );
+        double inv_sqrt2_PI = 1./sqrt( 2. * M_PI );
 
     public:
         NESTcalc(const NESTcalc &) = delete;

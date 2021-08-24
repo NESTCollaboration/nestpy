@@ -34,15 +34,15 @@ class RandomGen {
   //  std::ranlux24 rng;
   xoroshiro128plus64 rng;
 
-  static constexpr double   xoroshiro128plus64_min = static_cast<double>(xoroshiro128plus64::min());
-  static constexpr double   xoroshiro128plus64_minmax = static_cast<double>(xoroshiro128plus64::max() - xoroshiro128plus64::min());
+  double   xoroshiro128plus64_min = static_cast<double>(xoroshiro128plus64::min());
+  double   xoroshiro128plus64_minmax = static_cast<double>(xoroshiro128plus64::max() - xoroshiro128plus64::min());
 
-  static constexpr double two_PI = 2. * M_PI;
-  static constexpr double four_minus_PI_div_2 = 0.5*(4. - M_PI);
-  static constexpr double sqrt2 = sqrt(2.);
-  static constexpr double sqrt2_PI = sqrt( 2. * M_PI );
-  static constexpr double sqrt2_div_PI =  sqrt(2./M_PI);
-  static constexpr double log2 = log(2.);
+  double two_PI = 2. * M_PI;
+  double four_minus_PI_div_2 = 0.5*(4. - M_PI);
+  double sqrt2 = sqrt(2.);
+  double sqrt2_PI = sqrt( 2. * M_PI );
+  double sqrt2_div_PI =  sqrt(2./M_PI);
+  double log2 = log(2.);
 
 
   RandomGen()= default;                // private so that it cannot be manually called
