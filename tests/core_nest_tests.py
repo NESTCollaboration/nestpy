@@ -176,7 +176,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
                             10., 10.,
                             self.it,
                             100, 10., 10.,
-                            0, False,
+                            nestpy.S1CalculationMode.Full, False,
                             [0, 1, 2],
                             [0., 1., 2.])
 
@@ -186,7 +186,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
                             10., 10., -30., #smear pos x y z
                             10., 10.,
                             100, 10.,
-                            0, False,
+                            nestpy.S2CalculationMode.Full, False,
                             [0, 1, 2],
                             [0., 1., 2.],
                             [0., 82., 2., 3., 4.])

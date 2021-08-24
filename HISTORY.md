@@ -4,6 +4,18 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.11 (2021-08-09)
+-----------------
+Sync with [NEST v2.2.3](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.3)
+
+  * Replaced useTiming variable by an enum and made the GetS1 result a class member. Separated the S1 and S2 calculation modes.
+  * Made GetS1 return a ref to avoid vector copy
+  * Made the GetS2 results a private member returned by reference, while also making GetS1 and GetS2 results "const"
+  * Removed useless, unused variables that caused a lot of memory allocation/deallocation; result of all this and the above: +~1-5% faster
+  * Updated the parametric S1 calc to account for the truncated-Gaussian SPE and DPE distributions, making it more consistent with "full"
+  * Changed hybrid-mode transition to be 100 keV, ~500 photon hits in modern TPCs, instead of hits directly, creating a smooth transition
+  * Efficiency adjustment in the S1 parametric mode that further makes the parametric and full modes (previously useTiming -1,0) closer.
+  * Changes driven by Quentin Riffard (LZ/LBNL) & Greg Rischbieter (LZ/UA), with ideas from Matthew (UA) & Luke Kreczko (Bristol)
 
 1.4.10 (2021-07-08)
 -----------------
