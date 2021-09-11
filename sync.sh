@@ -12,7 +12,7 @@ cd ..
 
 cd src/nestpy
 for filename in *.{cpp,hh}; do
-    export REPO_FILE=`find ../../nest_source/ -name ${filename}`
+    export REPO_FILE=`find ../../nest/ -name ${filename}`
     if [ ! -z "$REPO_FILE" -a "$REPO_FILE" != " " ]; then
         cp $REPO_FILE $filename
     fi
