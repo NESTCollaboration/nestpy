@@ -315,7 +315,7 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
   // Construct NEST class using detector object
   NESTcalc n(detector);
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};  
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
     if ( verbosity ) cerr << "ERROR, unphysical value(s) of position within the detector geometry.";  // negative or 0 for cathode position is OK (e.g., LZ)
