@@ -200,7 +200,7 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("energy") = 5.2,
 	     py::arg("density") = 2.9, 
 	     py::arg("drift_field") = 124,
-	     py:arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
+	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
 	)
     .def("GetYields",
 	     &NEST::NESTcalc::GetYields,
