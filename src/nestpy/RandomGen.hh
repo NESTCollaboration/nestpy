@@ -6,7 +6,7 @@
 #ifndef RANDOMGEN_HH
 #define RANDOMGEN_HH 1
 #include "xoroshiro.hh"
-//#include "gcem.hpp"
+#include "gcem.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <random>
@@ -24,6 +24,7 @@ class RandomGen {
   double rand_exponential(double half_life);
   double rand_skewGauss( double xi, double omega, double alpha);
   int poisson_draw(double mean);
+  int64_t binom_draw(int64_t N0, double prob);
   int integer_range(int min, int max);
   vector<double> VonNeumann(double xMin, double xMax, double yMin, double yMax,
                             double xTest, double yTest, double fValue);
