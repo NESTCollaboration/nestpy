@@ -4,7 +4,7 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
-1.4.12beta (2021-11-02)
+1.4.12 (2021-11-02)
 -----------------
 Sync with [NEST v2.3.0beta](https://github.com/NESTCollaboration/nest/releases/tag/v2.3.0beta)
 
