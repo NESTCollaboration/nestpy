@@ -18,29 +18,6 @@ bool kr83m_reported_low_deltaT = false; //to aid in verbosity
 const std::vector<double> NESTcalc::default_NuisParam = {11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.};
 const std::vector<double> NESTcalc::default_FreeParam = {1., 1., 0.1, 0.5, 0.19, 2.25}; //Fano factor of ~3 at least for ionization when using rmQuanta (look at first 2 values)
 
-int64_t NESTcalc::BinomFluct(int64_t N0, double prob) {
-    double mean = N0 * prob;
-    double sigma = sqrt(N0 * prob * (1. - prob));
-    int N1 = 0;
-
-    if (prob <= 0.00) return N1;
-    if (prob >= 1.00) return N0;
-
-    if (N0 <= 9. * (1. - prob) / prob || N0 <= 9. * prob / (1. - prob)) {
-        //https://en.wikipedia.org/wiki/Binomial_distribution#Normal_approximation
-        for (int i = 0; i < N0; ++i) {
-            if (RandomGen::rndm()->rand_uniform() < prob) ++N1;
-        }
-    } else {
-        N1 = int(floor(RandomGen::rndm()->rand_gauss(mean, sigma) + 0.5));
-    }
-
-    if (N1 > N0) N1 = N0;
-    if (N1 < 0) N1 = 0;
-
-    return N1;
-}
-
 NESTresult NESTcalc::FullCalculation(INTERACTION_TYPE species, double energy,
                                      double density, double dfield, double A,
                                      double Z,
@@ -386,31 +363,6 @@ YieldResult NESTcalc::GetYieldGamma(double energy, double density, double dfield
     result.Lindhard = 1;
     result.ElectricField = dfield;
     result.DeltaT_Scint = -999;
-    return YieldResultValidity(result, energy, Wq_eV);
-}
-
-YieldResult NESTcalc::GetYieldERWeighted(double energy, double density, double dfield, const std::vector<double> &NuisParam ) {
-    Wvalue wvalue = WorkFunction(density, fdetector->get_molarMass(), fdetector->get_rmQuanta());
-    double Wq_eV = wvalue.Wq_eV;
-    
-    const std::vector<double> EnergyParams = {0.23, 0.77, 2.95, -1.44};
-    const std::vector<double> FieldParams = {421.15, 3.27};
-    YieldResult yieldsB = GetYieldBetaGR( energy, density, dfield, NuisParam );
-    YieldResult yieldsG = GetYieldGamma( energy, density, dfield );
-    double weightG =
-            EnergyParams[0] + EnergyParams[1] * erf(EnergyParams[2] * (log(energy) + EnergyParams[3])) * 
-            (1. - (1./(1. + pow(dfield/FieldParams[0], FieldParams[1])))); 
-            //field weighting added to match dependence reported by XELDA and LUX Run3.
-            //Not validated beyond of fields on the order of a few hundred V/cm
-    double weightB = 1. - weightG;
-  
-    YieldResult result{};
-    result.PhotonYield = weightG * yieldsG.PhotonYield + weightB * yieldsB.PhotonYield;
-    result.ElectronYield = weightG * yieldsG.ElectronYield + weightB * yieldsB.ElectronYield;
-    result.ExcitonRatio = weightG * yieldsG.ExcitonRatio + weightB * yieldsB.ExcitonRatio;
-    result.Lindhard = weightG * yieldsG.Lindhard + weightB * yieldsB.Lindhard;
-    result.ElectricField = weightG * yieldsG.ElectricField + weightB * yieldsB.ElectricField;
-    result.DeltaT_Scint = weightG * yieldsG.DeltaT_Scint + weightB * yieldsB.DeltaT_Scint;
     return YieldResultValidity(result, energy, Wq_eV);
 }
 
@@ -823,7 +775,7 @@ YieldResult NESTcalc::GetYields(INTERACTION_TYPE species, double energy, double 
             return GetYieldGamma(energy, density, dfield); //PE of the full gamma spectrum
             break;
         default:  // beta, CH3T, 14C, the pp solar neutrino background, and Compton/PP spectra of fullGamma
-	  if ( ValidityTests::nearlyEqual(ATOM_NUM, 18.) )
+	  if ( ValidityTests::nearlyEqual(ATOM_NUM, 18.) || dfield < 1e2 )
             return GetYieldBeta(energy, density, dfield); // OLD
           else return GetYieldBetaGR(energy,density,dfield,NuisParam); // NEW
 	  break;

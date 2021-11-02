@@ -65,8 +65,7 @@
 #include "RandomGen.hh"
 #include "VDetector.hh"
 #include "ValidityTests.hh"
-//#include "gcem.hpp"
-
+// #include "gcem.hpp"
 
 #include <cassert>
 #include <cfloat>
@@ -239,12 +238,8 @@ namespace NEST {
         // for photons and electrons per keV. Nuis(ance)Param included for varying the
         // NR Ly & Qy up and down
         virtual YieldResult GetYieldGamma(double energy, double density, double dfield);
-        // Called by GetYields in the Gamma/x-ray/Photoabsorption Case
-	
-        virtual YieldResult GetYieldERWeighted( double energy, double density, double dfield, const std::vector<double> &NuisParam);
-        // Weights beta/gamma models to account for ER sources with differing
-	// recombination profiles (such as L-shell electron-capture interactions)
 
+        // Called by GetYields in the Gamma/x-ray/Photoabsorption Case
         virtual YieldResult GetYieldNR(double energy, double density, double dfield, double massNum,
                                        const std::vector<double> &NuisParam = {11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2.,
                                                                                0.3, 2., 0.5, 1., 1.});

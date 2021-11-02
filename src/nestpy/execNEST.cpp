@@ -314,8 +314,9 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
              double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
+  // Hardcode in nuis and free params to get nestpy to not "break" but be careful these are what you need.
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25}; 
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
     if ( verbosity ) cerr << "ERROR, unphysical value(s) of position within the detector geometry.";  // negative or 0 for cathode position is OK (e.g., LZ)
@@ -883,9 +884,7 @@ vector<double> signal1, signal2, signalE, vTable;
                    << FreeParam[3] << " " << FreeParam[4]
                    << " " << FreeParam[5] << " " << FreeParam[6] << " " << FreeParam[7] << " for Xe-127 L-/M-shell captures at 1.1,5.2keV or Xe-129/131m, at low field" << endl;
             }
-	    yields = n.GetYieldERWeighted(keV, rho, field, NuisParam);
-	    //Comment out GetYields above and uncomment below for LoopNEST usage
-            /*YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
+            YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
                                               double(massNum), double(atomNum), NuisParam);
             YieldResult yieldsG = n.GetYields(gammaRay, keV, rho, field,
                                               double(massNum), double(atomNum), NuisParam);
@@ -903,8 +902,7 @@ vector<double> signal1, signal2, signalE, vTable;
             FudgeFactor[1] = FreeParam[5];//1.04;
             yields.PhotonYield *= FudgeFactor[0];
             yields.ElectronYield *= FudgeFactor[1];
-            detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5% 
-	    */
+            detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
           }
 	  else {
             if ( seed < 0 && seed != -1 && type_num <= 5 ) massNum = detector->get_molarMass();
