@@ -75,14 +75,6 @@ class NESTcalcTest(unittest.TestCase):
         cls.nuisance = cls.nestcalc.default_NuisParam
         cls.free = cls.nestcalc.default_FreeParam
 
-    def test_nestcalc_binom_fluct(self):
-        if platform.python_version()[0] != '3':
-            print('Python2 is no longer maintained as of Jan 1, 2021. \n',
-                   'Features like BinomFluct are only supported in Python3>.')
-            return
-        binom = nestpy.NESTcalc.BinomFluct(20, 1.)
-        assert binom > 0
-
     def test_interaction_type_constructor(self):
         for i in range(5):
             it = nestpy.nestpy.INTERACTION_TYPE(i)
