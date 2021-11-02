@@ -4,6 +4,19 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.4.12beta (2021-11-02)
+-----------------
+Sync with [NEST v2.3.0beta](https://github.com/NESTCollaboration/nest/releases/tag/v2.3.0beta)
+
+  * Beta model updated to work with LUX C-14 (medium E-fields) in addition to XENON1T Rn-220 calibration, < 100 V/cm (Greg Rischbieter, Matthew Szydagis, Vetri Velan, and Quentin Riffard of LZ)
+  * Non-beta (L-shell and M-shell) ER data now matched, from the XELDA experiment, with weighting of beta and gamma models (Sophia Farrell, Rice/XENON and Greg R. UAlbany/LZ)
+  * Work function of 11.5 eV (EXO-200, Zurich) can now be more accurately reproduced with the "remove quanta" flag set to false, matching the EXO and Baudis (new) data sets (Kirsten McMichael, RPI/nEXO and Matthew Szydagis, UAlbany/LZ)
+  * Systematic error taken into account for 3D XYZ position reconstruction with S2, per LUX Mercury paper (Claudio Silva, Coimbra/LZ).
+  * Made the default S1 calculation mode hybrid instead of full, for faster simulation of large-energy (e.g., MeV-scale) events
+  * Tweaked the default detector example (LUX Run03) to work with the latest models and reproduce D-D and 3H bands perfectly still, while also adding units to this LUX detector header file (Szydagis)
+  * Binomial random number generator now uses default C++ library (Robert James, LZ). Code is a bit slower now (only by ~10%) but is more precise, and matches python, Flamedisx
+  * The e- ext eff from liquid to gas is now based on both E-field (in liquid) and temperature, not field alone, combining dozen data sets spanning decades, to address concern raised by Sergey Pereverzev, LLNL. So, it's NOT just PIXeY or LLNL, etc.
+  
 1.4.11 (2021-08-09)
 -----------------
 Sync with [NEST v2.2.3](https://github.com/NESTCollaboration/nest/releases/tag/v2.2.3)
