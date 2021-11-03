@@ -88,7 +88,7 @@
 #define FIELD_MIN 1.         // min elec field to make S2 (in V/cm)
 #define DENSITY 2.90         // g/cm^3, ref density for dependent effects. ~1.4 for LAr
 
-#define EPS_GAS 1.00126  // poly-morphic: make negative to use LLNL instead of PIXeY's e- ext eff
+#define EPS_GAS 1.00126  // poly-morphic: make negative to use Aprile/PandaX instead of LLNL/PIXeY's e- EE
 // for GAr it is 1.000574 at least at room T (doi.org/10.1103/PhysRev.34.615)
 #define EPS_LIQ 1.85  // LXe dielectric constant explicitly NOT 1.96 (old). Update thx to Dan M. LAr 1.325
 
@@ -188,18 +188,15 @@ namespace NEST {
         double sqrt2 = sqrt(2.);
         double sqrt2_PI = sqrt( 2. * M_PI );
         double inv_sqrt2_PI = 1./sqrt( 2. * M_PI );
-
     public:
         NESTcalc(const NESTcalc &) = delete;
 
         NESTcalc &operator=(const NESTcalc &) = delete;
 
         explicit NESTcalc(VDetector *detector);
-
+      
         virtual ~NESTcalc();
-
-        static int64_t BinomFluct(int64_t, double);
-
+      
         static const std::vector<double> default_NuisParam; /* = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1.,1.}*/
         static const std::vector<double> default_FreeParam; /* = {1.,1.,0.1,0.5,0.19,2.25} */
         // basic binomial fluctuation, which switches to Gaussian for large numbers of
@@ -232,14 +229,18 @@ namespace NEST {
         YieldResult GetYields(INTERACTION_TYPE species, double energy, double density,
                               double dfield, double A, double Z,
                               const std::vector<double> &NuisParam = {11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2.,
-                                                                      0.5, 1., 1.});
+                                                                      0.5, 1., 1.}, bool oldModelER = false);
 
         // the innermost heart of NEST, this provides floating-point average values
         // for photons and electrons per keV. Nuis(ance)Param included for varying the
         // NR Ly & Qy up and down
         virtual YieldResult GetYieldGamma(double energy, double density, double dfield);
-
         // Called by GetYields in the Gamma/x-ray/Photoabsorption Case
+	
+        virtual YieldResult GetYieldERWeighted( double energy, double density, double dfield, const std::vector<double> &NuisParam);
+        // Weights beta/gamma models to account for ER sources with differing
+	// recombination profiles (such as L-shell electron-capture interactions)
+
         virtual YieldResult GetYieldNR(double energy, double density, double dfield, double massNum,
                                        const std::vector<double> &NuisParam = {11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2.,
                                                                                0.3, 2., 0.5, 1., 1.});
@@ -268,7 +269,7 @@ namespace NEST {
 
         // Confirms and sometimes adjusts YieldResult to make physical sense
         virtual QuantaResult GetQuanta(const YieldResult &yields, double density,
-                                       const std::vector<double> &FreeParam = {1., 1., 0.1, 0.5, 0.19, 2.25});
+                                       const std::vector<double> &FreeParam = {1., 1., 0.1, 0.5, 0.19, 2.25}, bool oldModelER = false);
 
         // GetQuanta takes the yields from above and fluctuates them, both the total
         // quanta (photons+electrons) with a Fano-like factor, and the "slosh" between
@@ -278,7 +279,7 @@ namespace NEST {
         RecombOmegaNR(double elecFrac, const std::vector<double> &FreeParam/*={1.,1.,0.1,0.5,0.19,2.25}*/);
 
         //Calculates the Omega parameter governing non-binomial recombination fluctuations for nuclear recoils and ions (Lindhard<1)
-        virtual double RecombOmegaER(double efield, double elecFrac, const std::vector<double> &FreeParam);
+        virtual double RecombOmegaER(double efield, double elecFrac, const std::vector<double> &FreeParam, bool oldModel = false);
 
         //Calculates the Omega parameter governing non-binomial recombination fluctuations for gammas and betas (Lindhard==1)
         virtual double FanoER(double density, double Nq_mean, double efield);
@@ -375,7 +376,7 @@ namespace NEST {
             double alpha;
         };
 
-        static Wvalue WorkFunction(double rho, double MolarMass, bool rmQuanta = true);
+        static Wvalue WorkFunction(double rho, double MolarMass, bool OldW13eV = true);
 
         //the W-value as a func of density in g/cm^3
         virtual double NexONi(double energy, double density);
@@ -399,6 +400,9 @@ namespace NEST {
 
         //Read in the Boyle model data for DL
         static std::vector<std::pair<double, double> > GetBoyleModelDL();
+      
+        static int clamp ( int v, const int lo, const int hi );
+        
     };
 }
 

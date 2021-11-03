@@ -37,6 +37,8 @@ int main(int argc, char** argv) {
   // Instantiate your own VDetector class here, then load into NEST class
   // constructor
   auto* detector = new DetectorExample_LUX_RUN03();
+  if ( verbosity ) cerr << "*** Detector definition message ***" << endl;
+  if ( verbosity ) cerr << "You are currently using the LUX Run03 template detector." << endl << endl;
   // Custom parameter modification functions
   // detector->ExampleFunction();
   
@@ -103,7 +105,7 @@ int main(int argc, char** argv) {
       /*detector->set_g1(atof(argv[1])); //an alternate loop approach
       detector->set_g1_gas(atof(argv[2]));
       inField = atof(argv[3]);
-      detector->set_noiseL(atof(argv[4]),atof(argv[5]));*/
+      detector->set_noiseLinear(atof(argv[4]),atof(argv[5]));*/
       
       FreeParam.push_back(atof(argv[1])); //-0.1 for LUX C-14 ~200V/cm
       FreeParam.push_back(atof(argv[2])); //0.5
@@ -145,7 +147,7 @@ int main(int argc, char** argv) {
       NuisParam.push_back(1.0);
       detector->set_g1(atof(argv[5])); //0.0725
       detector->set_g1_gas(atof(argv[6])); //0.0622
-      detector->set_noiseL(atof(argv[7]),atof(argv[7])); //0,0
+      detector->set_noiseLinear(atof(argv[7]),atof(argv[7])); //0,0
       FreeParam.push_back(1.00);
       FreeParam.push_back(1.00);
       FreeParam.push_back(atof(argv[4])); //0.070
@@ -314,7 +316,6 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
              double fPos, int seed, bool no_seed, double dayNumber ) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
-  // Hardcode in nuis and free params to get nestpy to not "break" but be careful these are what you need.
   NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
   FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
@@ -475,9 +476,9 @@ vector<double> signal1, signal2, signalE, vTable;
   }
   if ( rho < 1.75 && ValidityTests::nearlyEqual(ATOM_NUM, 54.) ) detector->set_inGas(true);
 
-  double Wq_eV = NESTcalc::WorkFunction(rho,detector->get_molarMass(),detector->get_rmQuanta()).Wq_eV;
-  //if ( rho > 3. ) detector->set_rmQuanta(false); //solid OR enriched. Units of g/mL
-  if ( !detector->get_rmQuanta() )
+  double Wq_eV = NESTcalc::WorkFunction(rho,detector->get_molarMass(),detector->get_OldW13eV()).Wq_eV;
+  //if ( rho > 3. ) detector->set_OldW13eV(false); //solid OR enriched. Units of g/mL
+  if ( !detector->get_OldW13eV() )
     Wq_eV = 11.5; //11.5±0.5(syst.)±0.1(stat.) from EXO
   
   // Calculate and print g1, g2 parameters (once per detector)
@@ -884,7 +885,9 @@ vector<double> signal1, signal2, signalE, vTable;
                    << FreeParam[3] << " " << FreeParam[4]
                    << " " << FreeParam[5] << " " << FreeParam[6] << " " << FreeParam[7] << " for Xe-127 L-/M-shell captures at 1.1,5.2keV or Xe-129/131m, at low field" << endl;
             }
-            YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
+	    yields = n.GetYieldERWeighted(keV, rho, field, NuisParam);
+	    //Comment out GetYields above and uncomment below for LoopNEST usage
+            /*YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
                                               double(massNum), double(atomNum), NuisParam);
             YieldResult yieldsG = n.GetYields(gammaRay, keV, rho, field,
                                               double(massNum), double(atomNum), NuisParam);
@@ -902,7 +905,8 @@ vector<double> signal1, signal2, signalE, vTable;
             FudgeFactor[1] = FreeParam[5];//1.04;
             yields.PhotonYield *= FudgeFactor[0];
             yields.ElectronYield *= FudgeFactor[1];
-            detector->set_noiseL(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
+            detector->set_noiseLinear(FreeParam[6], FreeParam[7]); // XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5% 
+	    */
           }
 	  else {
             if ( seed < 0 && seed != -1 && type_num <= 5 ) massNum = detector->get_molarMass();
@@ -928,9 +932,9 @@ vector<double> signal1, signal2, signalE, vTable;
         }
       }
 
-      if(detector->get_noiseB()[2] != 0. || detector->get_noiseB()[3] != 0.)
+      if(detector->get_noiseBaseline()[2] != 0. || detector->get_noiseBaseline()[3] != 0.)
         quanta.electrons += int(floor(RandomGen::rndm()->rand_gauss(
-                detector->get_noiseB()[2], detector->get_noiseB()[3]) + 0.5));
+                detector->get_noiseBaseline()[2], detector->get_noiseBaseline()[3]) + 0.5));
 
       // If we want the smeared positions (non-MC truth), then implement
       // resolution function
@@ -1044,7 +1048,7 @@ vector<double> signal1, signal2, signalE, vTable;
         if ( signal2.back() <= 0. && timeStamp == tZero ) Ne = 0.;
         if(detector->get_coinLevel() <= 0 && Nph <= PHE_MIN) Nph = DBL_MIN;
         if(yields.Lindhard > DBL_MIN && Nph > 0. && Ne > 0.) {
-          //if(!detector->get_rmQuanta()) yields.Lindhard = 1.;
+          //if(!detector->get_OldW13eV()) yields.Lindhard = 1.;
           if(ValidityTests::nearlyEqual(yields.Lindhard, 1.) )
             keV = (Nph / FudgeFactor[0] + Ne / FudgeFactor[1]) * Wq_eV * 1e-3;
           else {
@@ -1272,8 +1276,7 @@ vector<double> signal1, signal2, signalE, vTable;
                     energies[1] <= 1E-6) &&
                    field >= FIELD_MIN)
           if ( verbosity ) cerr << "If your energy resolution is 0% then you probably still have MC truth energy on." << endl;
-        else
-          ;
+	
       }
     }
   }

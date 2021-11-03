@@ -14,8 +14,8 @@ class DetectorExample_LUX_RUN03: public VDetector {
 public:
   
   DetectorExample_LUX_RUN03() {
-    if ( verbosity ) cerr << "*** Detector definition message ***" << endl;
-    if ( verbosity ) cerr << "You are currently using the LUX Run03 template detector." << endl << endl;
+    //cerr << "*** Detector definition message ***" << endl;
+    //cerr << "You are currently using the LUX Run03 template detector." << endl << endl;
     
     // Call the initialization of all the parameters
     Initialization();
@@ -30,19 +30,19 @@ public:
     sPEres = 0.37; //arXiv:1910.04211. UNITS: phe a.k.a. PE or photoelectrons
     sPEthr = (0.3*1.173)/0.915; //arXiv:1910.04211. UNITS: phe
     sPEeff = 1.00; //arXiv:1910.04211. UNITS: fractional
-    noiseB[0] = 0.00; //arXiv:1910.04211 says -0.01. UNITS: phe
-    noiseB[1] = 0.08; //arXiv:1910.04211. UNITS: phe
-    noiseB[2] = 0.; // UNITS: e-'s
-    noiseB[3] = 0.; // UNITS: e-'s
+    noiseBaseline[0] = 0.00; //arXiv:1910.04211 says -0.01. UNITS: phe
+    noiseBaseline[1] = 0.08; //arXiv:1910.04211. UNITS: phe
+    noiseBaseline[2] = 0.; // UNITS: e-'s
+    noiseBaseline[3] = 0.; // UNITS: e-'s
     P_dphe = 0.173; //arXiv:1910.04211. UNITS: fractional
     
     coinWind= 100;// 1310.8214. UNITS: ns
     coinLevel=2;  //1512.03506. UNITS: number of PMTs for coincidence requirement
     numPMTs = 119;// 122 minus 3 off. UNITS: number of PMTs
     
-    rmQuanta = true; //default true, which means use "classic" W instead of Baudis / EXO's
-    noiseL[0]=0.0e-2; //1910.04211 p.12, to match 1610.02076 Fig. 8. UNITS: fraction NOT %!
-    noiseL[1]=0.0e-2; //1910.04211 p.12, to match 1610.02076 Fig. 8. UNITS: fraction NOT %!
+    OldW13eV = true; //default true, which means use "classic" W instead of Baudis / EXO's
+    noiseLinear[0]=0.0e-2; //1910.04211 p.12, to match 1610.02076 Fig. 8. UNITS: fraction NOT %!
+    noiseLinear[1]=0.0e-2; //1910.04211 p.12, to match 1610.02076 Fig. 8. UNITS: fraction NOT %!
     
     // Ionization and Secondary Scintillation (S2) parameters
     g1_gas = 0.1; //0.1 in 1910.04211. UNITS: phd per e-
