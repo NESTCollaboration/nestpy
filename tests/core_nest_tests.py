@@ -75,14 +75,6 @@ class NESTcalcTest(unittest.TestCase):
         cls.nuisance = cls.nestcalc.default_NuisParam
         cls.free = cls.nestcalc.default_FreeParam
 
-    def test_nestcalc_binom_fluct(self):
-        if platform.python_version()[0] != '3':
-            print('Python2 is no longer maintained as of Jan 1, 2021. \n',
-                   'Features like BinomFluct are only supported in Python3>.')
-            return
-        binom = nestpy.NESTcalc.BinomFluct(20, 1.)
-        assert binom > 0
-
     def test_interaction_type_constructor(self):
         for i in range(5):
             it = nestpy.nestpy.INTERACTION_TYPE(i)
@@ -112,7 +104,13 @@ class NESTcalcTest(unittest.TestCase):
     # def test_nestcalc_get_spike(self):
     #     # This is stalling some builds. Need to improe the test.
     #     self.nestcalc.GetSpike(10, 10., 20., 30., 10., 10., [0, 1, 2])
-
+    
+    def test_nestcalc_get_yield_ER_weighted(self):
+        self.nestcalc.GetYieldERWeighted(energy=5.2, 
+                                         density=2.9, 
+                                         drift_field=124, 
+                                        )
+    
     def test_nestcalc_calculate_g2(self):
         assert self.nestcalc.CalculateG2(True)[3] > 10
 

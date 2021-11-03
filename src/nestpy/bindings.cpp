@@ -2,6 +2,7 @@
 #include "NEST.hh"
 #include "VDetector.hh"
 #include "execNEST.hh"
+#include "LUX_Run03.hh"
 #include "DetectorExample_XENON10.hh"
 #include "RandomGen.hh"
 #include <pybind11/numpy.h>
@@ -167,13 +168,13 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("OptTrans", &DetectorExample_XENON10::OptTrans)
 	 .def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
 //
-//  //	Binding for example LUX_Run03
-//  py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "LUX_RUN3")
-//     .def(py::init<>())
-//	 .def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
-//	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
-//	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
-//	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
+ //	Binding for example LUX_Run03
+ py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "LUX_Run03")
+    .def(py::init<>())
+	 .def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
+	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
+	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
+	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
 
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
@@ -181,7 +182,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def(py::init<VDetector*>())
     .def_readonly_static("default_NuisParam", &NESTcalc::default_NuisParam)
     .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
-    .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
+//     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 	.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 			"Perform the full yield calculation with smearings")
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
@@ -210,12 +211,15 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("drift_field") = 124,
 	     py::arg("A") = 131.293,
 	     py::arg("Z") = 54,
-	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
+	     py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}), 
+         py::arg("oldModelER") = false
 	 )
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	    py::arg("yields"),
 	    py::arg("density") = 2.9,
-	    py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19, 2.25}))
+	    py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19, 2.25}), 
+        py::arg("oldModelER") = false
+     )   
 	.def("GetS1", &NEST::NESTcalc::GetS1)
 	.def("GetSpike", &NEST::NESTcalc::GetSpike)
 	// Currently VDetector.FitTBA() requires we reinitialize the detector every time:
