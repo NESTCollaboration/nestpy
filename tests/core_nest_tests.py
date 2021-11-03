@@ -104,7 +104,13 @@ class NESTcalcTest(unittest.TestCase):
     # def test_nestcalc_get_spike(self):
     #     # This is stalling some builds. Need to improe the test.
     #     self.nestcalc.GetSpike(10, 10., 20., 30., 10., 10., [0, 1, 2])
-
+    
+    def test_nestcalc_get_yield_ER_weighted(self):
+        self.nestcalc.GetYieldERWeighted(energy=5.2, 
+                                         density=2.9, 
+                                         drift_field=124, 
+                                        )
+    
     def test_nestcalc_calculate_g2(self):
         assert self.nestcalc.CalculateG2(True)[3] > 10
 
