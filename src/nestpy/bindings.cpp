@@ -2,6 +2,7 @@
 #include "NEST.hh"
 #include "VDetector.hh"
 #include "execNEST.hh"
+#include "TestSpectra.hh"
 #include "LUX_Run03.hh"
 #include "DetectorExample_XENON10.hh"
 #include "RandomGen.hh"
@@ -39,7 +40,10 @@ PYBIND11_MODULE(nestpy, m) {
 	.def_readwrite("yields", &NEST::NESTresult::yields)
 	.def_readwrite("quanta", &NEST::NESTresult::quanta)
 	.def_readwrite("photon_times", &NEST::NESTresult::photon_times);
-  
+
+  // Binding for the WIMP Spectrum Prep struct
+  py::class_<TestSpectra::WIMP_spectrum_prep>(m, "WIMP_spectrum_prep", py::dynamic_attr())
+    .def(py::init<>());
   //	Binding for the enumeration INTERACTION_TYPE
   py::enum_<NEST::INTERACTION_TYPE>(m, "INTERACTION_TYPE", py::arithmetic())
     .value("NR", NEST::INTERACTION_TYPE::NR)
@@ -175,7 +179,64 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
 	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
 	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
-
+  //py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")
+  // Binding for the TestSpectra class
+  py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m, "TestSpectra")
+     .def(py::init<>())
+        .def_static("CH3T_spectrum", 
+               &TestSpectra::CH3T_spectrum, 
+               py::arg("xMin") = 0.,
+               py::arg("xMax") = 18.6
+             )
+	
+        .def_static("C14_spectrum",
+               &TestSpectra::C14_spectrum,
+               py::arg("xMin") = 0.,
+               py::arg("xMax") = 156.
+            )
+        .def_static("B8_spectrum", 
+               &TestSpectra::B8_spectrum,
+               py::arg("xMin") = 0.,
+               py::arg("xMax") = 4.
+            )
+        .def_static("AmBe_spectrum", 
+               &TestSpectra::AmBe_spectrum,
+               py::arg("xMin") = 0.,
+               py::arg("xMax") = 200.
+            )
+        .def_static("Cf_spectrum", 
+              &TestSpectra::Cf_spectrum,
+              py::arg("xMin") = 0.,
+              py::arg("xMax") = 200.
+            )
+        .def_static("DD_spectrum",
+              &TestSpectra::DD_spectrum,
+              py::arg("xMin") = 0.,
+              py::arg("xMax") = 80.
+            )
+        .def_static("ppSolar_spectrum", 
+              &TestSpectra::ppSolar_spectrum,
+              py::arg("xMin") = 0.,
+              py::arg("xMax") = 250.
+             )
+        .def_static("atmNu_spectrum",
+              &TestSpectra::atmNu_spectrum,
+              py::arg("xMin") = 0.,
+              py::arg("xMax") = 85.
+            )
+	.def_static("WIMP_prep_spectrum", 
+	      &TestSpectra::WIMP_prep_spectrum,
+	      py::arg("mass") = 50.,
+	      py::arg("eStep") = 5.,
+	      py::arg("day")=0.
+	    )
+	.def_static("WIMP_spectrum",
+	      &TestSpectra::WIMP_spectrum,
+	      py::arg("wprep"),
+	      py::arg("mass") = 50.,
+	      py::arg("day") = 0.
+	    );
+        
   //	Binding for the NESTcalc class
   py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
     //.def(py::init<>())
