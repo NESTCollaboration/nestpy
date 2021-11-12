@@ -4,6 +4,25 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.5.0 (2021-11-11)
+-----------------
+New Physics:
+  * Carried over from v2.3 beta: A new binomial random number generator (C++ default library), e- EE models, beta model with new yields and fluctuations, non-beta-ER (XELDA).
+  * New beta model is default regardless of E-field, but old one is still accessible
+  * ER model (betas and gammas weighted) is its own function, callable
+  * Pb-206 ion coming off wall from alpha decay has correct Ly and Qy versus field (Thomas-Imel box model for recomb)
+  * The electron extraction efficiency model now includes “optimistic” high e- EE Aprile/PandaX fits (activatable with EPS_GAS negative)
+
+Code Quality and/or Miscellaneous Bug Fixes:
+  * C++11 -> 17 default, README updated with all new versioning requirements, but old gcc and cmake versions requested to allow backwards-compatibility with nestpy. std::clamp still doesn’t work, so similar function written by hand
+  * 1.1 -> 1.08 for increasing Qy to match new Zurich W-value measurement, but with new more logical variable names both deep in code and in detector file for user, and with one factor universal in NEST.cpp; general variable renaming for greater clarity
+  * Numerous cosmetic and aesthetic changes to code, including unused variable removal, while spacing and tabbing made Google clang-format (with shell script for that now included with NEST), if/else Mac dangle warning addressed
+  * Kr83m yields same but code overhauled to allow min versus max time separation flexibility and easier data comparison, with bug squashed where wrong error message got replayed
+  * NEST is now 30% faster, cf. v2.2.4, at least when using gcc 7+, despite the new binomial fluctuation function!
+
+nestpy Specific:
+  * Bindings to energy spectra generators from TestSpectra.cpp, including: tritium and C14 beta sources; AmBe, DD, Cf252 neutron sources; Spin-Independent WIMP Generators. 
+
 1.4.12 (2021-11-02)
 -----------------
 Sync with [NEST v2.3.0beta](https://github.com/NESTCollaboration/nest/releases/tag/v2.3.0beta)
