@@ -212,7 +212,11 @@ PYBIND11_MODULE(nestpy, m) {
         .def_static("DD_spectrum",
               &TestSpectra::DD_spectrum,
               py::arg("xMin") = 0.,
-              py::arg("xMax") = 80.
+              py::arg("xMax") = 80.,
+	      py::arg("expFall") =  10.,
+	      py::arg("peakFrac") = 0.1,
+	      py::arg("peakMu") = 60.,
+	      py::arg("peakSig") = 25.
             )
         .def_static("ppSolar_spectrum", 
               &TestSpectra::ppSolar_spectrum,
