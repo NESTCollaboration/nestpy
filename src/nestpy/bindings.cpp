@@ -40,6 +40,12 @@ PYBIND11_MODULE(nestpy, m) {
 	.def_readwrite("yields", &NEST::NESTresult::yields)
 	.def_readwrite("quanta", &NEST::NESTresult::quanta)
 	.def_readwrite("photon_times", &NEST::NESTresult::photon_times);
+ 
+  // Binding for Wvalue struct...
+  py::class_<NEST::NESTcalc::Wvalue>(m, "Wvalue", py::dynamic_attr())
+    .def(py::init<>())
+        .def_readwrite("Wq_eV", &NEST::NESTcalc::Wvalue::Wq_eV)
+        .def_readwrite("alpha", &NEST::NESTcalc::Wvalue::alpha);
 
   // Binding for the WIMP Spectrum Prep struct
   py::class_<TestSpectra::WIMP_spectrum_prep>(m, "WIMP_spectrum_prep", py::dynamic_attr())
@@ -293,12 +299,25 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("SetDriftVelocity", &NEST::NESTcalc::SetDriftVelocity)
 	.def("SetDriftVelocity_NonUniform", &NEST::NESTcalc::SetDriftVelocity_NonUniform)
 	.def("SetDensity", &NEST::NESTcalc::SetDensity)
+	.def_static("GetDensity", &NEST::NESTcalc::GetDensity,
+                py::arg("T") = 174.,
+                py::arg("P") = 1.80,
+                py::arg("inGas") = false,
+                py::arg("evtNum") = 0,
+                py::arg("molarMass") = 131.293
+        )
+        .def_static("WorkFunction", &NEST::NESTcalc::WorkFunction,
+                py::arg("rho") = 2.89,
+                py::arg("MolarMass") = 131.293,
+                py::arg("OldW13eV") = true
+        )
+
 	// Currently VDetector.FitTBA() requires we reinitialize the detector every time:
 	.def("xyResolution", &NEST::NESTcalc::xyResolution)
 	.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 	.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
 	.def("GetDetector", &NEST::NESTcalc::GetDetector);
-  
+   
   //	execNEST function
   m.def("execNEST", &execNEST);
   m.def("GetEnergyRes", &GetEnergyRes);
