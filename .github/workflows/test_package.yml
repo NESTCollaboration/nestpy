@@ -36,5 +36,5 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name before_install:
         run: |
-        docker pull $DOCKER_IMAGE; fi
+        docker pull $DOCKER_IMAGE
         docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
