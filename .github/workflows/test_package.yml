@@ -34,11 +34,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
       - name: test install
-#        env:
-#          DOCKER_IMAGE: nestpy/nestpy_manylinux
         run: |
-#          source travis/setup-osx.sh
-          then python setup.py test
-          then python setup.py bdist_wheel
-#          docker pull $DOCKER_IMAGE
-#          docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
+          source travis/setup-osx.sh
+          python setup.py test
+          python setup.py bdist_wheel
