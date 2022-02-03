@@ -37,7 +37,7 @@ jobs:
 #        env:
 #          DOCKER_IMAGE: nestpy/nestpy_manylinux
         run: |
-          source travis/setup-osx.sh
+#          source travis/setup-osx.sh
           then python setup.py test
           then python setup.py bdist_wheel
 #          docker pull $DOCKER_IMAGE
