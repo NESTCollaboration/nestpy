@@ -27,7 +27,10 @@ matrix: # No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
   - os: osx
     osx_image: xcode11
     env: PYTHON=3.8
-
+  - os: osx
+    osx_image: xcode11
+    env: PYTHON=3.10
+    
 before_install:
     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then source travis/setup-osx.sh; fi
 
