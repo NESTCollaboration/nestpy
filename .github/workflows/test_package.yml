@@ -1,0 +1,36 @@
+# Test package every time
+name: Pytest
+
+on:
+  workflow_dispatch:
+  release:
+    types: [ created ]
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  update:
+    name: "(${{ matrix.os }}, ${{ matrix.python-version }}, ${{ matrix.test }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: False
+      matrix:
+        os: [ "ubuntu-latest" ]
+        python-version: [ 2.7, 3.6, 3.7, 3.8, "3.9", "3.10" ]
+    steps:
+      - name: Setup python
+        uses: actions/setup-python@v2.3.1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout repo
+        uses: actions/checkout@v2.4.0
+      - name: pre install numpy
+        if: matrix.python-version == 2.7 || matrix.python-version == 3.6
+        run: pip install numpy==1.13
+      - name: test install
+        run: |
+          pip install wheel
+          python setup.py test
+          python setup.py bdist_wheel
