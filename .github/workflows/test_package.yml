@@ -1,0 +1,40 @@
+# Test package every time
+
+name: Pytest
+
+# Controls when the action will run.
+
+# Trigger this code when a new release is published
+on:
+  workflow_dispatch:
+  release:
+    types: [ created ]
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  update:
+    name: "(${{ matrix.os }}, ${{ matrix.python-version }}, ${{ matrix.test }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: False
+      matrix:
+        os: [ "ubuntu-latest"]
+        python-version: [ "3.8", "3.9", "3.10" ]
+        test: [ 'pytest' ]
+        exclude:
+          - python-version: 3.10
+    steps:
+      - name: Setup python
+        uses: actions/setup-python@v2.3.1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Checkout repo
+        env: DOCKER_IMAGE=nestpy/nestpy_manylinux
+        uses: actions/checkout@v2.4.0
+      - name before_install:
+        run: |
+        docker pull $DOCKER_IMAGE; fi
+        docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
