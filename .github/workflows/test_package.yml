@@ -35,6 +35,6 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: test install
         run: |
-#          source travis/setup-osx.sh
+          pip install wheel
           python setup.py test
           python setup.py bdist_wheel
