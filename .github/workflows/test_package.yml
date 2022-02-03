@@ -33,7 +33,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
-      - name before_install:
+      - name: before_install
           env: DOCKER_IMAGE=nestpy/nestpy_manylinux
         run: |
           docker pull $DOCKER_IMAGE
