@@ -34,7 +34,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
       - name: before_install
-          env: DOCKER_IMAGE=nestpy/nestpy_manylinux
+        env:
+          DOCKER_IMAGE: nestpy/nestpy_manylinux
         run: |
           docker pull $DOCKER_IMAGE
           docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
