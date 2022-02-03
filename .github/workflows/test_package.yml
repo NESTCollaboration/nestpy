@@ -26,6 +26,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
+      - name: pre install numpy
+        if: matrix.python-version == 2.7 | matrix.python-version == 3.4 matrix.python-version == 3.6
+        run: pip install numpy==1.13
       - name: test install
         run: |
           pip install wheel
