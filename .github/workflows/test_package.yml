@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        os: [ "ubuntu-latest", "windows-latest" ]
-        python-version: [ "3.8", "3.9", "3.10" ]
+        os: [ "ubuntu-latest" ]
+        python-version: [ 2.7, 3.4, 3.6, 3.7, 3.8, "3.9", "3.10" ]
     steps:
       - name: Setup python
         uses: actions/setup-python@v2.3.1
