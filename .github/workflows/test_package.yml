@@ -27,7 +27,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
       - name: macos pre-install
-        if: matrix.os ==  "macos-latest"
+        if: matrix.os == macos-latest
         run: |
           source travis/setup-osx.sh
       - name: pre install numpy
