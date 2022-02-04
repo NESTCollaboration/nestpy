@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        os: [ "ubuntu-latest" ]
-        python-version: [ 2.7, 3.6, 3.7, 3.8, "3.9", "3.10" ]
+        os: [ "ubuntu-latest" , "macos-latest"]
+        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9, "3.10" ]
     steps:
       - name: Setup python
         uses: actions/setup-python@v2.3.1
@@ -26,6 +26,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
+      - name: macos pre-install
+        if matrix.os ==  "macos-latest":
+        run: |
+          source travis/setup-osx.sh
       - name: pre install numpy
         if: matrix.python-version == 2.7 || matrix.python-version == 3.6
         run: pip install numpy==1.13
