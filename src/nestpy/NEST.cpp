@@ -2795,7 +2795,7 @@ std::vector<std::pair<double, double> > NESTcalc::GetBoyleModelDL() {
   return output;
 }
 
-constexpr int NESTcalc::clamp(int v, const int lo, const int hi) {
+int NESTcalc::clamp(int v, const int lo, const int hi) {
   if (v < lo) v = lo;
   if (v > hi) v = hi;
   return v;

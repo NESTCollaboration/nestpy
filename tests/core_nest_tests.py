@@ -127,7 +127,9 @@ class NESTcalcTest(unittest.TestCase):
         self.nestcalc.PhotonEnergy(True, True, 190)
 
     def test_nestcalc_calc_electron_LET(self):
-        self.nestcalc.CalcElectronLET(100., 54) # energy, atom num.(Xe)
+        # shouldn't have to set third argument..
+        # but not a used feature by many so non-urgent to solve
+        self.nestcalc.CalcElectronLET(100., 54, True) # energy, atom num.(Xe), CSDA
 
     def test_nest_calc_get_detector(self):
         self.nestcalc.GetDetector()
