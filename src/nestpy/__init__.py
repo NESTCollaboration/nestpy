@@ -1,5 +1,5 @@
 __version__ = '1.5.0'
-__nest_version__ = '2.3.0'
+__nest_version__ = '2.3.5'
 
 from .nestpy import *
 

@@ -65,7 +65,7 @@
 #include "RandomGen.hh"
 #include "VDetector.hh"
 #include "ValidityTests.hh"
-//#include "gcem.hpp"
+// #include "gcem.hpp"
 
 #include <cassert>
 #include <cfloat>
@@ -192,8 +192,8 @@ class NESTcalc {
 
   double two_PI = 2. * M_PI;
   double sqrt2 = sqrt(2.);
-  double sqrt2_PI = sqrt(2. * M_PI);
-  double inv_sqrt2_PI = 1. / sqrt(2. * M_PI);
+  double sqrt2_PI = sqrt( 2. * M_PI );
+  double inv_sqrt2_PI = 1./sqrt( 2. * M_PI );
 
  public:
   NESTcalc(const NESTcalc &) = delete;
@@ -259,7 +259,13 @@ class NESTcalc {
                                          const std::vector<double> &NuisParam);
   // Weights beta/gamma models to account for ER sources with differing
   // recombination profiles (such as L-shell electron-capture interactions)
-
+  
+  virtual NESTresult GetYieldERdEOdxBasis(const std::vector<double> &NuisParam,
+					  string muonInitPos,
+					  vector<double> eDriftVelTable,
+					  const std::vector<double> &FreeParam);
+  // Use dE/dx-based yield models instead of energy-based, as everywhere else
+  
   virtual YieldResult GetYieldNR(double energy, double density, double dfield,
                                  double massNum,
                                  const std::vector<double> &NuisParam = {
@@ -402,7 +408,7 @@ class NESTcalc {
   // for either S1 or S2, including fluctuations in them, so that you can apply
   // proper QE in G4 for ex.
 
-  double CalcElectronLET(double E, int Z);
+  double CalcElectronLET(double E, int Z, bool CSDA=true);
   // Linear Energy Transfer in units of MeV*cm^2/gram which when combined with
   // density can provide the dE/dx, as a function of energy in keV. Will be more
   // useful in the future
@@ -443,7 +449,7 @@ class NESTcalc {
   // Read in the Boyle model data for DL
   static std::vector<std::pair<double, double>> GetBoyleModelDL();
 
-  static int clamp(int v, const int lo, const int hi);
+  static constexpr int clamp(int v, const int lo, const int hi);
 };
 }  // namespace NEST
 
