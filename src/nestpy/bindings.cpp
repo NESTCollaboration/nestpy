@@ -255,7 +255,8 @@ PYBIND11_MODULE(nestpy, m) {
     .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
 //     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 	.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
-			"Perform the full yield calculation with smearings")
+			"ER yields in the dEdx basis")
+	.def("GetYieldERdEOdxBasis", &NEST::NESTcalc::GetYieldERdEOdxBasis)
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
 	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
