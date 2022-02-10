@@ -4,6 +4,22 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.5.1 (2022-02-09)
+-----------------
+New Physics:
+  * dE/dx-based yield code moved (execNEST->NEST.cpp) for accessibility. Muons, MIPs, LIPs; random positions
+  * Initial or average dE/dx allowed, and use of ESTAR or custom power law, with variation around a mean dE/dx 
+  * loopNEST for ER restored, with 1st-principles mod TIB model of recombination parameters for sustainability
+  * New multiple scatter tool allows for creation of 2+ ER-like/NR-like scatters, or mixed for inelastic, Migdal, etc.
+
+Code Quality and/or Miscellaneous Bug Fixes:
+  * random exponential smarter sampling for small ranges especially for Kr83m times (Scott Kravitz, LZ/LBNL)
+  * D-D energy spectrum user-settable, serving as example for any NR calibrations (Greg Rischbieter, LZ/UAlbany)
+  * New truncated Gauss option, w/ truncation at 0 in 1st usage to solve S2 corner case (Scott Kravitz, LZ/LBNL)
+
+nestpy Specific:
+  * N/A 
+
 1.5.0 (2021-11-11)
 -----------------
 New Physics:
