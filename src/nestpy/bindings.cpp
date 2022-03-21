@@ -264,8 +264,8 @@ PYBIND11_MODULE(nestpy, m) {
 	     py::arg("energy") = 41.5,
 	     py::arg("density") = 2.9,
 	     py::arg("drift_field") = 124,
-	     py::arg("maxTimeSeparation") = 2000,
-	     py::arg("deltaT_ns") = -999.
+	     py::arg("maxTimeSeparation") = 2000.,
+	     py::arg("minTimeSeparation") = 0.0
 	 )
     .def("GetYieldERWeighted", 
 	     &NEST::NESTcalc::GetYieldERWeighted, 
