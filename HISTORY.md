@@ -4,6 +4,19 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+1.5.2 (2022-04-11)
+-----------------
+New Physics:
+  * Perfectly vertical MIP tracks now work, and use latest beta model (Greg Rischbieter, LZ/UAlbany)
+  * Field in G4 in any direction not just vertical but e.g. radial OK, ala (n)EXO and PETALO (Paola Ferrario)
+
+Code Quality:
+  * NEST: Geant4.9.11 & C++17 compatibility achieved (Paola Ferrario, PETALO/Basque Foundation for Science)
+  * Multiple scatter code warning addressed: unused variable (Greg Rischbieter, LZ/UAlbany)
+
+nestpy Specific: 
+  * N/A
+
 1.5.1 (2022-02-09)
 -----------------
 New Physics:
