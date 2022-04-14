@@ -72,7 +72,7 @@ history = open('HISTORY.md').read().replace('.. :changelog:', '')
 requirements = open('requirements.txt').read().splitlines()
 
 setup(
-    name='nestpy',
+    name='nestpy_test',
     version='1.5.2',
     author='Sophia Farrell',
     author_email='sja5@rice.edu',
