@@ -25,21 +25,30 @@ jobs:
         with:
           python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
           build-requirements: 'cython numpy'
-#           system-packages: 'lrzip-devel zlib-devel'
-#           pre-build-command: 'sh pre-build-script.sh'
-#           package-path: 'my_project'
-#           pip-wheel-args: '-w ./dist --no-deps'
-      # Do the publish
-#       - name: Publish a Python distribution to PyPI
-#         # Might want to add but does not work on workflow_dispatch :
-#         # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-#         uses: pypa/gh-action-pypi-publish@master
-#         with:
-#           user: __token__
-#           password: ${{ secrets.pypi_password }}
       - name: Publish wheels to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.pypi_password }}
         run: |
           twine upload dist/*-manylinux*.whl
+  build_macos:
+    runs-on: macos-latest
+      steps:
+        # Setup steps
+          - name: Setup python
+          uses: actions/setup-python@v3
+          with:
+            python-version: '3.8'
+          - name: Checkout repo
+            uses: actions/checkout@v3
+          - name: Install dependencies
+            run: pip install wheel
+          - name: Build package
+            env:
+              TWINE_USERNAME: __token__
+              TWINE_PASSWORD: ${{ secrets.pypi_password }}
+            run:
+              |
+              pip install twine
+              python setup.py bdist_wheel
+              python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*;
