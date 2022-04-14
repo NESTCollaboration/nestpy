@@ -20,7 +20,10 @@ jobs:
       - name: Install dependencies
         run: pip install wheel
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: |
+          pip install auditwheel 
+          python setup.py sdist bdist_wheel
+          auditwheel repair *.whl
       # Do the publish
       - name: Publish a Python distribution to PyPI
         # Might want to add but does not work on workflow_dispatch :
