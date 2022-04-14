@@ -25,7 +25,7 @@ jobs:
           pip install auditwheel twine
           python setup.py sdist bdist_wheel
           ls
-          auditwheel repair sdist/linux_x86_64.whl -w . --plat sdist/manylinux_2_24_x86_64
+          auditwheel repair sdist/linux_x86_64.whl -w . --plat manylinux_2_24_x86_64
           twine upload sdist/manylinux_2_24_x86_64.whl
       # Do the publish
       - name: Publish a Python distribution to PyPI
