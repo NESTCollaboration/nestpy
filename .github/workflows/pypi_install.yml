@@ -9,7 +9,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: False
+      matrix:
+      os: [ "ubuntu-latest" , "macos-latest"]
     steps:
       # Setup steps
       - name: Setup python
@@ -21,6 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip install wheel twine
       - name: bla
+        if: matrix.os == 'macos-latest'
         uses: RalfG/python-wheels-manylinux-build@v0.4.2-manylinux2014_x86_64
         with:
           python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
@@ -31,24 +36,14 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.pypi_password }}
         run: |
           twine upload dist/*-manylinux*.whl
-  build_macos:
-    runs-on: macos-latest
-      steps:
-        # Setup steps
-          - name: Setup python
-          uses: actions/setup-python@v3
-          with:
-            python-version: '3.8'
-          - name: Checkout repo
-            uses: actions/checkout@v3
-          - name: Install dependencies
-            run: pip install wheel
-          - name: Build package
-            env:
-              TWINE_USERNAME: __token__
-              TWINE_PASSWORD: ${{ secrets.pypi_password }}
-            run:
-              |
-              pip install twine
-              python setup.py bdist_wheel
-              python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*;
+
+      - name: Build package
+        if: matrix.os == 'macos-latest'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_password }}
+        run:
+          |
+          pip install twine
+          python setup.py bdist_wheel
+          python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*;
