@@ -30,10 +30,16 @@ jobs:
 #           package-path: 'my_project'
 #           pip-wheel-args: '-w ./dist --no-deps'
       # Do the publish
-      - name: Publish a Python distribution to PyPI
-        # Might want to add but does not work on workflow_dispatch :
-        # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
+#       - name: Publish a Python distribution to PyPI
+#         # Might want to add but does not work on workflow_dispatch :
+#         # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+#         uses: pypa/gh-action-pypi-publish@master
+#         with:
+#           user: __token__
+#           password: ${{ secrets.pypi_password }}
+      - name: Publish wheels to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_password }}
+        run: |
+          twine upload dist/*-manylinux*.whl
