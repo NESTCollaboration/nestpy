@@ -24,7 +24,6 @@ jobs:
         run: |
           pip install auditwheel twine
           python setup.py sdist bdist_wheel
-          auditwheel repair *.whl
           auditwheel repair linux_x86_64.whl -w . --plat manylinux_2_24_x86_64
           twine upload manylinux_2_24_x86_64.whl
       # Do the publish
