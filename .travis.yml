@@ -1,49 +1,49 @@
-# This file arranges for the build server for tests and automatic
-# deployment to PyPI such that we can pip install.
+# # This file arranges for the build server for tests and automatic
+# # deployment to PyPI such that we can pip install.
 
-notifications:
-  email: false
-  slack: xenonnt:NrEonhkbwD6r0BxAdFYTvoSe
+# notifications:
+#   email: false
+#   slack: xenonnt:NrEonhkbwD6r0BxAdFYTvoSe
 
-language: generic  # This needs to be set for OSX support
+# language: generic  # This needs to be set for OSX support
 
-# Deploy releases to PyPI for pip installs
-# See https://docs.travis-ci.com/user/encryption-keys/
-env:
-  global:
-    - TWINE_USERNAME=NESTCollaboration
-    - secure: "IgoVu7BeBx2mfNdq3mUbVyiUKF7DcNNx90lEFu5Du9CSOsO19q/wxIXD4mVNFXDO4uXEUIy/7386hJlDXrKrGeQ4W6jiAuPdQJ2KAhcZ1Jnkg0OQoXDtt8Y3WrldWahH+XNS7msIFGuWflbaTSRsOdnBLgulV8Uzp7cb6YIYyY88a+pZtqMKrhYWP/MyWUvm+JqCcs0lIYO95J0tSmAgpN9iLlThoyNKKLYf2IVRCjfWt4uQFJBrUyw3PleokDSHIEYAz7AFWA+71pjhRrzWFkN0Ot1BaPDCQWRiWlG+hR191lI7Ui8rOmaU5zuvx6Na57vMlG7XLOBOq0vgt1hNy0GqKoyxA4ZPqoMdc2Qqo/bh8G/goNfOsGwm00WfyQRvQiGmsGh/KLOGLfbvD9PzmKf44UEHOEAuBVHUMCKLEI+1W9H3IQhmQ3dGJjYpTLT9R9m+wuDv/cwr64ValJUcWIcYCbtNUefHJD6bpoEzLtm5QFF4jxmE/SMVHActlfWUEbuiggaR55/TT8cuoJ7gf4ZNEu0XI7zhacwpQVSHmWVybG94JTrjQ+CfDxMY1QB0Ilg0QVgoEU8+D4rd0iUprxaWndiw35w7h8DLO82RRVG3xjePtG4G47g/5Z3BmB36NkEDsMBgV2+5IJlolnrImn/fELq5R73LoHl9gnQUpkw="
+# # Deploy releases to PyPI for pip installs
+# # See https://docs.travis-ci.com/user/encryption-keys/
+# env:
+#   global:
+#     - TWINE_USERNAME=NESTCollaboration
+#     - secure: "IgoVu7BeBx2mfNdq3mUbVyiUKF7DcNNx90lEFu5Du9CSOsO19q/wxIXD4mVNFXDO4uXEUIy/7386hJlDXrKrGeQ4W6jiAuPdQJ2KAhcZ1Jnkg0OQoXDtt8Y3WrldWahH+XNS7msIFGuWflbaTSRsOdnBLgulV8Uzp7cb6YIYyY88a+pZtqMKrhYWP/MyWUvm+JqCcs0lIYO95J0tSmAgpN9iLlThoyNKKLYf2IVRCjfWt4uQFJBrUyw3PleokDSHIEYAz7AFWA+71pjhRrzWFkN0Ot1BaPDCQWRiWlG+hR191lI7Ui8rOmaU5zuvx6Na57vMlG7XLOBOq0vgt1hNy0GqKoyxA4ZPqoMdc2Qqo/bh8G/goNfOsGwm00WfyQRvQiGmsGh/KLOGLfbvD9PzmKf44UEHOEAuBVHUMCKLEI+1W9H3IQhmQ3dGJjYpTLT9R9m+wuDv/cwr64ValJUcWIcYCbtNUefHJD6bpoEzLtm5QFF4jxmE/SMVHActlfWUEbuiggaR55/TT8cuoJ7gf4ZNEu0XI7zhacwpQVSHmWVybG94JTrjQ+CfDxMY1QB0Ilg0QVgoEU8+D4rd0iUprxaWndiw35w7h8DLO82RRVG3xjePtG4G47g/5Z3BmB36NkEDsMBgV2+5IJlolnrImn/fELq5R73LoHl9gnQUpkw="
     
-matrix: # No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
-  include:
-  - sudo: required
-    services:
-      - docker
-    env: DOCKER_IMAGE=nestpy/nestpy_manylinux
-    language: python
-  #- os: osx
-  #  osx_image: xcode9.4
-  #  env: PYTHON=3.7
-  - os: osx
-    osx_image: xcode11
-    env: PYTHON=3.8
+# matrix: # No 32 bit, see https://github.com/NESTCollaboration/nest/issues/33
+#   include:
+#   - sudo: required
+#     services:
+#       - docker
+#     env: DOCKER_IMAGE=nestpy/nestpy_manylinux
+#     language: python
+#   #- os: osx
+#   #  osx_image: xcode9.4
+#   #  env: PYTHON=3.7
+#   - os: osx
+#     osx_image: xcode11
+#     env: PYTHON=3.8
 
-before_install:
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then source travis/setup-osx.sh; fi
+# before_install:
+#     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then source travis/setup-osx.sh; fi
 
-install:
-    - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker pull $DOCKER_IMAGE; fi
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then pip install wheel; fi
+# install:
+#     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker pull $DOCKER_IMAGE; fi
+#     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then pip install wheel; fi
 
 
-script:
-    - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh; fi
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py test; fi
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py bdist_wheel; fi
-    - if [ "${PYTHON}" == "3.7" ]; then python setup.py sdist ; fi
+# script:
+#     - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh; fi
+#     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py test; fi
+#     - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then python setup.py bdist_wheel; fi
+#     - if [ "${PYTHON}" == "3.7" ]; then python setup.py sdist ; fi
 
-after_success:
-    - python -m pip install --upgrade --upgrade-strategy eager twine
-    - echo TRAVIS_TAG $TRAVIS_TAG
-    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" wheelhouse/*.whl; fi
-    - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*; fi
+# after_success:
+#     - python -m pip install --upgrade --upgrade-strategy eager twine
+#     - echo TRAVIS_TAG $TRAVIS_TAG
+#     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "linux" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" wheelhouse/*.whl; fi
+#     - if [ ! -z "$TRAVIS_TAG" ] && [ "${TRAVIS_OS_NAME}" == "osx" ]; then python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*; fi

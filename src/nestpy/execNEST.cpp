@@ -98,15 +98,16 @@ int main(int argc, char** argv) {
   double eMin, eMax, inField, fPos;
   int seed;
   bool no_seed = false;
-  if (loopNEST) {
-    numEvts = 100000;  // 10,000 faster but of course less precise
-    if (loopNEST == 1)
-      type = "ER";
-    else
-      type = "NR";
-    eMin = 0.00;
-    eMax = 156.;  // Carbon-14
-    inField = -1.;
+  
+  if ( loopNEST ) {
+    
+    numEvts = 10000;
+    type = "MIP";
+    dEOdxBasis = true;
+    eMin = -TestSpectra::CH3T_spectrum(0.,18.6);
+    //s1CalculationMode = NEST::S1CalculationMode::Parametric;
+    eMax = -1.;
+    inField = 180.;
     position = "-1";
     posiMuon = "-1";
     fPos = -1.;
@@ -115,61 +116,29 @@ int main(int argc, char** argv) {
     FreeParam.clear();
     NuisParam.clear();
     verbosity = false;
-
-    if (type == "ER") {
-      /*detector->set_g1(atof(argv[1])); //an alternate loop approach
-      detector->set_g1_gas(atof(argv[2]));
-      inField = atof(argv[3]);
-      detector->set_noiseLinear(atof(argv[4]),atof(argv[5]));*/
-
-      FreeParam.push_back(atof(argv[1]));  //-0.1 for LUX C-14 ~200V/cm
-      FreeParam.push_back(atof(argv[2]));  // 0.5
-      FreeParam.push_back(atof(argv[3]));  // 0.06
-      FreeParam.push_back(atof(argv[4]));  //-0.6
-      FreeParam.push_back(atof(argv[5]));  // 1.11
-      FreeParam.push_back(atof(argv[6]));  // 0.95
-      FreeParam.push_back(atof(argv[7]));  // 8e-2
-      FreeParam.push_back(atof(argv[7]));  // repeat
-
-      NuisParam.push_back(11.);
-      NuisParam.push_back(1.1);
-      NuisParam.push_back(0.0480);
-      NuisParam.push_back(-0.0533);
-      NuisParam.push_back(12.6);
-      NuisParam.push_back(0.3);
-      NuisParam.push_back(2.);
-      NuisParam.push_back(0.3);
-      NuisParam.push_back(2.);
-      NuisParam.push_back(0.5);
-      NuisParam.push_back(1.0);
-      NuisParam.push_back(1.0);
-
-    }
-
-    else {
-      NuisParam.push_back(atof(argv[1]));  // 11.0 XENON10
-      NuisParam.push_back(atof(argv[2]));  // 1.09
-      NuisParam.push_back(0.0480);
-      NuisParam.push_back(-0.0533);
-      NuisParam.push_back(12.6);
-      NuisParam.push_back(0.3);
-      NuisParam.push_back(2.);
-      NuisParam.push_back(0.3);
-      NuisParam.push_back(atof(argv[3]));  // 2.00
-      NuisParam.push_back(0.5);
-      NuisParam.push_back(1.0);
-      NuisParam.push_back(1.0);
-      detector->set_g1(atof(argv[5]));                          // 0.0725
-      detector->set_g1_gas(atof(argv[6]));                      // 0.0622
-      detector->set_noiseLinear(atof(argv[7]), atof(argv[7]));  // 0,0
-      FreeParam.push_back(1.00);
-      FreeParam.push_back(1.00);
-      FreeParam.push_back(atof(argv[4]));  // 0.070
-      FreeParam.push_back(0.50);
-      FreeParam.push_back(0.19);
-      FreeParam.push_back(2.25);
-    }
-
+    
+    NuisParam.push_back(0.0);
+    NuisParam.push_back(0.);
+    NuisParam.push_back(300.);
+    NuisParam.push_back(eMax);
+    NuisParam.push_back(eMin);
+    NuisParam.push_back(atof(argv[1]));
+    NuisParam.push_back(inField);
+    NuisParam.push_back(1.51);
+    NuisParam.push_back(2.888);
+    NuisParam.push_back(1e3);
+    NuisParam.push_back(atof(argv[2]));
+    NuisParam.push_back(atof(argv[3]));
+    NuisParam.push_back(atof(argv[4]));
+    
+    FreeParam.push_back(-atof(argv[5]));
+    FreeParam.push_back(atof(argv[6]));
+    FreeParam.push_back(atof(argv[7]));
+    FreeParam.push_back(atof(argv[8]));
+    FreeParam.push_back(atof(argv[9]));
+    FreeParam.push_back(atof(argv[10]));
+    FreeParam.push_back(atof(argv[11]));
+    
   } else {
     numEvts = (uint64_t)atof(argv[1]);
     if (numEvts <= 0) {
@@ -355,8 +324,6 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
              double dayNumber) {
   // Construct NEST class using detector object
   NESTcalc n(detector);
-  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
-  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
 
   if (detector->get_TopDrift() <= 0. || detector->get_anode() <= 0. ||
       detector->get_gate() <= 0.) {
@@ -366,7 +333,10 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
                             // LZ)
     return 1;
   }
-
+  // add in python-necessary parts  
+  NuisParam = {11.,1.1,0.0480,-0.0533,12.6,0.3,2.,0.3,2.,0.5,1., 1.};
+  FreeParam = {1.,1.,0.10,0.5,0.19,2.25};
+    
   vector<double> signal1, signal2, signalE, vTable;
   string delimiter, token;
   size_t loc;
@@ -385,9 +355,10 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
       RandomGen::rndm()->SetSeed(seed);
     }
   }
-
-  if (ValidityTests::nearlyEqual(eMin, -1.)) eMin = 0.;
-
+  
+  if (ValidityTests::nearlyEqual(eMin, -1.) && type != "muon" && type !="MIP"
+      && type != "LIP" && type != "mu" && type != "mu-") eMin = 0.;
+  
   if (ValidityTests::nearlyEqual(eMax, -1.) &&
       ValidityTests::nearlyEqual(eMin, 0.))
     eMax = hiEregime;  // the default energy max
@@ -584,6 +555,7 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
       energyMaximum = 1. / std::abs(eMax);
     else
       energyMaximum = eMax;
+    if ( !energyMaximum || std::isnan(energyMaximum) ) energyMaximum = 1.;
     if (type_num == Kr83m)
       yieldsMax =
           n.GetYields(Kr83m, eMin, rho, centralField, 400., 100., NuisParam);
@@ -592,10 +564,10 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
                               double(massNum), double(atomNum), NuisParam);
   }
   if ((g1 * yieldsMax.PhotonYield) > (2. * maxS1) && eMin != eMax &&
-      type_num != Kr83m && verbosity)
+      type_num != Kr83m && verbosity && !dEOdxBasis)
     cerr
         << "\nWARNING: Your energy maximum may be too high given your maxS1.\n";
-
+  
   if (type_num < 6) massNum = 0;
   if (type_num == Kr83m) massNum = maxTimeSep;
   // use massNum to input maxTimeSep into GetYields(...)
@@ -703,11 +675,10 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
             } else {  // negative eMax signals to NEST that you want to use an
               // exponential energy spectrum profile
               if (ValidityTests::nearlyEqual(eMin, 0.)) return 1;
-              keV = 1e100;  // eMin will be used in place of eMax as the maximum
+              // eMin will be used in place of eMax as the maximum
               // energy in exponential scenario
-              while (keV > eMin)
-                keV = eMax * log(RandomGen::rndm()->rand_uniform());
-            }
+	      keV = RandomGen::rndm()->rand_exponential(eMax*log(2.),0.,eMin);
+	    }
             break;
         }
       }
@@ -769,7 +740,7 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
           }
           pos_z = stof(position);
         } else {
-          if (j == 0) pos_z = stof(position);
+          pos_z = stof(position);
         }
         if (ValidityTests::nearlyEqual(stof(position), -1.))
           pos_z = 0. + (detector->get_TopDrift() - 0.) *
@@ -844,11 +815,18 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
             else
               fprintf(stdout, "E_recon [keV]");
           }
-          if (seed == -2)
-            printf(
+          if (seed == -2) {
+	    if (dEOdxBasis)
+	      printf(
+                "\tfield [V/cm]\ttDrift [us]\tX,Y,Z [mm]\tNph/keV\t\tNe-/keV\t\tS1 [PE "
+                "or phe]\tS1_3Dcor [phd]\tspikeC(NON-INT)\tNe-Extr\tS2_rawArea "
+                "[PE]\tS2_3Dcorr [phd]\n");
+	    else
+	      printf(
                 "\tfield [V/cm]\ttDrift [us]\tX,Y,Z [mm]\tNph\t\tNe-\t\tS1 [PE "
                 "or phe]\tS1_3Dcor [phd]\tspikeC(NON-INT)\tNe-Extr\tS2_rawArea "
                 "[PE]\tS2_3Dcorr [phd]\n");
+	  }
           else
             printf(
                 "\tfield [V/cm]\ttDrift [us]\tX,Y,Z [mm]\tNph\tNe-\tS1 [PE or "
@@ -900,122 +878,36 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
           pos_z = detector->get_TopDrift() - z_step;  // just fix it and move on
         }
       }
-
+      
       YieldResult yields;
       QuantaResult quanta;
+      NESTresult result;
       if (dEOdxBasis) {
-        double xi = -999., yi = -999., zi = detector->get_TopDrift();
-        double xf, yf, zf;
-        if (j == 0 || fPos == -1.) {
-          xf = pos_x;
-          yf = pos_y;
-          zf = pos_z;
-        }
-        if (ValidityTests::nearlyEqual(eMax, -1.)) {
-          r = detector->get_radmax() * sqrt(RandomGen::rndm()->rand_uniform());
-          phi = 2. * M_PI * RandomGen::rndm()->rand_uniform();
-          xi = r * cos(phi);
-          yi = r * sin(phi);
-        } else {
-          position = posiMuon;
-          delimiter = ",";
-          loc = 0;
-          int ii = 0;
-          while ((loc = position.find(delimiter)) != string::npos) {
-            token = position.substr(0, loc);
-            if (ii == 0)
-              xi = stof(token);
-            else
-              yi = stof(token);
-            position.erase(0, loc + delimiter.length());
-            ++ii;
-          }
-          zi = stof(position);
-        }
-        if (zi <= 0.) zi = detector->get_TopDrift();
-        double dEOdx, eStep, refEnergy, kludge = 1.;
-        if (eMin < 0.) {
-          refEnergy = -eMin;
-          kludge = 2.;
-          dEOdx = n.CalcElectronLET(-eMin, ATOM_NUM) / kludge;
-          eStep = dEOdx * rho * z_step * 1e2;
-          while (eStep > refEnergy) {
-            z_step /= 10.;
-            eStep = dEOdx * rho * z_step * 1e2;
-          }
-        } else {
-          refEnergy = 1e6;
-          eStep = eMin * rho * z_step * 1e2;
-        }
-        keV = 0.;
-        int Nph = 0, Ne = 0;
-        double xx = xi, yy = yi, zz = zi;
-        if (zf < 0.) zf = 0.;
-        double distance = sqrt((xf - xi) * (xf - xi) + (yf - yi) * (yf - yi) +
-                               (zf - zi) * (zf - zi));
-        double norm[3];
-        norm[0] = (xf - xi) / distance;
-        norm[1] = (yf - yi) / distance;
-        norm[2] = (zf - zi) / distance;
-        while (zz > zf &&
-               (xx * xx + yy * yy) <
-                   detector->get_radmax() * detector->get_radmax() &&
-               std::abs(refEnergy) > PHE_MIN) {
-          // stop making S1 and S2 if particle exits Xe volume, OR runs out of
-          // energy (in case of beta)
-          if (eMin < 0.) {
-            if ((keV + eStep) > -eMin) eStep = -eMin - keV;
-            yields = n.GetYields(NEST::beta, 2.0 * eStep, rho,
-                                 detector->FitEF(xx, yy, zz), double(massNum),
-                                 double(atomNum), NuisParam);
-          } else
-            yields = n.GetYields(NEST::beta, refEnergy, rho,
-                                 detector->FitEF(xx, yy, zz), double(massNum),
-                                 double(atomNum), NuisParam);
-          quanta = n.GetQuanta(yields, rho, FreeParam);
-          if (eMin > 0.)
-            Nph += quanta.photons * (eStep / refEnergy);
-          else
-            Nph += quanta.photons / kludge;
-          index = int(floor(zz / z_step + 0.5));
-          if (index >= vTable.size()) index = vTable.size() - 1;
-          if (vTable.size() == 0)
-            vD = vD_middle;
-          else
-            vD = vTable[index];
-          driftTime = (detector->get_TopDrift() - zz) / vD;
-          if (zz >= detector->get_cathode()) {
-            if (eMin > 0.)
-              Ne += quanta.electrons * (eStep / refEnergy) *
-                    exp(-driftTime / detector->get_eLife_us());
-            else
-              Ne += quanta.electrons *
-                    exp(-driftTime / detector->get_eLife_us()) / kludge;
-          }
-          keV += eStep;
-          xx += norm[0] * z_step;
-          yy += norm[1] * z_step;
-          zz += norm[2] * z_step;
-          if (eMin < 0.) {
-            refEnergy -= eStep;
-            dEOdx = n.CalcElectronLET(refEnergy, ATOM_NUM) / 1.;
-            eStep = dEOdx * rho * z_step * 1e2;
-          }
-          // cerr << keV << "\t\t" << xx << "\t" << yy << "\t" << zz << endl;
-        }
-        quanta.photons = Nph;
-        quanta.electrons = Ne;
-        pos_x =
-            0.5 *
-            (xi + xx);  // approximate things not already done right in loop as
-                        // middle of detector since muon traverses whole length
-        pos_y = 0.5 * (yi + yy);
-        pos_z = 0.5 * (zi + zz);
-        driftTime = 0.00;
-        if (field == -1. || inField == -1.)
-          field = detector->FitEF(pos_x, pos_y, pos_z);
-        else
-          field = inField;
+	NuisParam[0] = pos_x;
+	NuisParam[1] = pos_y;
+	NuisParam[2] = pos_z;
+	NuisParam[7] = vD_middle;
+	NuisParam[8] = rho;
+	if ( loopNEST ) NuisParam[4] = -TestSpectra::CH3T_spectrum(0.,18.6);
+	if ( j == 0 && !loopNEST ) {
+	  NuisParam[3] = eMax;
+	  NuisParam[4] = eMin;
+	  NuisParam[5] = z_step; //5mm for fast, 6um for accurate; .01mm LUXRun3 WS
+	  NuisParam[6] = inField;
+	  NuisParam[9] = 1e3;//MeV
+	  NuisParam[10] = 0.; //+/-1=true, means use continuous slowing-down approx
+	  NuisParam[11] = 0.; //use w/[10] for dE/dx = [10]*keV^[11] e.g. 50 & -0.5
+	  NuisParam[12] = 0.; //fractional variation: e.g .15 = 15%
+	}
+	result = n.GetYieldERdEOdxBasis(NuisParam, posiMuon, vTable, FreeParam);
+	yields = result.yields;
+	quanta = result.quanta;
+	if ( FreeParam[0] >= 0. )
+	  driftTime = 0.00;
+	else
+	  driftTime = (detector->get_TopDrift() - pos_z) / vD_middle;
+	field = yields.ElectricField;
+	pos_z = yields.DeltaT_Scint;
       } else {
         if (keV > 0.001 * Wq_eV) {
           if (type == "ER") {
@@ -1033,32 +925,6 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
                    << endl;
             }
             yields = n.GetYieldERWeighted(keV, rho, field, NuisParam);
-            // Comment out GetYields above and uncomment below for LoopNEST
-            // usage
-            /*YieldResult yieldsB = n.GetYields(NEST::beta, keV, rho, field,
-                                              double(massNum), double(atomNum),
-            NuisParam); YieldResult yieldsG = n.GetYields(gammaRay, keV, rho,
-            field, double(massNum), double(atomNum), NuisParam); double weightG
-            = FreeParam[0] + FreeParam[1] * erf(FreeParam[2] * (log(keV) +
-            FreeParam[3])) * (1. - (1./(1. + pow(field/421.15, 3.27)))); //
-            Xe10:1,.55,-1.6,-1.0
-                    //field weighting added to match dependence reported by
-            XELDA and LUX Run3 double weightB = 1. - weightG; yields.PhotonYield
-            = weightG * yieldsG.PhotonYield + weightB * yieldsB.PhotonYield;
-            yields.ElectronYield = weightG * yieldsG.ElectronYield + weightB *
-            yieldsB.ElectronYield; yields.ExcitonRatio = weightG *
-            yieldsG.ExcitonRatio + weightB * yieldsB.ExcitonRatio;
-            yields.Lindhard = weightG * yieldsG.Lindhard + weightB *
-            yieldsB.Lindhard; yields.ElectricField = weightG *
-            yieldsG.ElectricField + weightB * yieldsB.ElectricField;
-            yields.DeltaT_Scint = weightG * yieldsG.DeltaT_Scint + weightB *
-            yieldsB.DeltaT_Scint; FudgeFactor[0] = FreeParam[4];//0.99;
-            FudgeFactor[1] = FreeParam[5];//1.04;
-            yields.PhotonYield *= FudgeFactor[0];
-            yields.ElectronYield *= FudgeFactor[1];
-            detector->set_noiseLinear(FreeParam[6], FreeParam[7]); //
-            XENON10: 1.0, 1.0. Hi-E gam: ~0-2%,6-5%
-            */
           } else {
             if (seed < 0 && seed != -1 && type_num <= 5)
               massNum = detector->get_molarMass();
@@ -1073,7 +939,7 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
                 1.00, 1.00, 0.,
                 0.50, 0.19, 0.};  // zero out non-binom recomb fluct & skew (NR)
           }
-          quanta = n.GetQuanta(yields, rho, FreeParam);
+          if (!dEOdxBasis) quanta = n.GetQuanta(yields, rho, FreeParam);
         } else {
           yields.PhotonYield = 0.;
           yields.ElectronYield = 0.;
@@ -1122,9 +988,10 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
                        smearPos[0], smearPos[1], smearPos[2], driftTime, vD, j,
                        field, s2CalculationMode, verbosity, wf_time, wf_amp,
                        g2_params);
-      if (dEOdxBasis) {
+      if ( dEOdxBasis && !loopNEST ) {
         driftTime = (detector->get_TopDrift() - pos_z) / vD_middle;
-        scint2[7] *= exp(driftTime / detector->get_eLife_us());
+	if ( scint2[7] != -PHE_MIN && FreeParam[0] >= 0. )
+	  scint2[7] *= exp(driftTime / detector->get_eLife_us());
       }
 
     NEW_RANGES:
@@ -1355,16 +1222,23 @@ int execNEST(VDetector* detector, uint64_t numEvts, const string& type,
           if (keV > AnnModERange[0] && keV < AnnModERange[1])
             SaveTheDates[int(timeStamp) % tMax]++;
         }
-        if (seed < 0 && seed != -1)  // for when you want means
+        if (seed < 0 && seed != -1) {  // for when you want means
+	  if (dEOdxBasis) {
+	    if (eMin < 0.)
+	      { yields.PhotonYield = -quanta.photons/NuisParam[4]; yields.ElectronYield = -quanta.electrons/NuisParam[4]; }
+	    else
+	      { yields.PhotonYield /= NuisParam[10]; yields.ElectronYield /= NuisParam[10]; }
+	  }
           printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%lf\t%lf\t", keV, field,
                  driftTime, smearPos[0], smearPos[1], smearPos[2],
                  yields.PhotonYield, yields.ElectronYield);
+	}
         else
           printf("%.6f\t%.6f\t%.6f\t%.0f, %.0f, %.0f\t%d\t%d\t", keV, field,
                  driftTime, smearPos[0], smearPos[1], smearPos[2],
                  quanta.photons, quanta.electrons);
         if (keV > 10. * hiEregime || scint[5] > maxS1 || scint2[7] > maxS2 ||
-            // switch to exponential notation to make output more readable, if
+            // switch to engineering notation to make output more readable, if
             // energy is too high (>1 MeV)
             (dEOdxBasis && eMin > 0.)) {
           printf("%e\t%e\t%e\t", scint[2], scint[5], scint[7]);

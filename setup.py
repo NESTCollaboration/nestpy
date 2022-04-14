@@ -72,8 +72,8 @@ history = open('HISTORY.md').read().replace('.. :changelog:', '')
 requirements = open('requirements.txt').read().splitlines()
 
 setup(
-    name='nestpy',
-    version='1.5.0',
+    name='nestpy_test',
+    version='1.5.2',
     author='Sophia Farrell',
     author_email='sja5@rice.edu',
     description='Python bindings for the NEST noble element simulations',
@@ -102,6 +102,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: C++',
         'Intended Audience :: Science/Research',
         'Programming Language :: Python :: Implementation :: CPython',
