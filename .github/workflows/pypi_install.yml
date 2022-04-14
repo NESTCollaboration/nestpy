@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-      os: [ "ubuntu-latest" , "macos-latest"]
+        os: [ "ubuntu-latest" , "macos-latest"]
     steps:
       # Setup steps
       - name: Setup python
