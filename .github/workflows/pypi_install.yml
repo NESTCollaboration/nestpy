@@ -1,8 +1,7 @@
-# Let's upload reprox to PyPi to make it pip installable
+# Let's upload nestpy to PyPi to make it pip installable
 # Mostly based on https://github.com/marketplace/actions/pypi-publish
 name: Pipy
 on:
-  push:
   workflow_dispatch:
   release:
     types: [ published ]
