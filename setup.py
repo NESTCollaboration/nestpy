@@ -87,7 +87,7 @@ setup(
     ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
-    zip_safe=False,
+    zip_safe=True,
     include_package_data=True,
     project_urls={
         'nestpy source': 'https://github.com/NESTCollaboration/nestpy',
