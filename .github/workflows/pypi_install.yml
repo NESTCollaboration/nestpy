@@ -1,5 +1,6 @@
 # Let's upload nestpy to PyPi to make it pip installable
 # Mostly based on https://github.com/marketplace/actions/pypi-publish
+# Some of this is a bit clunky, we have both Linux and MacOS build.
 name: Pipy
 on:
   workflow_dispatch:
@@ -23,11 +24,6 @@ jobs:
             os: "ubuntu-latest"
           - python-version: "3.10"
             os: "ubuntu-latest"
-            
-#           - python-version: 3.9
-#             os: "macos-latest"
-#           - python-version: 3.9
-#             os: "macos-latest"
     steps:
       # Setup steps
       - name: Setup python

@@ -3,12 +3,12 @@
 
  on:
    workflow_dispatch:
-  #   release:
-  #     types: [ created ]
-  #   pull_request:
-  #   push:
-  #     branches:
-  #       - master
+   release:
+     types: [ created ]
+   pull_request:
+   push:
+     branches:
+       - master
 
  jobs:
    update:

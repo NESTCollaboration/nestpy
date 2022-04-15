@@ -81,7 +81,9 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages('src'),
     install_requires=requirements,
+    # Include lib such that recompilation under e.g. different numpy versions works
     package_dir={'': 'src', 'lib': 'lib'},
+    package_data={'lib': ['lib/*', ]},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
