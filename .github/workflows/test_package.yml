@@ -28,7 +28,7 @@
          uses: actions/checkout@v2.4.0
        - name: macos pre-install
          if: matrix.os == 'macos-latest'
-         run: source travis/setup-osx.sh
+         run: source .github/scripts/setup-osx.sh
        - name: pre install numpy
          if: matrix.python-version == 2.7 || matrix.python-version == 3.6
          run: pip install numpy==1.13
