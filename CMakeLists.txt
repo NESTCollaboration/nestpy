@@ -8,10 +8,6 @@ include_directories(${SOURCE_DIR})
 set(SOURCES "${SOURCE_DIR}/NEST.cpp" "${SOURCE_DIR}/RandomGen.cpp"  "${SOURCE_DIR}/VDetector.cpp" "${SOURCE_DIR}/execNEST.cpp" "${SOURCE_DIR}/TestSpectra.cpp" "${SOURCE_DIR}/GammaHandler.cpp" "${SOURCE_DIR}/ValidityTests.cpp")
 include_directories("${SOURCE_DIR}/include") 
 
-
-
-
-
 # Generate Python module
 add_subdirectory(lib/pybind11)
 pybind11_add_module(nestpy ${SOURCES} "${SOURCE_DIR}/bindings.cpp")

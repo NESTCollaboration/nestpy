@@ -85,8 +85,8 @@ setup(
     description='Python bindings for the NEST noble element simulations',
     long_description=readme + '\n\n' + history,
     long_description_content_type="text/markdown",
-    # packages=find_packages(include=['src', 'lib']),
-    packages=['src', 'lib'],
+    packages=find_packages(include=['src', 'lib']),
+    # packages=['src', 'lib'],
     install_requires=requirements,
     # Include lib such that recompilation under e.g. different numpy versions works
     package_dir={'src': 'src', 'lib': 'lib'},
