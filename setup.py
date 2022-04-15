@@ -61,12 +61,6 @@ class CMakeBuild(build_ext):
             self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        print('got files in root:')
-        print(os.listdir())
-        print('got files in lib:')
-        print(os.listdir('./lib'))
-        print('got files in lib/pybind11:')
-        print(os.listdir('./lib/pybind11'))
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
                               cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
