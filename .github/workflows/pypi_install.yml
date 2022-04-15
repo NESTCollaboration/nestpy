@@ -1,6 +1,17 @@
 # Let's upload nestpy to PyPi to make it pip installable
 # Mostly based on https://github.com/marketplace/actions/pypi-publish
 # Some of this is a bit clunky, we have both Linux and MacOS build.
+# We apply the following strategy:
+#  - For Mac, run both MacOS-latest (11.xx) and MacOS-10.15. The latter
+#    seems to be required for to properly build the wheels commonly used.
+#    For each python version and MacOS version, we run a separate action
+#    to complete all the required wheels.
+#  - For linux, use a nice pre-defined docker image from
+#    "RalfG/python-wheels-manylinux-build@v0.4.2-manylinux2014_x86_64"
+#    to build the wheels. This allows us to build several wheels in one
+#    go. We build newer python versions explicitly with numpy 1.21
+#    (though this is probably not strictly required).
+
 name: Pipy
 on:
   workflow_dispatch:
@@ -35,15 +46,18 @@ jobs:
           python-version:  ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - name: Install dependencies
         run: pip install wheel twine
-      - name: Build weels (linux)
+
+      # -- Linux --
+      - name: Build weels (linux) python 3.8, 3.9, 3.10
         if: matrix.os == 'ubuntu-latest'
         uses: RalfG/python-wheels-manylinux-build@v0.4.2-manylinux2014_x86_64
         with:
           python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310'
           build-requirements: 'numpy==1.21.6'
-      - name: Build legacy weels (linux)
+      - name: Build legacy weels (linux) python 3.6, 3.7
         if: matrix.os == 'ubuntu-latest'
         uses: RalfG/python-wheels-manylinux-build@v0.4.2-manylinux2014_x86_64
         with:
@@ -57,6 +71,7 @@ jobs:
         run: |
           twine upload dist/*-manylinux*.whl
 
+      # -- MacOS --
       - name: Build package (MAC)
         if: matrix.os != 'ubuntu-latest'
         env:
@@ -64,6 +79,5 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.pypi_password }}
         run:
           |
-          pip install twine
           python setup.py bdist_wheel
           python -m twine upload -u "${TWINE_USERNAME}" -p "${TWINE_PASSWORD}" dist/*;
