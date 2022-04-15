@@ -89,7 +89,7 @@ setup(
     # packages=['src', 'lib'],
     install_requires=requirements,
     # Include lib such that recompilation under e.g. different numpy versions works
-    package_dir={'src': 'src', 'lib': 'lib'},
+    package_dir={'': 'src', 'lib': 'lib'},
     package_data={'lib': ['lib/*', ]},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),
