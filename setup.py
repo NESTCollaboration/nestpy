@@ -61,6 +61,12 @@ class CMakeBuild(build_ext):
             self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
+        print('got files in root:')
+        print(os.listdir())
+        print('got files in lib:')
+        print(os.listdir('./lib'))
+        print('got files in lib/pybind11:')
+        print(os.listdir('./lib/pybind11'))
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
                               cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
@@ -73,7 +79,7 @@ requirements = open('requirements.txt').read().splitlines()
 
 setup(
     name='nestpy_test2',
-    version='1.5.13',
+    version='1.5.12',
     author='Sophia Farrell',
     author_email='sja5@rice.edu',
     description='Python bindings for the NEST noble element simulations',
@@ -81,9 +87,9 @@ setup(
     long_description_content_type="text/markdown",
     # packages=find_packages(include=['src', 'lib']),
     packages=['src', 'lib'],
-install_requires=requirements,
+    install_requires=requirements,
     # Include lib such that recompilation under e.g. different numpy versions works
-    package_dir={'': 'src', 'lib': 'lib'},
+    package_dir={'src': 'src', 'lib': 'lib'},
     package_data={'lib': ['lib/*', ]},
     ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),
