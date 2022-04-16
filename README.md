@@ -1,7 +1,7 @@
 # nestpy
 
 [![Join the chat at https://gitter.im/NESTCollaboration/nestpy](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NESTCollaboration/nestpy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://www.travis-ci.com/NESTCollaboration/nestpy.svg?branch=master)](https://www.travis-ci.com/NESTCollaboration/nestpy)
+[![Pytest](https://github.com/NESTCollaboration/nestpy/actions/workflows/test_package.yml/badge.svg?branch=master)](https://github.com/NESTCollaboration/nestpy/actions/workflows/test_package.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1345595.svg)](https://doi.org/10.5281/zenodo.1345595)
 [![PyPi version](https://pypip.in/v/nestpy/badge.png)](https://pypi.org/project/nestpy/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -70,10 +70,11 @@ For more examples on possible calls, please see the tests and tutorials folders.
 
 ## Technical implementation
 
-This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.html) wrapper of [NEST](https://github.com/NESTCollaboration/nest) that uses [TravisCI](https://travis-ci.org) to build binaries using the [manylinux](https://github.com/pypa/python-manylinux-demo) [Docker image](https://www.docker.com).
+This package is a [pybind11](https://pybind11.readthedocs.io/en/stable/intro.html) wrapper of [NEST](https://github.com/NESTCollaboration/nest) that uses [GitHub Workflows](https://docs.github.com/en/actions/using-workflows) to build binaries using the [manylinux](https://github.com/pypa/python-manylinux-demo) [Docker image](https://www.docker.com) from [this page](https://github.com/RalfG/python-wheels-manylinux-build).
 
 * Help from Henry Schreiner, which included a great [binding tutorial](https://indico.cern.ch/event/694818/contributions/2985778/attachments/1682465/2703470/PyHEPTalk.pdf)
 * Implementation also based on [this](http://www.benjack.io/2018/02/02/python-cpp-revisited.html)
+* Implementation of GitHub test and build actions was made possible by [Joran Angevaare](https://github.com/joranangevaare).
 
 See AUTHORS.md for information on the developers.
 
