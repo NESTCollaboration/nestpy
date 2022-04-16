@@ -18,7 +18,7 @@ jobs:
       fail-fast: False
       matrix:
         os: [ "ubuntu-latest" , "macos-latest" ]
-        python-version: [ 2.7, 3.6, 3.7, 3.8, 3.9, "3.10" ]
+        python-version: [ 3.6, 3.7, 3.8, 3.9, "3.10" ]
     steps:
       - name: Setup python
         uses: actions/setup-python@v2.3.1
@@ -30,7 +30,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: source .github/scripts/setup-osx.sh
       - name: pre install numpy
-        if: matrix.python-version == 2.7 || matrix.python-version == 3.6
+        if: matrix.python-version == 3.6
         run: pip install numpy==1.13
       - name: test install
         run: |
