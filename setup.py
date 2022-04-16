@@ -80,7 +80,7 @@ setup(
     long_description=readme + '\n\n' + history,
     long_description_content_type="text/markdown",
     # Include lib such that recompilation under e.g. different numpy versions works
-    packages=find_packages(include=['src', 'lib']),
+    packages=find_packages('src'),
     install_requires=requirements,
     package_dir={'': 'src', 'lib': 'lib'},
     package_data={'lib': ['lib/*', ]},
@@ -98,9 +98,6 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
