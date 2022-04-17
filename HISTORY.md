@@ -4,6 +4,21 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+
+1.5.4 (2022-04-16)
+-----------------
+nestpy specific code quality:
+  * Thanks to the great help of Joran  Angevaare, we now use GitHub workflows and no longer use Travis for releases and testing. 
+  * `pip install nestpy` works again.
+  * Should one want to recompile from source, you will still need to use `git clone` (for now).  
+
+
+1.5.3 (2022-04-15)
+-----------------
+**Development version, not installable**
+  * No new physics or implementation beyond developing a stable release workflow. 
+  * There will not be a release associated with this version since we wanted to test the entire workflow. The stable release one should use to incorporate changes from 2022-02-09 (`NEST v2.3.5`) is `nestpy v1.5.4.` 
+
 1.5.2 (2022-04-11)
 -----------------
 New Physics:
