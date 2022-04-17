@@ -112,6 +112,7 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("get_dt_min", &VDetector::get_dt_min)
 	.def("get_dt_max", &VDetector::get_dt_max)
 	.def("get_radius", &VDetector::get_radius)
+	.def("get_radmax", &VDetector::get_radmax)
 	.def("get_TopDrift", &VDetector::get_TopDrift)
 	.def("get_anode", &VDetector::get_anode)
 	.def("get_cathode", &VDetector::get_cathode)
@@ -137,6 +138,10 @@ PYBIND11_MODULE(nestpy, m) {
 	.def("set_E_gas", &VDetector::set_E_gas)
 	.def("set_eLife_us", &VDetector::set_eLife_us)
 
+	.def("set_noiseBaseline", &VDetector::set_noiseBaseline)
+        .def("set_noiseLinear", &VDetector::set_noiseLinear)
+        .def("set_noiseQuadratic", &VDetector::set_noiseQuadratic)
+	  
 	.def("set_inGas", &VDetector::set_inGas)
 	.def("set_T_Kelvin", &VDetector::set_T_Kelvin)
 	.def("set_p_bar", &VDetector::set_p_bar)
@@ -152,7 +157,9 @@ PYBIND11_MODULE(nestpy, m) {
 
 	.def("set_PosResExp", &VDetector::set_PosResExp)
 	.def("set_PosResBase", &VDetector::set_PosResBase)
-
+        
+	.def("get_molarMass", &VDetector::get_molarMass)
+	
 	.def("FitS1", &VDetector::FitS1)
 	.def("FitS2", &VDetector::FitS1)
 	.def("FitEF", &VDetector::FitEF)
@@ -186,6 +193,7 @@ PYBIND11_MODULE(nestpy, m) {
 	 .def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
 	 .def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
   //py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")
+	
   // Binding for the TestSpectra class
   py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m, "TestSpectra")
      .def(py::init<>())
@@ -254,8 +262,18 @@ PYBIND11_MODULE(nestpy, m) {
     .def_readonly_static("default_NuisParam", &NESTcalc::default_NuisParam)
     .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
 //     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
-	.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
-			"Perform the full yield calculation with smearings")
+    .def("FullCalculation", &NEST::NESTcalc::FullCalculation,
+         "Perform the full yield calculation with smearings",
+            py::arg("interaction") = NEST::INTERACTION_TYPE::NR,
+            py::arg("energy") = 100,
+	    py::arg("density") = 2.9,
+            py::arg("drift_field") = 124,
+            py::arg("A") = 131.293,
+            py::arg("Z") = 54,
+            py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}),
+            py::arg("free_parameters") = std::vector<double>({1.,1.,0.1,0.5,0.19,2.25}),
+            py::arg("do_times") = false
+	)
 	.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
 	.def("AddPhotonTransportTime", &NEST::NESTcalc::AddPhotonTransportTime)
 	.def("GetPhotonTimes", &NEST::NESTcalc::GetPhotonTimes)
