@@ -145,8 +145,8 @@ class TestSpectraWIMPTest(unittest.TestCase):
         cls.spec = nestpy.TestSpectra()
     
     def test_WIMP_spectrum(self):
-        self.spec.WIMP_prep_spectrum( 50., 5. ) #mass and energy integration step
-        self.spec.WIMP_spectrum( self.spec.WIMP_prep_spectrum( 50., 5. ), 50., 0. )
+        self.spec.WIMP_prep_spectrum( 50., 10. ) #mass and energy integration step
+        self.spec.WIMP_spectrum( self.spec.WIMP_prep_spectrum( 50., 10. ), 50., 0. )
 
 
 class NESTcalcFullCalculationTest(unittest.TestCase):
