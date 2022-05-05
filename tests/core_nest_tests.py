@@ -47,8 +47,8 @@ class VDetectorTest(unittest.TestCase):
        cls.detector.Initialization()
        cls.it = nestpy.INTERACTION_TYPE(0)
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
-       cls.nuisance = cls.nestcalc.default_NuisParam
-       cls.free = cls.nestcalc.default_FreeParam
+       cls.nuisance = cls.nestcalc.default_NRYieldsParam
+       cls.free = cls.nestcalc.default_NRERWidthsParam
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
    # def test_fit_s1(self):
    #     self.detector.FitS1(1.0, 2.0, 3.0)
@@ -72,8 +72,8 @@ class NESTcalcTest(unittest.TestCase):
         cls.it = nestpy.INTERACTION_TYPE(0)
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
 
-        cls.nuisance = cls.nestcalc.default_NuisParam
-        cls.free = cls.nestcalc.default_FreeParam
+        cls.nuisance = cls.nestcalc.default_NRYieldsParam
+        cls.free = cls.nestcalc.default_NRERWidthsParam
 
     def test_interaction_type_constructor(self):
         for i in range(5):
@@ -158,8 +158,8 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         cls.it = nestpy.INTERACTION_TYPE(0)
 
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
-        cls.nuisance = cls.nestcalc.default_NuisParam
-        cls.free = cls.nestcalc.default_FreeParam
+        cls.nuisance = cls.nestcalc.default_NRYieldsParam
+        cls.free = cls.nestcalc.default_NRERWidthsParam
         cls.result = cls.nestcalc.FullCalculation(
             cls.it, 10., 3., 100., 131, 56,
             cls.nuisance,

@@ -251,8 +251,8 @@ PYBIND11_MODULE(nestpy, m) {
   py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
     //.def(py::init<>())
 	.def(py::init<VDetector*>())
-    .def_readonly_static("default_NuisParam", &NESTcalc::default_NuisParam)
-    .def_readonly_static("default_FreeParam", &NESTcalc::default_FreeParam)
+    .def_readonly_static("default_NRYieldsParam", &NESTcalc::default_NRYieldsParam)
+    .def_readonly_static("default_NRERWidthsParam", &NESTcalc::default_NRERWidthsParam)
 //     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 	.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 			"Perform the full yield calculation with smearings")
@@ -288,7 +288,7 @@ PYBIND11_MODULE(nestpy, m) {
     .def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 	    py::arg("yields"),
 	    py::arg("density") = 2.9,
-	    py::arg("free_parameters") = std::vector<double>({1., 1., 0.1, 0.5, 0.19, 2.25}), 
+	    py::arg("free_parameters") = std::vector<double>({1.,1.,0.1,0.5,0.19,2.25, 0.0015, 0.0553, 0.205, 0.45, -0.2}), 
         py::arg("oldModelER") = false
      )   
 	.def("GetS1", &NEST::NESTcalc::GetS1)
