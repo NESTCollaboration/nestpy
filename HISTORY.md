@@ -5,6 +5,22 @@ History
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
 
+1.5.5 (2022-07-08)
+-----------------
+Synced with NEST v2.3.9
+  * New Physics Modeling:
+  ** Skewness can be turned off and on now for ER just like for NR. For on -> old model or fixed (Quentin Riffard, LZ/LBNL)
+  ** Older beta model is default for gaseous Xenon, a better fit to old world data at the keV scale (Eric Church, DUNE/PNNL)
+  ** New dark matter halo model defaults, bringing NEST up to date on WIMP and Sun v (Baxter et al., arXiv:2105.00599)
+
+  * Miscellaneous Bug Fixes:
+  ** Fluctuations adjust for difference in width from truncated Gaussians for PE not just mean
+  ** Complaint that position resolution too poor does not activate until above S2 (top) of 40 PE
+  ** In the dE/dx-based model the minimum LET is now 1.0 MeV/cm not 0 to avoid weirdness
+
+  * Updated binding for GetQuanta to allow for nestpy control over ER skewness. 
+
+
 1.5.4 (2022-04-16)
 -----------------
 nestpy specific code quality:
