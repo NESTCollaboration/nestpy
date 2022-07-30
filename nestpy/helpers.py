@@ -16,7 +16,7 @@ Main ingredients for the above steps:
 
 import numpy as np
 
-from .nestpy import DetectorExample_XENON10, NESTcalc, INTERACTION_TYPE # This is C++ library
+from nestpy import DetectorExample_XENON10, NESTcalc, INTERACTION_TYPE # This is C++ library
 
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.
