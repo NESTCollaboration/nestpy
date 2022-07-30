@@ -2,9 +2,9 @@ build/*
 dist/*
 .DS_store
 .idea/*
-src/.DS_Store
-src/nestpy.egg-info/
-src/nestpy/__pycache__/
-src/nestpy/nestpy.cpython-38-darwin.so
+nestpy/.DS_Store
+nestpy/nestpy.egg-info/
+nestpy/__pycache__/
+nestpy/nestpy.cpython-38-darwin.so
 tests/__pycache__/
 venv/
