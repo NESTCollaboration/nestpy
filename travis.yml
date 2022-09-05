@@ -1,0 +1,30 @@
+# This file is responsible for running the below commands each commit
+# on the TravisCI platform.
+
+language: cpp
+
+# A matrix build means that the following combinations of configurations
+# are tested.
+matrix:
+  include:
+      - os: osx  # Note: we pay extra for OSX for Travis
+        compiler: clang
+      - os: linux
+        compiler: gcc
+      - os: linux
+        compiler: clang
+
+# Email notifications
+notifications:
+  email:
+    - ncarrara.physics@gmail.com
+
+# Commands to install
+install:
+  - git submodule update --init --recursive
+  - pip install .
+
+# Test commands
+script:
+  - ls
+  - python tests/core_nest_tests.py
