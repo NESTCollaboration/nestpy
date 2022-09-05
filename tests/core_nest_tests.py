@@ -30,7 +30,7 @@ class ConstructorTest(unittest.TestCase):
         detector.Initialization()
         nestcalc = nestpy.NESTcalc(detector)
         assert nestcalc is not None
-        assert isinstance(nestcalc, nestpy.nestpy.NESTcalc)
+        assert isinstance(nestcalc, nestpy.NESTcalc)
 
     def test_intteraction_type_constructor(self):
         it = nestpy.INTERACTION_TYPE(0)
@@ -77,7 +77,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_interaction_type_constructor(self):
         for i in range(5):
-            it = nestpy.nestpy.INTERACTION_TYPE(i)
+            it = nestpy.INTERACTION_TYPE(i)
 
     def test_nestcalc_full_calculation(self):
         result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5,

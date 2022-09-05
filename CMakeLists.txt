@@ -14,5 +14,8 @@ set(SOURCES "${SOURCE_DIR}/NEST.cpp" "${SOURCE_DIR}/RandomGen.cpp"  "${SOURCE_DI
 
 # Generate Python module
 add_subdirectory(lib/pybind11)
-pybind11_add_module(nestpy ${SOURCES} "nestpy/bindings.cpp")
+pybind11_add_module(nestpy ${SOURCES} "src/bindings.cpp")
+
+target_compile_definitions(nestpy
+                           PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
