@@ -10,7 +10,7 @@ include_directories(
     "lib/nest/include/Detectors"
     "lib/gcem/include"
 )
-set(SOURCES "${SOURCE_DIR}/NEST.cpp" "${SOURCE_DIR}/RandomGen.cpp"  "${SOURCE_DIR}/VDetector.cpp" "${SOURCE_DIR}/execNEST.cpp" "${SOURCE_DIR}/TestSpectra.cpp" "${SOURCE_DIR}/GammaHandler.cpp" "${SOURCE_DIR}/ValidityTests.cpp")
+set(SOURCES "${SOURCE_DIR}/NEST.cpp" "${SOURCE_DIR}/LArNEST.cpp" "${SOURCE_DIR}/RandomGen.cpp"  "${SOURCE_DIR}/VDetector.cpp" "${SOURCE_DIR}/execNEST.cpp" "${SOURCE_DIR}/TestSpectra.cpp" "${SOURCE_DIR}/GammaHandler.cpp" "${SOURCE_DIR}/ValidityTests.cpp")
 
 # Generate Python module
 add_subdirectory(lib/pybind11)

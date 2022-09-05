@@ -4,7 +4,7 @@
 
 * Sophia Andaloro <sja5@rice.edu> @sophiaandaloro
 * Christopher Tunnell <tunnell@rice.edu> @tunnell
-* Nicholas Carrara <ncarrara@albany.edu> @infophysics
+* Nicholas Carrara <nmcarrara@ucdavis.edu> @infophysics
 
 ## NEST
 
