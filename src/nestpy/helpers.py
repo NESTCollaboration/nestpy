@@ -63,7 +63,7 @@ def GetInteractionObject(name):
     return interaction_object
 
 @np.vectorize
-def GetYieldsVectorized(interaction, yield_type, nc, **kwargs):
+def GetYieldsVectorized(interaction, yield_type, nc=NESTcalc(DetectorExample_XENON10()), **kwargs):
     '''
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.
 

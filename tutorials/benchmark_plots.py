@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import nestpy
-from nestpy.interaction_keys import GetInteractionObject
+from nestpy import GetInteractionObject
 
 # Figure parameters common throughout all plots
 version_textbox = " NEST v{0} \n nestpy v{1}".format(nestpy.__nest_version__, nestpy.__version__)
