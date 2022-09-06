@@ -3,7 +3,7 @@ import re
 import subprocess
 import sys
 
-from setuptools import Extension, setup
+from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -54,7 +54,7 @@ class CMakeBuild(build_ext):
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
 
         # In this example, we pass in the version to C++. You might not need to.
-        cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
+        cmake_args += [f"-DNESTPY_VERSION_INFO={self.distribution.get_version()}"]
 
         if self.compiler.compiler_type != "msvc":
             # Using Ninja-build since it a) is available as a wheel and b)
@@ -130,11 +130,11 @@ setup(
     long_description=readme + '\n\n' + history,
     long_description_content_type="text/markdown",
     # Include lib such that recompilation under e.g. different numpy versions works
-    #packages=find_packages('nestpy'),
+    packages=find_packages('src'),
     install_requires=requirements,
-    #package_dir={'': 'nestpy', 'lib': 'lib'},
-    #package_data={'lib': ['lib/*', ]},
-    ext_modules=[CMakeExtension('nestpy')],
+    package_dir={'': 'src', 'lib': 'lib'},
+    package_data={'': ['*', ], 'lib': ['lib/*',]},
+    ext_modules=[CMakeExtension('nestpy/nestpy')],
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite='tests',
     zip_safe=True,

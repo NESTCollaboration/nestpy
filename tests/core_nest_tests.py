@@ -136,7 +136,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_equality(self):
         # Will call a test for the nearlyEqual function to ensure it still works.
-        self.nestcalc.GetYields(nestpy.NR, 100., 2.9, 100., 0., 54)
+        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_yields_params(), False)
 
 
 class TestSpectraWIMPTest(unittest.TestCase):
@@ -236,6 +236,22 @@ class execNESTTest(unittest.TestCase):
         detector = nestpy.DetectorExample_XENON10()
         detector.Initialization()
         nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1., 1, True, 1.0)
+
+
+class LArNESTTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.detector = nestpy.VDetector()
+        cls.detector.Initialization()
+        cls.it = nestpy.LArInteraction(0)
+
+        cls.larnest = nestpy.LArNEST(cls.detector)
+        cls.result = cls.larnest.full_calculation(
+            cls.it, 100., 500., 1.393, True
+        )
+    
+    def test_larnest_get_yields(self):
+        self.larnest.get_yields(self.it, 100., 500., 1.393)
 
 if __name__ == "__main__":
     unittest.main()

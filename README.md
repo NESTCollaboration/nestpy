@@ -10,7 +10,7 @@
 
 Visit the tutorials directory for tutorials on the nestpy calls, maintenance, and benchmark plots. 
 
-These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is not Pythonic at this point but just uses the existing naming conventions from the C++ library.
+These are the Python bindings for the [NEST library](https://github.com/NESTCollaboration/nest), which provides a direct wrapping of functionality.  The library is now pythonic, so be weary of the separate naming conventions for functions/variables from the C++ library.
 
 You do *not* have to have NEST already installed to use this package.
 
@@ -26,14 +26,15 @@ You can then test that it works by running the example above.
 
 ## Installing from source
 
-Requirements: You must have CMake>=2.8.12 and a C++11 compatible compiler (GCC>=4.8) to build.
+Requirements: You must have CMake>=3.6 and a C++17 compatible compiler (GCC>=4.8) to build.
 
 First, you must check out this repository then simply run the installer:
 
 ```
 git clone https://github.com/NESTCollaboration/nestpy
 cd nestpy
-python setup.py install
+git submodule update --init --recursive
+pip install .
 ```
 
 ## Usage

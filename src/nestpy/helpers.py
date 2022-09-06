@@ -21,8 +21,8 @@ from nestpy import DetectorExample_XENON10, NESTcalc, INTERACTION_TYPE # This is
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.
 # Yields are ambivalent to detector.
-DETECTOR = DetectorExample_XENON10()
-NC = NESTcalc(DETECTOR)
+#DETECTOR = DetectorExample_XENON10()
+#NC = NESTcalc(DETECTOR)
 
 NEST_INTERACTION_NUMBER = dict(
         nr=0,
@@ -63,7 +63,7 @@ def GetInteractionObject(name):
     return interaction_object
 
 @np.vectorize
-def GetYieldsVectorized(interaction, yield_type, nc=NC, **kwargs):
+def GetYieldsVectorized(interaction, yield_type, nc, **kwargs):
     '''
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.
 

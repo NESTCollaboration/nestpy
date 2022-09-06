@@ -12,10 +12,24 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
+#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) STRINGIFY(x)
+ 
 namespace py = pybind11;
 
 PYBIND11_MODULE(nestpy, m) 
 {
+	// versioning
+#ifdef NESTPY_VERSION
+    m.attr("__version__") = MACRO_STRINGIFY(NESTPY_VERSION);
+#else
+    m.attr("__version__") = "dev";
+#endif
+#ifdef NEST_VERSION
+    m.attr("__nest_version__") = MACRO_STRINGIFY(NEST_VERSION);
+#else
+    m.attr("__nest_version__") = "";
+#endif
 	//-----------------------------------------------------------------------
 	// LXe NEST bindings
 	
@@ -327,6 +341,8 @@ PYBIND11_MODULE(nestpy, m)
 		m.def("execNEST", &execNEST);
 		m.def("GetEnergyRes", &GetEnergyRes);
 		m.def("GetBand", &GetBand);
+		m.def("default_nr_yields_params", []() { return NEST::NESTcalc::default_NRYieldsParam; });
+		m.def("default_nrer_widths_params", []() { return NEST::NESTcalc::default_NRERWidthsParam; });
 
 	//-----------------------------------------------------------------------
 	// LAr NEST bindings
