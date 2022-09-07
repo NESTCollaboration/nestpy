@@ -26,8 +26,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
-      - name: Install submodules
-        run: git submodule update --recursive
+        with:
+          submodules: recursive
       - name: macos pre-install
         if: matrix.os == 'macos-latest'
         run: source .github/scripts/setup-osx.sh

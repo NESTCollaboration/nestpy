@@ -43,12 +43,11 @@ jobs:
           python-version:  ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Install dependencies
         run: pip install wheel twine
-      
-      - name: Install submodules
-        run: git submodule update --recursive
 
       # -- Linux --
       - name: Build weels (linux) python 3.8, 3.9, 3.10
