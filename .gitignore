@@ -8,3 +8,4 @@ nestpy/__pycache__/
 nestpy/nestpy.cpython-38-darwin.so
 tests/__pycache__/
 venv/
+*.png

@@ -23,35 +23,19 @@ which, rather than a file, will store the images in a dictionary when called in 
 import matplotlib.pylab as pylab
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 import nestpy
 from nestpy import GetInteractionObject
 
 # Figure parameters common throughout all plots
-version_textbox = " NEST v{0} \n nestpy v{1}".format(nestpy.__nest_version__, nestpy.__version__)
+version_textbox = "NEST v{0} \n nestpy v{1}".format(nestpy.__nest_version__, nestpy.__version__)
 bbox = dict(boxstyle="round", fc="1.00", edgecolor='none')
 params = {'xtick.labelsize':'x-large',
-         'ytick.labelsize':'x-large',
-         }
+        'ytick.labelsize':'x-large',
+        }
 # Updates plots to apply the above formatting to all plots in doc
 pylab.rcParams.update(params)
-
-# Detector identification
-detector = nestpy.DetectorExample_XENON10()
-# Performing NEST calculations according to the given detector example       
-nc = nestpy.NESTcalc(detector)
-#Once you have interaction, you can get yields
-
-'''
-Below are field and energy arrays.
-- Energies are broadcase to be repeated by the dimensions of the fields, 
-owing to the nature of vectorized functions below. 
-- Functions will loop over each energy and field simultaneously that way,
-rather than nesting for loops inside each other.
-''' 
-fields = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
-energies = np.logspace(-1, 4, 2000)
-energies = np.broadcast_to(energies, (len(fields), len(energies)))
 
 @np.vectorize
 def GetYieldsVectorized(interaction, yield_type, **kwargs):
@@ -142,29 +126,18 @@ def Yield(**kwargs):
            # What is missing?  Aren't there other parts of YieldObject?
            }
 
-# Calculate yields for various benchmark calculations
-'''
-This is where the nest calculations actually occur.
-- All functions below are essentially the same exact thing, just iterated over the 5 interaction types
-and the 2 yield types (electron and photon yields).
-- Everything done from this point on is just plotting all of this info.
-'''
-kwargs = {'energy': energies.T, 'drift_field': fields}
-nr_electrons = ElectronYield(interaction='nr', **kwargs).T/energies
-nr_photons = PhotonYield(interaction='nr', **kwargs).T/energies
-beta_electrons = ElectronYield(interaction='beta', **kwargs).T/energies
-beta_photons = PhotonYield(interaction='beta', **kwargs).T/energies
-gamma_electrons = ElectronYield(interaction='gammaray', **kwargs).T/energies
-gamma_photons = PhotonYield(interaction='gammaray', **kwargs).T/energies
-alpha_electrons = ElectronYield(interaction='ion', Z=2, A = 4, **kwargs).T/energies
-alpha_photons = PhotonYield(interaction='ion',Z=2, A=4, **kwargs).T/energies
-Pb_electrons = ElectronYield(interaction='ion', Z=82, A = 206, **kwargs).T/energies
-Pb_photons = PhotonYield(interaction='ion',Z=82, A=206, **kwargs).T/energies
-
-# ## Nuclear Recoils Plotting 
-def nr_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
+def make_subplot(
+    x,
+    y_photons,
+    y_electrons,
+    driftFields,
+    plot_type,
+):
     fig1, ax1 = plt.subplots(1, 1, figsize=(9,6))
     fig2, ax2 = plt.subplots(1, 1, figsize=(9,6))
+
+    ax1.plot([],[],label=f" NEST v{nestpy.__nest_version__} \n nestpy v{nestpy.__version__}\n", marker='',linestyle='')
+    ax2.plot([],[],label=f" NEST v{nestpy.__nest_version__} \n nestpy v{nestpy.__version__}\n", marker='',linestyle='')
     
     for i in range(0, len(driftFields)-2):
         ax1.plot(x[i,:], y_photons[i,:], label="{0} V/cm".format(driftFields[i]))
@@ -173,16 +146,16 @@ def nr_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
     for ax in ax1, ax2:
         ax.set_xscale('log')
         ax.set_ylim(0)
-        ax.legend(loc='best', ncol=3, fontsize='large')
+        ax.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left',fontsize=14)
         ax.set_xlabel('Recoil Energy [keV]', fontsize=20)
         ax.margins(0)
 
-    ax1.text(energies[0][np.argmax(nr_photons)-35], 1, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-    ax2.text(energies[0][np.argmax(nr_photons)-35], 7.6, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
+    # ax1.text(1.05, 0.0, 
+    #             version_textbox, 
+    #             bbox=bbox, horizontalalignment='right', fontsize='x-large')
+    # ax2.text(1.05, 0.0, 
+    #             version_textbox, 
+    #             bbox=bbox, horizontalalignment='right', fontsize='x-large')
 
     ax1.set_ylabel('Light Yield [n$_\gamma$/keV]', fontsize=20)
     ax1.set_title('Light Yields for Nuclear Recoils', fontsize=24)
@@ -190,136 +163,51 @@ def nr_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
     ax2.set_ylabel('Charge Yield [n$_e$/keV]', fontsize=20) 
     fig1.tight_layout()
     fig2.tight_layout()
-    fig1.savefig(IMAGE_OBJECTS['nr_LY.png'])
-    fig2.savefig(IMAGE_OBJECTS['nr_QY.png'])
-
-def beta_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
-    fig1, ax1 = plt.subplots(1, 1, figsize=(9,6))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(9,6))
-    for i in range(0, len(driftFields)-2):
-        ax1.plot(x[i,:], y_photons[i,:], label="{0} V/cm".format(driftFields[i]))
-        ax2.plot(x[i,:], y_electrons[i,:], label="{0} V/cm".format(driftFields[i])) 
-
-    for ax in ax1, ax2:
-        ax.set_xscale('log')
-        ax.set_ylim(0)
-        ax.legend(loc='best', ncol=1, fontsize='large')
-        ax.set_xlabel('Energy [keV]', fontsize=20)
-        ax.margins(0)
-
-    ax1.text(1, 65, # energies[0][32], 20, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='left', fontsize='x-large')
-    ax2.text(energies[0][np.argmax(beta_electrons)-35], 74, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-
-    ax1.set_ylabel('Light Yield [n$_\gamma$/keV]', fontsize=20)
-    ax1.set_title('Light Yields for $\\beta$ Electron Recoils', fontsize=24)
-    ax2.set_title('Charge Yields for $\\beta$ Electron Recoils', fontsize=24)
-    ax2.set_ylabel('Charge Yield [n$_e$/keV]', fontsize=20) 
-    fig1.tight_layout()
-    fig2.tight_layout()
-    fig1.savefig(IMAGE_OBJECTS['beta_LY.png'])
-    fig2.savefig(IMAGE_OBJECTS['beta_QY.png'])
-
-# # ## $\gamma$ electron recoils
-def gamma_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
-    fig1, ax1 = plt.subplots(1, 1, figsize=(9,6))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(9,6))
-    for i in range(0, len(driftFields)-2):
-        ax1.plot(x[i,:], y_photons[i,:], label="{0} V/cm".format(driftFields[i]))
-        ax2.plot(x[i,:], y_electrons[i,:], label="{0} V/cm".format(driftFields[i])) 
-
-    for ax in ax1, ax2:
-        ax.set_xscale('log')
-        ax.set_ylim(0)
-        ax.legend(loc='best', ncol=1, fontsize='large')
-        ax.set_xlabel('Energy [keV]', fontsize=20)
-        ax.margins(0)
-
-    ax1.text(energies[0][np.argmax(gamma_photons)-35], 3, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-    ax2.text(energies[0][np.argmax(gamma_electrons)-35], 68, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-
-    ax1.set_ylabel('Light Yields [n$_\gamma$/keV]', fontsize=20)
-    ax1.set_title('Light Yields for $\\gamma$ Electron Recoils', fontsize=24)
-    ax2.set_title('Charge Yields for $\\gamma$ Electron Recoils', fontsize=24)
-    ax2.set_ylabel('Charge Yield [n$_e$/keV]', fontsize=20) 
-    fig1.tight_layout()
-    fig2.tight_layout()
-    fig1.savefig(IMAGE_OBJECTS['gamma_LY.png'])
-    fig2.savefig(IMAGE_OBJECTS['gamma_QY.png'])
-
-def alpha_subplot(x, y_photons, y_electrons, driftFields, IMAGE_OBJECTS):
-    fig1, ax1 = plt.subplots(1, 1, figsize=(9,6))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(9,6))
-    for i in range(0, len(driftFields)-2):
-        ax1.plot(x[i,:], y_photons[i,:], label="{0} V/cm".format(driftFields[i]))
-        ax2.plot(x[i,:], y_electrons[i,:], label="{0} V/cm".format(driftFields[i])) 
-
-    for ax in ax1, ax2:
-        ax.set_xscale('log')
-        ax.set_ylim(0)
-        ax.set_xlim(1, 1e4)
-        ax.legend(loc='best', ncol=2, fontsize='large')
-        ax.set_xlabel('Energy [keV]', fontsize=20)
-        ax.margins(0)
-
-    ax1.text(energies[0][np.argmax(alpha_photons)-35], 3, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-    ax2.text(energies[0][740], 2, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='right', fontsize='x-large')
-
-    ax1.set_ylabel('Light Yields [n$_\gamma$/keV]', fontsize=20)
-    ax1.set_title('Light Yields for $\\alpha$-Particle Nuclear Recoils', fontsize=24)
-    ax2.set_title('Charge Yields for $\\alpha$-Particle Nuclear Recoils', fontsize=24)
-    ax2.set_ylabel('Charge Yield [n$_e$/keV]', fontsize=20) 
-    fig1.tight_layout()
-    fig2.tight_layout()
-    fig1.savefig(IMAGE_OBJECTS['alpha_LY.png'])
-    fig2.savefig(IMAGE_OBJECTS['alpha_QY.png'])
+    fig1.savefig(f'plots/{plot_type}_LY.png')
+    fig2.savefig(f'plots/{plot_type}_QY.png')    
 
 
-# ## $^{206}$Pb nuclear recoils
-def Pb_subplot(x, y_photons, y_electrons, driftFields, IMAGE):
-    fig1, ax1 = plt.subplots(1, 1, figsize=(9,6))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(9,6))
-    for i in range(0, len(driftFields)-2):
-        ax1.plot(x[i,:], y_photons[i,:], label="{0} V/cm".format(driftFields[i]))
-        ax2.plot(x[i,:], y_electrons[i,:], label="{0} V/cm".format(driftFields[i])) 
+if __name__ == "__main__":
+    if not os.path.isdir("plots/"):
+        os.makedirs("plots/")
+    
+    # Detector identification
+    detector = nestpy.DetectorExample_XENON10()
+    # Performing NEST calculations according to the given detector example       
+    nc = nestpy.NESTcalc(detector)
+    #Once you have interaction, you can get yields
 
-    for ax in ax1, ax2:
-        ax.set_xscale('log')
-        ax.set_ylim(0)
-        ax.set_xlim(1, 1e2)
-        ax.legend(loc='best', ncol=2, fontsize='large')
-        ax.set_xlabel('Recoil Energy [keV]', fontsize=20)
-        ax.margins(0)
+    '''
+    Below are field and energy arrays.
+    - Energies are broadcase to be repeated by the dimensions of the fields, 
+    owing to the nature of vectorized functions below. 
+    - Functions will loop over each energy and field simultaneously that way,
+    rather than nesting for loops inside each other.
+    ''' 
+    fields = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
+    energies = np.logspace(-1, 4, 2000)
+    energies = np.broadcast_to(energies, (len(fields), len(energies)))
 
-    ax1.text(40, 0.3, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='left', fontsize='x-large')
-    ax2.text(40, 0.3, 
-                version_textbox, 
-                bbox=bbox, horizontalalignment='left', fontsize='x-large')
-    ax1.set_ylim(0,10)
-    ax1.set_ylabel('Light Yields [n$_\gamma$/keV]', fontsize=20)
-    ax1.set_title('Light Yields for Nuclear Recoils from $^{206}$Pb', fontsize=24)
-    ax2.set_title('Charge Yields for Nuclear Recoils from $^{206}$Pb', fontsize=24)
-    ax2.set_ylabel('Charge Yield [n$_e$/keV]', fontsize=20) 
-    fig1.tight_layout()
-    fig2.tight_layout()
-    fig1.savefig(IMAGE['206Pb_LY.png'])
-    fig2.savefig(IMAGE['206Pb_QY.png'])
+    # Calculate yields for various benchmark calculations
+    '''
+    This is where the nest calculations actually occur.
+    - All functions below are essentially the same exact thing, jus__version__ = .nestpy.__version__
+    __nest_version__ = .nestpy.__nest_version__t iterated over the 5 interaction types
+    and the 2 yield types (electron and photon yields).
+    - Everything done from this point on is just plotting all of this info.
+    '''
+    kwargs = {'energy': energies.T, 'drift_field': fields}
+    nr_electrons = ElectronYield(interaction='nr', **kwargs).T/energies
+    nr_photons = PhotonYield(interaction='nr', **kwargs).T/energies
+    beta_electrons = ElectronYield(interaction='beta', **kwargs).T/energies
+    beta_photons = PhotonYield(interaction='beta', **kwargs).T/energies
+    gamma_electrons = ElectronYield(interaction='gammaray', **kwargs).T/energies
+    gamma_photons = PhotonYield(interaction='gammaray', **kwargs).T/energies
+    alpha_electrons = ElectronYield(interaction='ion', Z=2, A = 4, **kwargs).T/energies
+    alpha_photons = PhotonYield(interaction='ion',Z=2, A=4, **kwargs).T/energies
+    Pb_electrons = ElectronYield(interaction='ion', Z=82, A = 206, **kwargs).T/energies
+    Pb_photons = PhotonYield(interaction='ion',Z=82, A=206, **kwargs).T/energies
 
-#Just makes all the plots from all the fancy work before
-def makeplots(IMAGE_DICT):
     '''
     This function just takes the above plots and combines into one function to make main.py
     easier to manage.
@@ -331,8 +219,8 @@ def makeplots(IMAGE_DICT):
     fields (array): field values of interest for plotting (V/cm)
     IMAGE_DICT (dict): Dictionary that will store the images as objects to call later in flask app.
     '''
-    nr_subplot(energies, nr_photons, nr_electrons, fields, IMAGE_DICT)
-    beta_subplot(energies, beta_photons, beta_electrons, fields, IMAGE_DICT)
-    gamma_subplot(energies, gamma_photons, gamma_electrons, fields, IMAGE_DICT)
-    alpha_subplot(energies, alpha_photons, alpha_electrons, fields, IMAGE_DICT)
-    Pb_subplot(energies, Pb_photons, Pb_electrons, fields, IMAGE_DICT)
+    make_subplot(energies, nr_photons, nr_electrons, fields, "NR")
+    make_subplot(energies, beta_photons, beta_electrons, fields, "beta")
+    make_subplot(energies, gamma_photons, gamma_electrons, fields, "gamma")
+    make_subplot(energies, alpha_photons, alpha_electrons, fields, "alpha")
+    make_subplot(energies, Pb_photons, Pb_electrons, fields, "Pb206")
