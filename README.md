@@ -37,6 +37,31 @@ git submodule update --init --recursive
 pip install .
 ```
 
+## Installing with custom NEST code
+
+Almost all NEST users will want to incorporate some custom code into their workflow, such as custom Detector files or TestSpectra.  In order to incorporate that custom code into the nestpy installation, you'll have to copy the files you've edited into the lib/nest/ directory and rerun:
+```
+pip install .
+```
+
+In order to create a more efficient workflow, we suggest the user takes the following steps:
+
+  1. Fork the official NEST repository into your own public/private one.
+  2. Make whatever changes to your fork and maintain them with commits.
+  3. Download or fork nestpy and change the NEST entry in the .gitmodules files to point to your custom fork of NEST.
+
+```
+[submodule "lib/nest"]
+	path = lib/nest
+	url = https://github.com/NESTCollaboration/nest # change this to any custom fork of NEST if you want to use your own code!
+[submodule "lib/gcem"]
+	path = lib/gcem
+	url = https://github.com/kthohr/gcem.git
+[submodule "lib/pybind11"]
+	path = lib/pybind11
+	url = https://github.com/pybind/pybind11.git
+```
+
 ## Usage
 
 Python bindings to the NEST library:
