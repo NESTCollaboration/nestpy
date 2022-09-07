@@ -208,36 +208,6 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         self.nestcalc.xyResolution(
                             0., 1.,2.)
 
-class execNESTTest(unittest.TestCase):
-    def test_execNEST_random_pos(self):
-        # test with -1 for fObs and seed (1)
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, False, 1.)
-
-    def test_execNEST_pos(self):
-        #  test with actual position [0.,0.,0.] and seed(1)
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", 1., 1, False, 1.)
-
-    def test_execNEST_pos_random_seed(self):
-        # test with actual position [0.,0.,0.] and randomSeed
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0)
-
-    def test_execNEST_random_z(self):
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1., 1, True, 1.0)
-
-    def test_execNEST_random_xy(self):
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1., 1, True, 1.0)
-
-
 class LArNESTTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
