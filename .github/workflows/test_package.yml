@@ -37,5 +37,4 @@ jobs:
       - name: test install
         run: |
           pip install wheel
-          python setup.py test
-          python setup.py bdist_wheel
+          pip install .
