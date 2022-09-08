@@ -26,6 +26,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Checkout repo
         uses: actions/checkout@v2.4.0
+        with:
+          submodules: recursive
       - name: macos pre-install
         if: matrix.os == 'macos-latest'
         run: source .github/scripts/setup-osx.sh
@@ -35,5 +37,4 @@ jobs:
       - name: test install
         run: |
           pip install wheel
-          python setup.py test
-          python setup.py bdist_wheel
+          pip install .

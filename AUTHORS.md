@@ -2,9 +2,9 @@
 
 ## Python bindings
 
+* Nicholas Carrara <ncarrara.physics@gmail.com> @infophysics
 * Sophia Andaloro <sja5@rice.edu> @sophiaandaloro
 * Christopher Tunnell <tunnell@rice.edu> @tunnell
-* Nicholas Carrara <ncarrara@albany.edu> @infophysics
 
 ## NEST
 

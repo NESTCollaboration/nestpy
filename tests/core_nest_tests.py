@@ -30,7 +30,7 @@ class ConstructorTest(unittest.TestCase):
         detector.Initialization()
         nestcalc = nestpy.NESTcalc(detector)
         assert nestcalc is not None
-        assert isinstance(nestcalc, nestpy.nestpy.NESTcalc)
+        assert isinstance(nestcalc, nestpy.NESTcalc)
 
     def test_intteraction_type_constructor(self):
         it = nestpy.INTERACTION_TYPE(0)
@@ -77,7 +77,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_interaction_type_constructor(self):
         for i in range(5):
-            it = nestpy.nestpy.INTERACTION_TYPE(i)
+            it = nestpy.INTERACTION_TYPE(i)
 
     def test_nestcalc_full_calculation(self):
         result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5,
@@ -136,7 +136,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_equality(self):
         # Will call a test for the nearlyEqual function to ensure it still works.
-        self.nestcalc.GetYields(nestpy.NR, 100., 2.9, 100., 0., 54)
+        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_yields_params(), False)
 
 
 class TestSpectraWIMPTest(unittest.TestCase):
@@ -208,34 +208,20 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         self.nestcalc.xyResolution(
                             0., 1.,2.)
 
-class execNESTTest(unittest.TestCase):
-    def test_execNEST_random_pos(self):
-        # test with -1 for fObs and seed (1)
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", -1., 1, False, 1.)
+class LArNESTTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.detector = nestpy.VDetector()
+        cls.detector.Initialization()
+        cls.it = nestpy.LArInteraction(0)
 
-    def test_execNEST_pos(self):
-        #  test with actual position [0.,0.,0.] and seed(1)
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 0.", "120.", 1., 1, False, 1.)
-
-    def test_execNEST_pos_random_seed(self):
-        # test with actual position [0.,0.,0.] and randomSeed
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., 10.", "120.", 1., 1, True, 1.0)
-
-    def test_execNEST_random_z(self):
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "0., 0., -1", "120.", 1., 1, True, 1.0)
-
-    def test_execNEST_random_xy(self):
-        detector = nestpy.DetectorExample_XENON10()
-        detector.Initialization()
-        nestpy.execNEST(detector, 10, 'NR', 100., 120., 10., "-999, -999, 10.", "120", 1., 1, True, 1.0)
+        cls.larnest = nestpy.LArNEST(cls.detector)
+        cls.result = cls.larnest.full_calculation(
+            cls.it, 100., 500., 1.393, True
+        )
+    
+    def test_larnest_get_yields(self):
+        self.larnest.get_yields(self.it, 100., 500., 1.393)
 
 if __name__ == "__main__":
     unittest.main()
