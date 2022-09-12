@@ -33,13 +33,12 @@ PYBIND11_MODULE(nestpy, m)
 	//-----------------------------------------------------------------------
 	// LXe NEST bindings
 	
-    // Init random seed with time
-    RandomGen::rndm()->SetSeed( time(nullptr) );
+	// Init random seed
+	RandomGen::rndm()->SetSeed( time(nullptr) );
 	// Binding for RandomGen class
 	py::class_<RandomGen>(m, "RandomGen")
 		.def("rndm", &RandomGen::rndm)
 		.def("set_seed", &RandomGen::SetSeed);
-                  
 
 	// Binding for YieldResult struct
 	py::class_<NEST::YieldResult>(m, "YieldResult", py::dynamic_attr())
