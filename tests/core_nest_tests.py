@@ -222,6 +222,7 @@ class LArNESTTest(unittest.TestCase):
     
     def test_larnest_get_yields(self):
         self.larnest.get_yields(self.it, 100., 500., 1.393)
+        assert False
 
 if __name__ == "__main__":
     unittest.main()
