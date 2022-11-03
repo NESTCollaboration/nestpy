@@ -81,6 +81,7 @@ def GetYieldsVectorized(interaction, yield_type, nc=None, **kwargs):
 
     Parameters:
         nc (NESTcalc object): must specify nc=nestpy.NESTcalc(detector) to use non-default
+        if no argument is provided - a default is loaded and written to cache.
         interaction (str): interaction type, here using 'nr' (nuclear recoil),
         gammaray', 'beta', '206Pb', and 'alpha'.
         yield_type (str): Either 'PhotonYield' or 'ElectronYield' to return proper yield values.
