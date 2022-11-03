@@ -40,3 +40,5 @@ jobs:
           pip install .
           python tests/core_nest_tests.py
           python tests/example_tests.py
+      - name: test import
+        run: python -c "import nestpy; print(nestpy); print('bye bye')"
