@@ -36,6 +36,6 @@ jobs:
         run: pip install numpy==1.13
       - name: test install
         run: |
-          pip install wheel
+          pip install wheel tox
           pip install .
-          python setup.py test
+          tox
