@@ -40,6 +40,11 @@ NEST_INTERACTION_NUMBER = dict(
         nonetype=12,
     )
 
+
+# Add local variable to cache the NESTcalc(DETECTOR) object
+_NestCalcInit = dict()
+
+
 def ListInteractionTypes():
     return NEST_INTERACTION_NUMBER.keys()
 
@@ -63,7 +68,7 @@ def GetInteractionObject(name):
     return interaction_object
 
 @np.vectorize
-def GetYieldsVectorized(interaction, yield_type, nc=NESTcalc(DetectorExample_XENON10()), **kwargs):
+def GetYieldsVectorized(interaction, yield_type, nc=None, **kwargs):
     '''
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.
 
@@ -76,6 +81,7 @@ def GetYieldsVectorized(interaction, yield_type, nc=NESTcalc(DetectorExample_XEN
 
     Parameters:
         nc (NESTcalc object): must specify nc=nestpy.NESTcalc(detector) to use non-default
+        if no argument is provided - a default is loaded and written to cache.
         interaction (str): interaction type, here using 'nr' (nuclear recoil),
         gammaray', 'beta', '206Pb', and 'alpha'.
         yield_type (str): Either 'PhotonYield' or 'ElectronYield' to return proper yield values.
@@ -89,6 +95,11 @@ def GetYieldsVectorized(interaction, yield_type, nc=NESTcalc(DetectorExample_XEN
         getattr(yield_object, yield_type) (array): array of yield values for a given yield_object (nr, etc)
         and a given yield_type (photon, electron yield as defined in parameters.)
     '''
+    if nc is None:
+        # Cache the default in _NestCalcInit
+        if 'default' not in _NestCalcInit:
+            _NestCalcInit['default'] = NESTcalc(DetectorExample_XENON10())
+        nc = _NestCalcInit['default']
     if type(interaction) == str:
         interaction_object = GetInteractionObject(interaction)
     else:

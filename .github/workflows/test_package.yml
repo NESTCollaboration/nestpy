@@ -38,3 +38,5 @@ jobs:
         run: |
           pip install wheel
           pip install .
+          python tests/core_nest_tests.py
+          python tests/example_tests.py
