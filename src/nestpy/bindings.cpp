@@ -274,8 +274,9 @@ PYBIND11_MODULE(nestpy, m)
 	py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
 		//.def(py::init<>())
 		.def(py::init<VDetector*>())
-		.def_readonly_static("default_NRYieldsParam", &NESTcalc::default_NRYieldsParam)
-		.def_readonly_static("default_NRERWidthsParam", &NESTcalc::default_NRERWidthsParam)
+		.def_readonly_static("default_NRYieldsParam", &default_NRYieldsParam)
+		.def_readonly_static("default_NRERWidthsParam", &default_NRERWidthsParam)
+		.def_readonly_static("default_ERYieldsParam", &default_ERYieldsParam)
 		//     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 		.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 				"Perform the full yield calculation with smearings")
@@ -306,6 +307,7 @@ PYBIND11_MODULE(nestpy, m)
 			py::arg("A") = 131.293,
 			py::arg("Z") = 54,
 			py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}), 
+			py::arg("ERYieldsParam") = std::vector<double>({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.}),
 			py::arg("oldModelER") = false
 		)
 		.def("GetQuanta", &NEST::NESTcalc::GetQuanta,
@@ -346,8 +348,9 @@ PYBIND11_MODULE(nestpy, m)
 		m.def("execNEST", &execNEST);
 		m.def("GetEnergyRes", &GetEnergyRes);
 		m.def("GetBand", &GetBand);
-		m.def("default_nr_yields_params", []() { return NEST::NESTcalc::default_NRYieldsParam; });
-		m.def("default_nrer_widths_params", []() { return NEST::NESTcalc::default_NRERWidthsParam; });
+		m.def("default_nr_yields_params", []() { return default_NRYieldsParam; });
+		m.def("default_nrer_widths_params", []() { return default_NRERWidthsParam; });
+		m.def("default_er_yields_params", []() { return default_ERYieldsParam; });
 
 	//-----------------------------------------------------------------------
 	// LAr NEST bindings
