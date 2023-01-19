@@ -117,6 +117,9 @@ PYBIND11_MODULE(nestpy, m)
 		.def("get_sPEeff", &VDetector::get_sPEeff)
 		.def("get_P_dphe", &VDetector::get_P_dphe)
 
+		.def("get_noiseBaseline", &VDetector::get_noiseBaseline)
+		.def("get_noiseLinear", &VDetector::get_noiseLinear)
+		.def("get_noiseQuadratic", &VDetector::get_noiseQuadratic)
 		.def("get_coinWind", &VDetector::get_coinWind)
 		.def("get_coinLevel", &VDetector::get_coinLevel)
 		.def("get_numPMTs", &VDetector::get_numPMTs)
@@ -136,10 +139,13 @@ PYBIND11_MODULE(nestpy, m)
 		.def("get_dt_min", &VDetector::get_dt_min)
 		.def("get_dt_max", &VDetector::get_dt_max)
 		.def("get_radius", &VDetector::get_radius)
+		.def("get_radmax", &VDetector::get_radmax)
 		.def("get_TopDrift", &VDetector::get_TopDrift)
 		.def("get_anode", &VDetector::get_anode)
 		.def("get_cathode", &VDetector::get_cathode)
 		.def("get_gate", &VDetector::get_gate)
+
+		.def("get_molarMass", &VDetector::get_molarMass )
 
 		.def("get_PosResExp", &VDetector::get_PosResExp)
 		.def("get_PosResBase", &VDetector::get_PosResBase)
@@ -150,6 +156,9 @@ PYBIND11_MODULE(nestpy, m)
 		.def("set_sPEeff", &VDetector::set_sPEeff)
 		.def("set_P_dphe", &VDetector::set_P_dphe)
 
+		.def("set_noiseBaseline", &VDetector::set_noiseBaseline)
+                .def("set_noiseLinear", &VDetector::set_noiseLinear)
+                .def("set_noiseQuadratic", &VDetector::set_noiseQuadratic)
 		.def("set_coinWind", &VDetector::set_coinWind)
 		.def("set_coinLevel", &VDetector::set_coinLevel)
 		.def("set_numPMTs", &VDetector::set_numPMTs)
@@ -169,10 +178,13 @@ PYBIND11_MODULE(nestpy, m)
 		.def("set_dt_min", &VDetector::set_dt_min)
 		.def("set_dt_max", &VDetector::set_dt_max)
 		.def("set_radius", &VDetector::set_radius)
+		.def("set_radmax", &VDetector::set_radmax)
 		.def("set_TopDrift", &VDetector::set_TopDrift)
 		.def("set_anode", &VDetector::set_anode)
 		.def("set_cathode", &VDetector::set_cathode)
 		.def("set_gate", &VDetector::set_gate)
+
+		.def("set_molarMarr", &VDetector::set_molarMass)
 
 		.def("set_PosResExp", &VDetector::set_PosResExp)
 		.def("set_PosResBase", &VDetector::set_PosResBase)
@@ -274,8 +286,9 @@ PYBIND11_MODULE(nestpy, m)
 	py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
 		//.def(py::init<>())
 		.def(py::init<VDetector*>())
-		.def_readonly_static("default_NRYieldsParam", &NESTcalc::default_NRYieldsParam)
-		.def_readonly_static("default_NRERWidthsParam", &NESTcalc::default_NRERWidthsParam)
+		.def_readonly_static("default_NRYieldsParam", &default_NRYieldsParam)
+		.def_readonly_static("default_NRERWidthsParam", &default_NRERWidthsParam)
+		.def_readonly_static("default_ERYieldsParam", &default_ERYieldsParam)
 		//     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 		.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 				"Perform the full yield calculation with smearings")
@@ -306,12 +319,13 @@ PYBIND11_MODULE(nestpy, m)
 			py::arg("A") = 131.293,
 			py::arg("Z") = 54,
 			py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}), 
+			py::arg("ERYieldsParam") = std::vector<double>({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.}),
 			py::arg("oldModelER") = false
 		)
 		.def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 			py::arg("yields"),
 			py::arg("density") = 2.9,
-			py::arg("free_parameters") = std::vector<double>({0.4,0.4,0.04,0.5,0.19,2.25, 0.0015, 0.05, 0.205, 0.45, -0.2}), 
+			py::arg("free_parameters") = std::vector<double>({0.4,0.4,0.04,0.5,0.19,2.25,1.,0.046452,0.205,0.45,-0.2}), 
 				py::arg("oldModelER") = false,
 			py::arg("SkewnessER") = -999.
 		)   
@@ -346,8 +360,9 @@ PYBIND11_MODULE(nestpy, m)
 		m.def("execNEST", &execNEST);
 		m.def("GetEnergyRes", &GetEnergyRes);
 		m.def("GetBand", &GetBand);
-		m.def("default_nr_yields_params", []() { return NEST::NESTcalc::default_NRYieldsParam; });
-		m.def("default_nrer_widths_params", []() { return NEST::NESTcalc::default_NRERWidthsParam; });
+		m.def("default_nr_yields_params", []() { return default_NRYieldsParam; });
+		m.def("default_nrer_widths_params", []() { return default_NRERWidthsParam; });
+		m.def("default_er_yields_params", []() { return default_ERYieldsParam; });
 
 	//-----------------------------------------------------------------------
 	// LAr NEST bindings

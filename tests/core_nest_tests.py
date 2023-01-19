@@ -74,6 +74,7 @@ class NESTcalcTest(unittest.TestCase):
 
         cls.nuisance = cls.nestcalc.default_NRYieldsParam
         cls.free = cls.nestcalc.default_NRERWidthsParam
+        cls.er_params = cls.nestcalc.default_ERYieldsParam
 
     def test_interaction_type_constructor(self):
         for i in range(5):
@@ -83,6 +84,7 @@ class NESTcalcTest(unittest.TestCase):
         result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5,
                                                self.nuisance,
                                                self.free,
+                                               self.er_params,
                                                False)
         assert isinstance(result, nestpy.NESTresult)
 
@@ -136,7 +138,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_equality(self):
         # Will call a test for the nearlyEqual function to ensure it still works.
-        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_yields_params(), False)
+        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_yields_params(), nestpy.default_er_yields_params(), False)
 
 
 class TestSpectraWIMPTest(unittest.TestCase):
@@ -160,10 +162,12 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
         cls.nuisance = cls.nestcalc.default_NRYieldsParam
         cls.free = cls.nestcalc.default_NRERWidthsParam
+        cls.er_params = cls.nestcalc.default_ERYieldsParam
         cls.result = cls.nestcalc.FullCalculation(
             cls.it, 10., 3., 100., 131, 56,
             cls.nuisance,
             cls.free,
+            cls.er_params,
             True)
 
         cls.position = [2,3,4]
