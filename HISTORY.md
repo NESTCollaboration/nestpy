@@ -4,6 +4,24 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.0.1 (2023-01-18)
+-----------------
+Updated python bindings to sync with NEST v2.3.12
+  * GetYields has been updated to allow for the beta ER model parameters to be user-controllable parameters
+  ** Introduced the new default vector `ERYieldsParam` for use with GetYields
+  
+  * Default parameter vectors have been moved from NESTcalc declarations to globally available vectors from NEST.hh
+
+2.0.0 (2022-09-08)
+-----------------
+Update to nestpy internals, adding in basic LArNEST bindings
+  * The copy/paste method for the NEST bindings have been replaced with adding NEST and other modules (such as gcem and pybind11) as git submodules which are downloaded at compile time. LXe notebooks and python scripts have been moved to tutorials/arxiv, and new notebooks will be placed in the tutorials folder as they are created in the future. LAr functionality through LArNEST has been added and will be expanded upon in future releases.
+
+  * Suggestions/issues/errors should be added as github issues.
+
+  * Users may have to do before installing:
+  ** `pip uninstall nestpy`
+
 
 1.5.5 (2022-07-08)
 -----------------
