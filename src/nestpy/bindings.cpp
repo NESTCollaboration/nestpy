@@ -41,6 +41,7 @@ PYBIND11_MODULE(nestpy, m)
 		.def("set_seed", &RandomGen::SetSeed);
 
 	// Binding for YieldResult struct
+	
 	py::class_<NEST::YieldResult>(m, "YieldResult", py::dynamic_attr())
 		.def(py::init<>())
 		.def_readwrite("PhotonYield", &NEST::YieldResult::PhotonYield)
@@ -49,7 +50,7 @@ PYBIND11_MODULE(nestpy, m)
 		.def_readwrite("Lindhard", &NEST::YieldResult::Lindhard)
 		.def_readwrite("ElectricField", &NEST::YieldResult::ElectricField)
 		.def_readwrite("DeltaT_Scint", &NEST::YieldResult::DeltaT_Scint);
-
+	
 	//	Binding for QuantaResult struct
 	py::class_<NEST::QuantaResult>(m, "QuantaResult", py::dynamic_attr())
 		.def(py::init<>())
@@ -308,7 +309,9 @@ PYBIND11_MODULE(nestpy, m)
 			py::arg("energy") = 5.2,
 			py::arg("density") = 2.9, 
 			py::arg("drift_field") = 124,
-			py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.})
+			py::arg("ERYieldsParam") = std::vector<double>({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.}),
+			py::arg("EnergyParams") = std::vector<double>({0.23, 0.77, 2.95, -1.44}),
+			py::arg("FieldParams") = std::vector<double>({421.15, 3.27})
 		)
 		.def("GetYields",
 			&NEST::NESTcalc::GetYields,
@@ -523,15 +526,15 @@ PYBIND11_MODULE(nestpy, m)
 	//	Binding for the LArNEST class
 	py::class_<NEST::LArNEST, NEST::NESTcalc, std::unique_ptr<NEST::LArNEST, py::nodelete>>(m, "LArNEST")
 		.def(py::init<VDetector*>())
-		.def("set_density", &NEST::LArNEST::setDensity)
-		.def("set_r_ideal_gas", &NEST::LArNEST::setRIdealGas)
-		.def("set_real_gas_a", &NEST::LArNEST::setRealGasA)
-		.def("set_real_gas_b", &NEST::LArNEST::setRealGasB)
-		.def("set_work_quanta_function", &NEST::LArNEST::setWorkQuantaFunction)
-		.def("set_work_ion_function", &NEST::LArNEST::setWorkIonFunction)
-		.def("set_work_photon_function", &NEST::LArNEST::setWorkPhotonFunction)
-		.def("set_fano_er", &NEST::LArNEST::setFanoER)
-		.def("set_nex_over_nion", &NEST::LArNEST::setNexOverNion)
+		.def("set_density", &NEST::LArNEST::SetDensity)
+		.def("set_r_ideal_gas", &NEST::LArNEST::SetRIdealGas)
+		.def("set_real_gas_a", &NEST::LArNEST::SetRealGasA)
+		.def("set_real_gas_b", &NEST::LArNEST::SetRealGasB)
+		.def("set_work_quanta_function", &NEST::LArNEST::SetWorkQuantaFunction)
+		.def("set_work_ion_function", &NEST::LArNEST::SetWorkIonFunction)
+		.def("set_work_photon_function", &NEST::LArNEST::SetWorkPhotonFunction)
+		.def("set_fano_er", &NEST::LArNEST::SetFanoER)
+		.def("set_nex_over_nion", &NEST::LArNEST::SetNexOverNion)
 		// .def("set_nuisance_parameters", &NEST::LArNEST::setNuisanceParameters)
 		// .def("set_temperature", &NEST::LArNEST::setTemperature)
 		// .def("set_nr_yields_parameters", &NEST::LArNEST::setNRYieldsParameters)
@@ -542,24 +545,24 @@ PYBIND11_MODULE(nestpy, m)
 		// .def("set_er_electron_yields_doke_birks_parameters", &NEST::LArNEST::setERElectronYieldsDokeBirksParameters)
 		// .def("set_thomas_imel_parameters", &NEST::LArNEST::setThomasImelParameters)
 		//.def("set_drift_parameters", &NEST::LArNEST::setDriftParameters)
-
-		.def("get_density", &NEST::LArNEST::getDensity)
-		.def("get_r_ideal_gas", &NEST::LArNEST::getRIdealGas)
-		.def("get_real_gas_a", &NEST::LArNEST::getRealGasA)
-		.def("get_real_gas_b", &NEST::LArNEST::getRealGasB)
-		.def("get_work_quanta_function", &NEST::LArNEST::getWorkQuantaFunction)
-		.def("get_work_ion_function", &NEST::LArNEST::getWorkIonFunction)
-		.def("get_work_photon_function", &NEST::LArNEST::getWorkPhotonFunction)
-		.def("get_fano_er", &NEST::LArNEST::getFanoER)
-		.def("get_nex_over_nion", &NEST::LArNEST::getNexOverNion)
-		.def("get_nr_yields_parameters", &NEST::LArNEST::getNRYieldsParameters)
-		.def("get_er_yields_parameters", &NEST::LArNEST::getERYieldsParameters)
-		.def("get_er_electron_yields_alpha_parameters", &NEST::LArNEST::getERElectronYieldsAlphaParameters)
-		.def("get_er_electron_yields_beta_parameters", &NEST::LArNEST::getERElectronYieldsBetaParameters)
-		.def("get_er_electron_yields_gamma_parameters", &NEST::LArNEST::getERElectronYieldsGammaParameters)
-		.def("get_er_electron_yields_doke_birks_parameters", &NEST::LArNEST::getERElectronYieldsDokeBirksParameters)
-		.def("get_thomas_imel_parameters", &NEST::LArNEST::getThomasImelParameters)
-		.def("get_drift_parameters", &NEST::LArNEST::getDriftParameters)
+     
+		//.def("get_density", &NEST::LArNEST::GetDensity)
+		.def("get_r_ideal_gas", &NEST::LArNEST::GetRIdealGas)
+		.def("get_real_gas_a", &NEST::LArNEST::GetRealGasA)
+		.def("get_real_gas_b", &NEST::LArNEST::GetRealGasB)
+		.def("get_work_quanta_function", &NEST::LArNEST::GetWorkQuantaFunction)
+		.def("get_work_ion_function", &NEST::LArNEST::GetWorkIonFunction)
+		.def("get_work_photon_function", &NEST::LArNEST::GetWorkPhotonFunction)
+		.def("get_fano_er", &NEST::LArNEST::GetFanoER)
+		.def("get_nex_over_nion", &NEST::LArNEST::GetNexOverNion)
+		.def("get_nr_yields_parameters", &NEST::LArNEST::GetNRYieldsParameters)
+		.def("get_er_yields_parameters", &NEST::LArNEST::GetERYieldsParameters)
+		.def("get_er_electron_yields_alpha_parameters", &NEST::LArNEST::GetERElectronYieldsAlphaParameters)
+		.def("get_er_electron_yields_beta_parameters", &NEST::LArNEST::GetERElectronYieldsBetaParameters)
+		.def("get_er_electron_yields_gamma_parameters", &NEST::LArNEST::GetERElectronYieldsGammaParameters)
+		.def("get_er_electron_yields_doke_birks_parameters", &NEST::LArNEST::GetERElectronYieldsDokeBirksParameters)
+		.def("get_thomas_imel_parameters", &NEST::LArNEST::GetThomasImelParameters)
+		.def("get_drift_parameters", &NEST::LArNEST::GetDriftParameters)
 
 		.def("get_recombination_yields", &NEST::LArNEST::GetRecombinationYields)
 		.def("get_yields", &NEST::LArNEST::GetYields)
@@ -595,5 +598,6 @@ PYBIND11_MODULE(nestpy, m)
 		.def("legacy_calculation", &NEST::LArNEST::LegacyCalculation)
 		.def("legacy_get_recombination_probability", &NEST::LArNEST::LegacyGetRecombinationProbability)
 		.def("legacy_get_let", &NEST::LArNEST::LegacyGetLinearEnergyTransfer);
+	  
 
 }
