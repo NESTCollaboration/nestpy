@@ -38,7 +38,9 @@ PYBIND11_MODULE(nestpy, m)
 	// Binding for RandomGen class
 	py::class_<RandomGen>(m, "RandomGen")
 		.def("rndm", &RandomGen::rndm)
-		.def("set_seed", &RandomGen::SetSeed);
+		.def("set_seed", &RandomGen::SetSeed)
+		.def("lock_seed", &RandomGen::LockSeed)
+		.def("unlock_seed", &RandomGen::UnlockSeed);
 
 	// Binding for YieldResult struct
 	py::class_<NEST::YieldResult>(m, "YieldResult", py::dynamic_attr())
