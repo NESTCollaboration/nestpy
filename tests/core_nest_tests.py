@@ -221,11 +221,11 @@ class LArNESTTest(unittest.TestCase):
 
         cls.larnest = nestpy.LArNEST(cls.detector)
         cls.result = cls.larnest.full_calculation(
-            cls.it, 100., 500., 1.393, True
+            cls.it, 100., 1., 500., 1.393, True
         )
     
     def test_larnest_get_yields(self):
-        self.larnest.get_yields(self.it, 100., 500., 1.393)
+        self.larnest.get_yields(self.it, 100., 1., 500., 1.393)
 
 if __name__ == "__main__":
     unittest.main()
