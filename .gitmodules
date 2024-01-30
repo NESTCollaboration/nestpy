@@ -1,6 +1,6 @@
 [submodule "lib/nest"]
 	path = lib/nest
-	url = https://github.com/dachengx/nest # change this to any custom fork of NEST if you want to use your own code!
+	url = https://github.com/NESTCollaboration/nest # change this to any custom fork of NEST if you want to use your own code!
 [submodule "lib/gcem"]
 	path = lib/gcem
 	url = https://github.com/kthohr/gcem.git
