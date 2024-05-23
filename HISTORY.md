@@ -4,6 +4,11 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.0.3 (2024-05-23)
+-----------------
+Minor Changes:
+  * Added the ability to lock and unlock the random seed
+  * Removed Constraints in helpers.py that prevented vectorized yield equations from return high-energy yields. 
 
 2.0.2 (2024-01-29)
 -----------------
