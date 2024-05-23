@@ -10,8 +10,6 @@ The main components are:
 
 Main ingredients for the above steps:
 1. np.vectorize, dictionary with yields, field array and energy array.
-    - Note: some of the yields will crash the plots at too high of energies (way above physical meaning)
-    so np.nan is returned to keep things running.
 """
 
 import numpy as np
@@ -105,13 +103,6 @@ def GetYieldsVectorized(interaction, yield_type, nc=None, **kwargs):
     else:
         interaction_object = interaction
 
-    if 'energy' in kwargs.keys():
-        if interaction_object == GetInteractionObject('nr') and kwargs['energy'] > 2e2:
-            return np.nan
-        if interaction_object == GetInteractionObject('gammaray') and kwargs['energy'] > 3e3:
-            return np.nan
-        if interaction_object == GetInteractionObject('beta') and kwargs['energy'] > 3e3:
-            return np.nan
     yield_object = nc.GetYields(interaction = interaction_object, **kwargs)
     # returns the yields for the type of yield we are considering
     return getattr(yield_object, yield_type)
