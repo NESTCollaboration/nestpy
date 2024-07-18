@@ -4,6 +4,12 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.0.4 (2024-07-18)
+-----------------
+Minor Changes:
+  * Updated workflows for github and pypi tests; restores the ability to upload tagged nestpy releases to PyPi servers. 
+  * Updated author contact information
+
 2.0.3 (2024-05-23)
 -----------------
 Minor Changes:
