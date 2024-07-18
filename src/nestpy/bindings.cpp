@@ -11,6 +11,7 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include "LZ_SR1.hh"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -224,6 +225,14 @@ PYBIND11_MODULE(nestpy, m)
 		.def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
 		.def("OptTrans", &DetectorExample_LUX_RUN03::OptTrans)
 		.def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
+
+    //  Binding for example LZ_SR1
+    py::class_<LZ_Detector, VDetector, std::unique_ptr<LZ_Detector, py::nodelete>>(m, "LZ_SR1")
+        .def(py::init<>())
+        .def("Initialization", &LZ_Detector::Initialization)
+        .def("FitTBA", &LZ_Detector::FitTBA)
+        .def("OptTrans", &LZ_Detector::OptTrans)
+        .def("SinglePEWaveForm", &LZ_Detector::SinglePEWaveForm);
 
 	// Binding for the TestSpectra class
 	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m, "TestSpectra")
