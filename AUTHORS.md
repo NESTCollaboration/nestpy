@@ -2,6 +2,7 @@
 
 ## Python bindings
 
+* Greg Rischbieter <rischbie@umich.edu> @grischbieter
 * Nicholas Carrara <ncarrara.physics@gmail.com> @infophysics
 * Sophia Andaloro <sja5@rice.edu> @sophiaandaloro
 * Christopher Tunnell <tunnell@rice.edu> @tunnell
