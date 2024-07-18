@@ -9,6 +9,7 @@ Patch releases mean (the Z number in X.Y.Z version) that the underlying physics 
 Minor Changes:
   * Updated workflows for github and pypi tests; restores the ability to upload tagged nestpy releases to PyPi servers. 
   * Updated author contact information
+  * Added Python 3.11 compatibility 
 
 2.0.3 (2024-05-23)
 -----------------
