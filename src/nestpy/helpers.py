@@ -202,10 +202,10 @@ def nest_vector(
         msg = "The runNESTframe method requires the 'pandas' and 'awkward' package.  Please install via 'pip install pandas awkward'"
         raise ImportError(msg) from exc
 
-    interaction = GetInteractionObject(interaction)
+    interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
     # If no position given then randomly sample
-    if pos is not None:
+    if pos is None:
         pos = get_random_position(detector, energy.shape)
 
     # Compute the NEST outputs
