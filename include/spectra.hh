@@ -9,7 +9,6 @@
 #include "execNEST.hh"
 #include "TestSpectra.hh"
 #include "LUX_Run03.hh"
-#include "LZ_SR1.hh"
 #include "DetectorExample_XENON10.hh"
 #include "RandomGen.hh"
 #include <pybind11/numpy.h>

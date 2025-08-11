@@ -7,8 +7,8 @@
 #include "NEST.hh"
 #include "VDetector.hh"
 #include "LUX_Run03.hh"
-#include "LZ_SR1.hh"
-#include "LZ_2024.hh"
+#include "LZ_WS2022.hh"
+#include "LZ_WS2024.hh"
 #include "DetectorExample_XENON10.hh"
 
 namespace py = pybind11;
@@ -34,20 +34,20 @@ void init_detector(py::module& m){
     // 	.def("SinglePEWaveForm", &DetectorExample_LUX_RUN03::SinglePEWaveForm);
 
     //  Binding for LUX-ZEPLIN's WS2022 result
-    py::class_<LZ_Detector, VDetector, std::unique_ptr<LZ_Detector, py::nodelete>>(m_detect, "LZ_WS2022")
+    py::class_<LZ_Detector_2022, VDetector, std::unique_ptr<LZ_Detector_2022, py::nodelete>>(m_detect, "LZ_WS2022")
         .def(py::init<>())
-        .def("Initialization", &LZ_Detector::Initialization)
-        .def("FitTBA", &LZ_Detector::FitTBA)
-        .def("OptTrans", &LZ_Detector::OptTrans)
-        .def("SinglePEWaveForm", &LZ_Detector::SinglePEWaveForm);
+        .def("Initialization", &LZ_Detector_2022::Initialization)
+        .def("FitTBA", &LZ_Detector_2022::FitTBA)
+        .def("OptTrans", &LZ_Detector_2022::OptTrans)
+        .def("SinglePEWaveForm", &LZ_Detector_2022::SinglePEWaveForm);
 
-    py::class_<LZ_2024, VDetector, std::unique_ptr<LZ_2024, py::nodelete>>(m_detect, "LZ_WS2024")
+    py::class_<LZ_Detector_2024, VDetector, std::unique_ptr<LZ_Detector_2024, py::nodelete>>(m_detect, "LZ_WS2024")
         .def(py::init<>())
-        .def("Initialization", &LZ_2024::Initialization)
-        .def("FitTBA", &LZ_2024::FitTBA)
-        .def("OptTrans", &LZ_2024::OptTrans)
-        .def("SinglePEWaveForm", &LZ_2024::SinglePEWaveForm)
-        .def_property_readonly("nr_yield_params", &LZ_2024::get_nr_yield_params)
-        .def_property_readonly("er_yield_params", &LZ_2024::get_er_yield_params)
-        .def_property_readonly("width_yield_params", &LZ_2024::get_nr_er_width_params);
+        .def("Initialization", &LZ_Detector_2024::Initialization)
+        .def("FitTBA", &LZ_Detector_2024::FitTBA)
+        .def("OptTrans", &LZ_Detector_2024::OptTrans)
+        .def("SinglePEWaveForm", &LZ_Detector_2024::SinglePEWaveForm)
+        .def_property_readonly("nr_yield_params", &LZ_Detector_2024::get_nr_yield_params)
+        .def_property_readonly("er_yield_params", &LZ_Detector_2024::get_er_yield_params)
+        .def_property_readonly("width_yield_params", &LZ_Detector_2024::get_nr_er_width_params);
 }
