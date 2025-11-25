@@ -2,6 +2,7 @@
 
 ## Python bindings
 
+* Sam Eriksen <sam.eriksen@bristol.ac.uk> @seriksen
 * Greg Rischbieter <rischbie@umich.edu> @grischbieter
 * Nicholas Carrara <ncarrara.physics@gmail.com> @infophysics
 * Sophia Andaloro <sja5@rice.edu> @sophiaandaloro

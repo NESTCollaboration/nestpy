@@ -17,7 +17,7 @@
  
 namespace py = pybind11;
 
-PYBIND11_MODULE(nestpy, m) 
+PYBIND11_MODULE(_nestpy, m) 
 {
 	// versioning
 #ifdef NESTPY_VERSION
