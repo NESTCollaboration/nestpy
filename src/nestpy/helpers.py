@@ -86,7 +86,7 @@ def get_all_yields(energy, nest_calc, interaction, **kwargs):
     Returns:
         list[YieldResult]: A list of NEST yield objects
     """
-    return nc.GetYields(energy=energy, interaction=interaction, **kwargs)
+    return nest_calc.GetYields(energy=energy, interaction=interaction, **kwargs)
 
 def get_yields_df(energy, nest_calc, interaction, **kwargs):
     """Get a pandas dataframe of the yield parameters for an interaction
