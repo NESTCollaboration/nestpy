@@ -75,6 +75,44 @@ def GetInteractionObject(name):
 
 
 @np.vectorize(excluded={"nuisance_parameters", "ERYieldsParam"})
+def get_all_yields(energy, nest_calc, interaction, **kwargs):
+    """Get a list of NEST yield objects
+
+    Args:
+        energy (array[float]): An array of energies in keV
+        interaction (INTERACTION_TYPE): The type of interaction be studied
+        nest_calc (NESTCalc): A NEST calculator defined for a given detector
+
+    Returns:
+        list[YieldResult]: A list of NEST yield objects
+    """
+    return nc.GetYields(energy=energy, interaction=interaction, **kwargs)
+
+def get_yields_df(energy, nest_calc, interaction, **kwargs):
+        """Get a pandas dataframe of the yield parameters for an interaction
+
+    Args:
+        energy (array[float]): An array of energies in keV
+        interaction (INTERACTION_TYPE): The type of interaction be studied
+        nest_calc (NESTCalc): A NEST calculator defined for a given detector
+
+    Returns:
+        list[YieldResult]: A list of NEST yield objects
+    """
+
+    try:
+        import pandas as pd
+    except ImportError as exc:
+        msg = "The get_yields_df method requires the 'pandas' package.  Please install via 'pip install pandas'"
+        raise ImportError(msg) from exc
+
+    yields = get_all_yields(energy=energy, interaction=interaction, nest_calc=nest_calc, **kwargs)
+    items = {"PhotonYield", "ElectronYield", "ExcitonRatio", "Lindhard"}
+    df = pd.DataFrame({j:getattr(i, j) for j in items} for i in yields)
+    df["energy"] = energy
+    return df
+
+@np.vectorize(excluded={"nuisance_parameters", "ERYieldsParam"})
 def GetYieldsVectorized(interaction, yield_type, nc=None, detector=None, **kwargs):
     """
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.
