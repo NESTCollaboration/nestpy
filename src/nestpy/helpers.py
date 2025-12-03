@@ -89,7 +89,7 @@ def get_all_yields(energy, nest_calc, interaction, **kwargs):
     return nc.GetYields(energy=energy, interaction=interaction, **kwargs)
 
 def get_yields_df(energy, nest_calc, interaction, **kwargs):
-        """Get a pandas dataframe of the yield parameters for an interaction
+    """Get a pandas dataframe of the yield parameters for an interaction
 
     Args:
         energy (array[float]): An array of energies in keV
