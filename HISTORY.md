@@ -4,6 +4,14 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.0.6 (2025-11-20)
+------------------
+Minor Changes:
+  * Removed pre-python3.8 compatibility
+  * Fix for PyPi release
+  * Remove unused files
+  * Remove pybind11 as a linked module
+
 2.0.5 (2025-07-11)
 -----------------
 Many Minor Changes:
