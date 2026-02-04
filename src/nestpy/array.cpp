@@ -9,7 +9,7 @@ void init_array(py::module& m){
     auto m_array = m.def_submodule("array", "array");
 
     py::class_<NESTObservableArray>(m_array, "NESTObservableArray", py::dynamic_attr())
-        .def(py::init<>())
+        .def(py::init<int>(), py::arg("verbosity") = -1)
         .def_readwrite("s1_nhits", &NESTObservableArray::s1_nhits)
         .def_readwrite("s1_nhits_thr", &NESTObservableArray::s1_nhits_thr)
         .def_readwrite("s1_nhits_dpe", &NESTObservableArray::s1_nhits_dpe)
@@ -48,6 +48,7 @@ void init_array(py::module& m){
         py::arg("nr_yield_params") = default_NRYieldsParam,
         py::arg("width_params") = default_NRERWidthsParam,
         py::arg("s1_mode") = NEST::S1CalculationMode::Full,
-        py::arg("s2_mode") = NEST::S2CalculationMode::Full
+        py::arg("s2_mode") = NEST::S2CalculationMode::Full,
+        py::arg("verbosity") = -1
     );
 }

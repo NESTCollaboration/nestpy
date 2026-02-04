@@ -14,14 +14,10 @@ Main ingredients for the above steps:
 
 import numpy as np
 
+from ._nestpy import DetectorExample_XENON10, NESTcalc, INTERACTION_TYPE, array # This is C++ library
+import awkward as ak
+import pandas as pd
 
-from nestpy import (
-    DetectorExample_XENON10,
-    NESTcalc,
-    INTERACTION_TYPE,
-)  # This is C++ library
-
-from nestpy import array
 
 # Detector identification for default
 # Performing NEST calculations according to the given detector example.
@@ -224,21 +220,13 @@ def get_random_position(detector, number: int):
     return np.vstack((x, y, z)).T
 
 
-def nest_vector(
+def run_nest(
     interaction,
     detector,
     energy,
     pos: list[list[float]] = None,
-    df: bool = False,
     **kwargs
 ):
-
-    try:
-        import awkward as ak
-        import pandas as pd
-    except ImportError as exc:
-        msg = "The runNESTframe method requires the 'pandas' and 'awkward' package.  Please install via 'pip install pandas awkward'"
-        raise ImportError(msg) from exc
 
     interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
@@ -247,9 +235,11 @@ def nest_vector(
         pos = get_random_position(detector, energy.shape)
 
     # Compute the NEST outputs
+    print("Start tune NEST vec")
     result = array.runNESTvec(
         detector, interaction, energy.tolist(), pos.tolist(), **kwargs
     )
+    print("End run NEST vec")
 
     # Create the pandas dataframe
     arr = ak.Array(
@@ -262,11 +252,19 @@ def nest_vector(
     arr["y_mm"] = pos[:, 1]
     arr["z_mm"] = pos[:, 2]
 
-    if df:
-        print(
-            "Making a simple dataframe,  will lose any photon timing or waveform information"
-        )
-        fields = [i for i in arr.fields if arr[i].ndim == 1]
-        arr = pd.DataFrame({i: arr[i] for i in fields})
-
     return arr
+
+def run_nest_df(
+    interaction,
+    detector,
+    energy,
+    pos: list[list[float]] = None,
+    **kwargs
+):
+
+    arr = run_nest(interaction, detector, energy, pos, **kwargs)
+
+    fields = [i for i in arr.fields if arr[i].ndim == 1]
+    df = pd.DataFrame({i: arr[i] for i in fields})
+
+    return df

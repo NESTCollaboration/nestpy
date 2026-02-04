@@ -1,5 +1,5 @@
 set (CMAKE_CXX_STANDARD 17)
-cmake_minimum_required(VERSION 2.8.12...3.30)
+cmake_minimum_required(VERSION 3.15)
 project(nestpy)
 
 # Set source directory
@@ -45,8 +45,9 @@ set(NESTPY_SOURCES "${NESTPY_SOURCE_DIR}/bindings.cpp" "${NESTPY_SOURCE_DIR}/spe
 
 # Generate Python module
 add_subdirectory(lib/pybind11)
-pybind11_add_module(nestpy ${NEST_SOURCES} ${NESTPY_SOURCES})
+pybind11_add_module(_nestpy ${NEST_SOURCES} ${NESTPY_SOURCES})
 
-target_compile_definitions(nestpy
+target_compile_definitions(_nestpy
                            PRIVATE NESTPY_VERSION=${NESTPY_VERSION_INFO} NEST_VERSION=${NEST_VERSION})
 
+install(TARGETS _nestpy DESTINATION nestpy)
