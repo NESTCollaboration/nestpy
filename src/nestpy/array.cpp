@@ -47,8 +47,8 @@ void init_array(py::module& m){
         py::arg("er_yield_params") = default_ERYieldsParam,
         py::arg("nr_yield_params") = default_NRYieldsParam,
         py::arg("width_params") = default_NRERWidthsParam,
-        py::arg("s1_mode") = NEST::S1CalculationMode::Full,
+        py::arg("s1_mode") = NEST::S1CalculationMode::Parametric,
         py::arg("s2_mode") = NEST::S2CalculationMode::Full,
-        py::arg("verbosity") = -1
+        py::arg("calculate_times") = false
     );
 }

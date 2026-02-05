@@ -232,14 +232,12 @@ def run_nest(
 
     # If no position given then randomly sample
     if pos is None:
-        pos = get_random_position(detector, energy.shape)
+        pos = get_random_position(detector, len(energy))
 
     # Compute the NEST outputs
-    print("Start tune NEST vec")
     result = array.runNESTvec(
         detector, interaction, energy.tolist(), pos.tolist(), **kwargs
     )
-    print("End run NEST vec")
 
     # Create the pandas dataframe
     arr = ak.Array(

@@ -333,7 +333,7 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("energy") = 5.2,
 			py::arg("density") = 2.9, 
 			py::arg("drift_field") = 124,
-			py::arg("ERYieldsParam") = std::vector<double>({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.}),
+			py::arg("ERYieldsParam") = &default_ERYieldsParam,
 			py::arg("EnergyParams") = std::vector<double>({0.23, 0.77, 2.95, -1.44}),
 			py::arg("FieldParams") = std::vector<double>({421.15, 3.27})
 		)
@@ -345,13 +345,13 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("drift_field") = 124,
 			py::arg("A") = 131.293,
 			py::arg("Z") = 54,
-			py::arg("nuisance_parameters") = std::vector<double>({ 11., 1.1, 0.0480, -0.0533, 12.6, 0.3, 2., 0.3, 2., 0.5, 1., 1.}), 
-			py::arg("ERYieldsParam") = std::vector<double>({-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.})
+			py::arg("NRYieldsParam") = &default_NRYieldsParam,
+			py::arg("ERYieldsParam") = &default_ERYieldsParam
 		)
 		.def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 			py::arg("yields"),
 			py::arg("density") = 2.9,
-			py::arg("free_parameters") = std::vector<double>({0.4,0.4,0.04,0.5,0.19,2.25,1.,0.046452,0.205,0.45,-0.2}), 
+			py::arg("NRERWidthsParam") = &default_NRERWidthsParam, 
 			py::arg("SkewnessER") = -999.
 		)   
 		.def("GetS1", &NEST::NESTcalc::GetS1)

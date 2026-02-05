@@ -42,9 +42,8 @@ set(NEST_SOURCES "${NEST_SOURCE_DIR}/NEST.cpp" "${NEST_SOURCE_DIR}/LArNEST.cpp" 
 set(NESTPY_SOURCES "${NESTPY_SOURCE_DIR}/bindings.cpp" "${NESTPY_SOURCE_DIR}/spectra.cpp" "${NESTPY_SOURCE_DIR}/detector.cpp" "${NESTPY_SOURCE_DIR}/array.cpp")
 
 
-
 # Generate Python module
-add_subdirectory(lib/pybind11)
+find_package(pybind11 CONFIG REQUIRED)
 pybind11_add_module(_nestpy ${NEST_SOURCES} ${NESTPY_SOURCES})
 
 target_compile_definitions(_nestpy
