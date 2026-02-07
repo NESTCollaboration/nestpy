@@ -37,7 +37,7 @@ void init_array(py::module& m){
 
 
     m_array.def("runNESTvec", &runNESTvec,
-        "Generate (S1, S2) for a vectorized recoil energies",
+        "Generate (S1, S2) for a vector of recoil energies",
         py::arg("detector"),
         py::arg("interaction_type"),
         py::arg("energies"),
@@ -47,7 +47,7 @@ void init_array(py::module& m){
         py::arg("er_yield_params") = default_ERYieldsParam,
         py::arg("nr_yield_params") = default_NRYieldsParam,
         py::arg("width_params") = default_NRERWidthsParam,
-        py::arg("s1_mode") = NEST::S1CalculationMode::Parametric,
+        py::arg("s1_mode") = NEST::S1CalculationMode::Hybrid,
         py::arg("s2_mode") = NEST::S2CalculationMode::Full,
         py::arg("calculate_times") = false
     );
