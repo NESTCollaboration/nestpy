@@ -9,7 +9,7 @@ void init_array(py::module& m){
     auto m_array = m.def_submodule("array", "array");
 
     py::class_<NESTObservableArray>(m_array, "NESTObservableArray", py::dynamic_attr())
-        .def(py::init<int>(), py::arg("verbosity") = -1)
+        .def(py::init<>())
         .def_readwrite("s1_nhits", &NESTObservableArray::s1_nhits)
         .def_readwrite("s1_nhits_thr", &NESTObservableArray::s1_nhits_thr)
         .def_readwrite("s1_nhits_dpe", &NESTObservableArray::s1_nhits_dpe)

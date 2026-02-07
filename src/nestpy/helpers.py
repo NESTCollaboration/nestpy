@@ -228,6 +228,8 @@ def run_nest(
     **kwargs
 ):
 
+    energy = np.asarray(energy)
+
     interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
     # If no position given then randomly sample
