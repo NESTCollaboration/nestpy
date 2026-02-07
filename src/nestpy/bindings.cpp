@@ -23,6 +23,20 @@
 namespace py = pybind11;
 using namespace pybind11::literals; 
 
+
+py::dict get_extraction_parameters(VDetector* detector, int verbosity = 0) {
+	auto results = NEST::NESTcalc(detector).CalculateG2(verbosity);
+	py::dict d;
+	d["elYield"] = results[0];
+	d["ExtEff"] = results[1];
+	d["SE"] = results[2];
+	d["g2"] = results[3];
+	d["gasGap"] = results[4];
+	d["valid"] = static_cast<float>(results[2] > 0);
+	return d;
+}
+
+
 PYBIND11_MODULE(_nestpy, m) 
 {
 	// versioning
@@ -117,14 +131,14 @@ PYBIND11_MODULE(_nestpy, m)
 	//	Binding for the VDetector class
 	//	py::nodelete added so that NESTcalc() deconstructor does
 	//	not delete instance of VDetector()
+	
 	py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")	
 		.def(py::init<>())
 		.def("Initialization", &VDetector::Initialization)
 		.def("get_name", &VDetector::getName)
+		.def_property_readonly("name", &VDetector::getName)
+
 		.def("get_g1", &VDetector::get_g1)
-		.def("get_g2",[](VDetector *self){return NEST::NESTcalc(self).CalculateG2(0).at(3);})
-		// .def_readonly("g1", [](VDetector &self){return self.get_g1();})
-		// .def_readonly("g2", [](VDetector *self){return NEST::NESTcalc(self).CalculateG2(0).at(3);})
 		.def("get_sPEres", &VDetector::get_sPEres)
 		.def("get_sPEthr", &VDetector::get_sPEthr)
 		.def("get_sPEeff", &VDetector::get_sPEeff)
@@ -170,8 +184,8 @@ PYBIND11_MODULE(_nestpy, m)
 		.def("set_P_dphe", &VDetector::set_P_dphe)
 
 		.def("set_noiseBaseline", &VDetector::set_noiseBaseline)
-                .def("set_noiseLinear", &VDetector::set_noiseLinear)
-                .def("set_noiseQuadratic", &VDetector::set_noiseQuadratic)
+        .def("set_noiseLinear", &VDetector::set_noiseLinear)
+        .def("set_noiseQuadratic", &VDetector::set_noiseQuadratic)
 		.def("set_coinWind", &VDetector::set_coinWind)
 		.def("set_coinLevel", &VDetector::set_coinLevel)
 		.def("set_numPMTs", &VDetector::set_numPMTs)
@@ -202,10 +216,54 @@ PYBIND11_MODULE(_nestpy, m)
 		.def("set_PosResExp", &VDetector::set_PosResExp)
 		.def("set_PosResBase", &VDetector::set_PosResBase)
 
+
+		.def_property("g1", &VDetector::get_g1, &VDetector::set_g1)
+		.def_property("sPEres", &VDetector::get_sPEres, &VDetector::set_sPEres)
+		.def_property("sPEthr", &VDetector::get_sPEthr, &VDetector::set_sPEthr)
+		.def_property("sPEeff", &VDetector::get_sPEeff, &VDetector::set_sPEeff)
+		.def_property("P_dphe", &VDetector::get_P_dphe, &VDetector::set_P_dphe)
+
+		.def_property("noiseBaseline", &VDetector::get_noiseBaseline, &VDetector::set_noiseBaseline)
+        .def_property("noiseLinear", &VDetector::get_noiseLinear, &VDetector::set_noiseLinear)
+        .def_property("noiseQuadratic", &VDetector::get_noiseQuadratic, &VDetector::set_noiseQuadratic)
+		.def_property("coinWind", &VDetector::get_coinWind, &VDetector::set_coinWind)
+		.def_property("coinLevel", &VDetector::get_coinLevel, &VDetector::set_coinLevel)
+		.def_property("numPMTs", &VDetector::get_numPMTs, &VDetector::set_numPMTs)
+
+		.def_property("g1_gas", &VDetector::get_g1_gas, &VDetector::set_g1_gas)
+		.def_property("s2Fano", &VDetector::get_s2Fano, &VDetector::set_s2Fano)
+		.def_property("s2_thr", &VDetector::get_s2_thr, &VDetector::set_s2_thr)
+		//.d_propertye"t_S2botTotRatio", &VDetector::get_S2botTotRatio, &VDetector::set_S2botTotRatio)
+		.def_property("E_gas", &VDetector::get_E_gas, &VDetector::set_E_gas)
+		.def_property("eLife_us", &VDetector::get_eLife_us, &VDetector::set_eLife_us)
+
+		.def_property("inGas", &VDetector::get_inGas, &VDetector::set_inGas)
+		.def_property("T_Kelvin", &VDetector::get_T_Kelvin, &VDetector::set_T_Kelvin)
+		.def_property("p_bar", &VDetector::get_p_bar, &VDetector::set_p_bar)
+
+		.def_property("dtCntr", &VDetector::get_dtCntr, &VDetector::set_dtCntr)
+		.def_property("dt_min", &VDetector::get_dt_min, &VDetector::set_dt_min)
+		.def_property("dt_max", &VDetector::get_dt_max, &VDetector::set_dt_max)
+		.def_property("radius", &VDetector::get_radius, &VDetector::set_radius)
+		.def_property("radmax", &VDetector::get_radmax, &VDetector::set_radmax)
+		.def_property("TopDrift", &VDetector::get_TopDrift, &VDetector::set_TopDrift)
+		.def_property("anode", &VDetector::get_anode, &VDetector::set_anode)
+		.def_property("cathode", &VDetector::get_cathode, &VDetector::set_cathode)
+		.def_property("gate", &VDetector::get_gate, &VDetector::set_gate)
+
+		.def_property("molarMarr", &VDetector::get_molarMass, &VDetector::set_molarMass)
+
+		.def_property("PosResExp", &VDetector::get_PosResExp, &VDetector::set_PosResExp)
+		.def_property("PosResBase", &VDetector::get_PosResBase, &VDetector::set_PosResBase)
+
+		.def_property_readonly("g2",[](VDetector *self){return NEST::NESTcalc(self).CalculateG2(0).at(3);})
+		.def_property_readonly("extraction_parameters", [](VDetector *self){return get_extraction_parameters(self, 0);})
+		
 		.def("FitS1", &VDetector::FitS1)
 		.def("FitS2", &VDetector::FitS1)
 		.def("FitEF", &VDetector::FitEF)
 		.def("FitTBA", &VDetector::FitTBA)
+
 		//    .def("FitS1", &VDetector::FitS1,
 		//         py::arg("xpos_mm") = 0.,
 		//         py::arg("ypos_mm") = 0.,
