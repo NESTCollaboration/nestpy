@@ -263,8 +263,18 @@ def run_nest_df(
 ):
 
     arr = run_nest(interaction, detector, energy, pos, **kwargs)
-
-    fields = [i for i in arr.fields if arr[i].ndim == 1]
-    df = pd.DataFrame({i: arr[i] for i in fields})
+    df = pd.DataFrame({i: arr[i] for i in arr.fields if arr[i].ndim == 1})
 
     return df
+
+
+def calculate_extraction_parameters(detector, gas_field):
+    initial_gas_field = detector.E_gas
+    results = []
+    for e in gas_field:
+        detector.E_gas = e
+        result = detector.extraction_parameters
+        result["e_gas"] = e
+        results.append(result)
+    detector.E_gas = initial_gas_field
+    return pd.DataFrame(results)

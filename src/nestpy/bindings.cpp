@@ -259,6 +259,13 @@ PYBIND11_MODULE(_nestpy, m)
 		.def_property_readonly("g2",[](VDetector *self){return NEST::NESTcalc(self).CalculateG2(0).at(3);})
 		.def_property_readonly("extraction_parameters", [](VDetector *self){return get_extraction_parameters(self, 0);})
 		
+		// Have to set "inGas" like this to solve reference issues
+		.def("calculate_density_liquid", [](VDetector* self, double temperature, double pressure, double molarMass){bool inGas = false; return NEST::NESTcalc::GetDensity(temperature, pressure, inGas, 0, molarMass);}, "temperature"_a, "pressure"_a, "molarMass"_a = 131.293 )
+		.def("calculate_density_gas", [](VDetector* self, double temperature, double pressure, double molarMass){bool inGas = true; return NEST::NESTcalc::GetDensity(temperature, pressure, inGas, 0, molarMass);}, "temperature"_a, "pressure"_a, "molarMass"_a = 131.293 )
+
+		.def_property_readonly("density_liquid", [](VDetector *self){bool inGas = false; return NEST::NESTcalc::GetDensity(self->get_T_Kelvin(), self->get_p_bar(), inGas, 0, self->get_molarMass());})
+		.def_property_readonly("density_gas", [](VDetector *self){bool inGas = true; return NEST::NESTcalc::GetDensity(self->get_T_Kelvin(), self->get_p_bar(), inGas, 0, self->get_molarMass());})
+
 		.def("FitS1", &VDetector::FitS1)
 		.def("FitS2", &VDetector::FitS1)
 		.def("FitEF", &VDetector::FitEF)
@@ -434,12 +441,22 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("MolarMass") = 131.293,
 			py::arg("OldW13eV") = true
 		)
+		
 
 		// Currently VDetector.FitTBA() requires we reinitialize the detector every time:
 		.def("xyResolution", &NEST::NESTcalc::xyResolution)
 		.def("PhotonEnergy", &NEST::NESTcalc::PhotonEnergy)
 		.def("CalcElectronLET", &NEST::NESTcalc::CalcElectronLET)
-		.def("GetDetector", &NEST::NESTcalc::GetDetector);
+		.def("GetDetector", &NEST::NESTcalc::GetDetector)
+		
+		// Have to set "inGas" like this to solve reference issues
+		.def_property_readonly("density_liquid", [](NEST::NESTcalc &self){bool inGas = false; return NEST::NESTcalc::GetDensity(self.GetDetector()->get_T_Kelvin(), self.GetDetector()->get_p_bar(), inGas, 0, self.GetDetector()->get_molarMass());})
+		.def_property_readonly("density_gas", [](NEST::NESTcalc &self){bool inGas = true; return NEST::NESTcalc::GetDensity(self.GetDetector()->get_T_Kelvin(), self.GetDetector()->get_p_bar(), inGas, 0, self.GetDetector()->get_molarMass());})
+
+		.def_static("calculate_drift_velocity_gas", 
+			py::vectorize( [](double temperature, double pressure, double density, double field, double molarMass){return NEST::NESTcalc::GetDriftVelocity_MagBoltz(temperature, density, field, pressure, molarMass);}), "temperature"_a, "pressure"_a, "density"_a, "field"_a,  "molarMass"_a = 131.293)
+    	.def_static("calculate_drift_velocity_liquid", 
+			py::vectorize( [](double temperature, double pressure, double density, double field, double stddev){return NEST::NESTcalc::GetDriftVelocity_Liquid(temperature, field, density, pressure, stddev);}), "temperature"_a, "pressure"_a, "density"_a, "field"_a, "stddev"_a = -1);
 
 		//	execNEST function
 		m.def("execNEST", &execNEST);
@@ -689,4 +706,5 @@ PYBIND11_MODULE(_nestpy, m)
 
 	// Initialise new detector class
 	init_detector(m);
+
 }
