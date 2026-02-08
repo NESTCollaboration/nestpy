@@ -70,8 +70,8 @@ def GetInteractionObject(name):
     return interaction_object
 
 
-@np.vectorize(excluded={"nuisance_parameters", "ERYieldsParam"})
-def get_all_yields(energy, nest_calc, interaction, **kwargs):
+@np.vectorize(excluded={"NRYieldsParam", "ERYieldsParam"})
+def get_all_yields(interaction, energy, nest_calc=NESTcalc(DetectorExample_XENON10()), **kwargs):
     """Get a list of NEST yield objects
 
     Args:
@@ -82,9 +82,12 @@ def get_all_yields(energy, nest_calc, interaction, **kwargs):
     Returns:
         list[YieldResult]: A list of NEST yield objects
     """
+
+    interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
+
     return nest_calc.GetYields(energy=energy, interaction=interaction, **kwargs)
 
-def get_yields_df(energy, nest_calc, interaction, **kwargs):
+def get_yields_df(interaction, energy, nest_calc=NESTcalc(DetectorExample_XENON10()), **kwargs):
     """Get a pandas dataframe of the yield parameters for an interaction
 
     Args:
@@ -95,12 +98,6 @@ def get_yields_df(energy, nest_calc, interaction, **kwargs):
     Returns:
         list[YieldResult]: A list of NEST yield objects
     """
-
-    try:
-        import pandas as pd
-    except ImportError as exc:
-        msg = "The get_yields_df method requires the 'pandas' package.  Please install via 'pip install pandas'"
-        raise ImportError(msg) from exc
 
     yields = get_all_yields(energy=energy, interaction=interaction, nest_calc=nest_calc, **kwargs)
     items = {"PhotonYield", "ElectronYield", "ExcitonRatio", "Lindhard"}
