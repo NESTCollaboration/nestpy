@@ -271,6 +271,9 @@ PYBIND11_MODULE(_nestpy, m)
 		.def("FitEF", &VDetector::FitEF)
 		.def("FitTBA", &VDetector::FitTBA)
 
+		.def("get_field", &VDetector::FitEF, "x_mm"_a, "y_mm"_a, "z_mm"_a)
+		.def_property_readonly("field_at_center", [](VDetector* self){return self->FitEF(0, 0, self->get_TopDrift()/2);});
+
 		//    .def("FitS1", &VDetector::FitS1,
 		//         py::arg("xpos_mm") = 0.,
 		//         py::arg("ypos_mm") = 0.,
@@ -282,6 +285,7 @@ PYBIND11_MODULE(_nestpy, m)
 		//         py::arg("LCE") = VDetector::LCE::unfold)
 
 		.def("OptTrans", &VDetector::OptTrans)
+		.def("get_optical_transport_time", &VDetector::OptTrans, "x_mm"_a = 0, "y_mm" = 0, "z_mm");
 		.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
 
 	//	Binding for example XENON10
@@ -454,9 +458,15 @@ PYBIND11_MODULE(_nestpy, m)
 		.def_property_readonly("density_gas", [](NEST::NESTcalc &self){bool inGas = true; return NEST::NESTcalc::GetDensity(self.GetDetector()->get_T_Kelvin(), self.GetDetector()->get_p_bar(), inGas, 0, self.GetDetector()->get_molarMass());})
 
 		.def_static("calculate_drift_velocity_gas", 
-			py::vectorize( [](double temperature, double pressure, double density, double field, double molarMass){return NEST::NESTcalc::GetDriftVelocity_MagBoltz(temperature, density, field, pressure, molarMass);}), "temperature"_a, "pressure"_a, "density"_a, "field"_a,  "molarMass"_a = 131.293)
+			py::vectorize([](double temperature, double pressure, double density, double field, double molarMass)
+			{return NEST::NESTcalc::GetDriftVelocity_MagBoltz(temperature, density, field, pressure, molarMass);}),
+			"temperature"_a, "pressure"_a, "density"_a, "field"_a,  "molarMass"_a = 131.293
+		)
     	.def_static("calculate_drift_velocity_liquid", 
-			py::vectorize( [](double temperature, double pressure, double density, double field, double stddev){return NEST::NESTcalc::GetDriftVelocity_Liquid(temperature, field, density, pressure, stddev);}), "temperature"_a, "pressure"_a, "density"_a, "field"_a, "stddev"_a = -1);
+			py::vectorize([](double temperature, double pressure, double density, double field, double stddev)
+			{return NEST::NESTcalc::GetDriftVelocity_Liquid(temperature, field, density, pressure, stddev);}),
+			"temperature"_a, "pressure"_a, "density"_a, "field"_a, "stddev"_a = -1
+		);
 
 		//	execNEST function
 		m.def("execNEST", &execNEST);
