@@ -20,9 +20,9 @@ namespace py = pybind11;
 
 // Function to vectorise spectra sampling (emin, emax)
 py::array_t<double> fill_spectra(
+	int number,
 	double emin, 
 	double emax,
-	int number,
 	std::function<double(double, double)> spectra
 ){
 	auto vec = std::vector<double>(number);
@@ -32,10 +32,10 @@ py::array_t<double> fill_spectra(
 
 // Function to vectorise WIMP sampling
 py::array_t<double> fill_spectra(
+	int number,
 	double mass, 
 	double eStep,
-	double day,
-	int number
+	double day
 ){
 	auto ws = TestSpectra::WIMP_prep_spectrum(mass, eStep, day);
 	auto vec = std::vector<double>(number);
@@ -45,6 +45,7 @@ py::array_t<double> fill_spectra(
 
 // Function to vectorise spectra sampling (DD)
 py::array_t<double>fill_spectra(
+	int number,
 	double emin,
 	double emax,
 	double expFall,
@@ -52,7 +53,6 @@ py::array_t<double>fill_spectra(
 	double peakMu,
 	double peakSig,
 	double peakSkew,
-	int number,
 	std::function<double(double, double, double, double, double, double, double)> spectra
 ){
 	auto vec = std::vector<double>(number);
@@ -71,59 +71,59 @@ void init_spectra(py::module& m){
 		.def(py::init<>())
 		.def_static(
 			"CH3T", 
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::CH3T_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::CH3T_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 18.6,
-			py::arg("number")
+			py::arg("xMax") = 18.6
 		)
 		.def_static("C14",
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::C14_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::C14_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 156.,
-			py::arg("number")
+			py::arg("xMax") = 156.
 		)
 		.def_static("B8", 
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::B8_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::B8_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 4.,
-			py::arg("number")
+			py::arg("xMax") = 4.
 		)
 		.def_static("AmBe", 
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::AmBe_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::AmBe_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 200.,
-			py::arg("number")
+			py::arg("xMax") = 200.
 		)
 		.def_static("Cf", 
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::Cf_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::Cf_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 200.,
-			py::arg("number")
+			py::arg("xMax") = 200.
 		)
 		.def_static("DD",
-			[](double emin, double emax, double expFall, double peakFrac, double peakMu, double peakSig, double peakSkew, int number){
-				return fill_spectra(emin, emax, expFall, peakFrac, peakMu, peakSig, peakSkew, number, &TestSpectra::DD_spectrum);
+			[](int number, double emin, double emax, double expFall, double peakFrac, double peakMu, double peakSig, double peakSkew){
+				return fill_spectra(number, emin, emax, expFall, peakFrac, peakMu, peakSig, peakSkew, &TestSpectra::DD_spectrum);
 			},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
 			py::arg("xMax") = 80.,
 			py::arg("expFall") =  13.,
 			py::arg("peakFrac") = 0.12,
 			py::arg("peakMu") = 71.2,
 			py::arg("peakSig") = 20.,
-			py::arg("peakSkew") = -20.5,
-            py::arg("number")
+			py::arg("peakSkew") = -20.5
 		)
 		.def_static("ppSolar", 
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::ppSolar_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::ppSolar_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 250.,
-			py::arg("number")
+			py::arg("xMax") = 250.
 		)
 		.def_static("atmNu",
-			[](double emin, double emax, int number){return fill_spectra(emin, emax, number, &TestSpectra::atmNu_spectrum);},  
+			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::atmNu_spectrum);},  
+			py::arg("number"),
 			py::arg("xMin") = 0.,
-			py::arg("xMax") = 85.,
-			py::arg("number")
+			py::arg("xMax") = 85.
 		)
 		.def_static("WIMP_prep", 
 			&TestSpectra::WIMP_prep_spectrum,
@@ -132,9 +132,9 @@ void init_spectra(py::module& m){
 			py::arg("day")=0.
 		)
 		.def_static("WIMP",
-			[](double mass, int number, double eStep, double day){return fill_spectra(mass, eStep, day, number);},  
-			py::arg("mass"),
+			[](int number, double mass, double eStep, double day){return fill_spectra(number, mass, eStep, day);},  
 			py::arg("number"),
+			py::arg("mass"),
 			py::arg("eStep") = 5.,
 			py::arg("day")= 0.
 		);

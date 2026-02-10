@@ -66,33 +66,33 @@ PYBIND11_MODULE(_nestpy, m)
 
 	py::class_<NEST::YieldResult>(m, "YieldResult", py::dynamic_attr())
 		.def(py::init<>())
-		.def_readwrite("PhotonYield", &NEST::YieldResult::PhotonYield)
-		.def_readwrite("ElectronYield", &NEST::YieldResult::ElectronYield)
-		.def_readwrite("ExcitonRatio", &NEST::YieldResult::ExcitonRatio)
-		.def_readwrite("Lindhard", &NEST::YieldResult::Lindhard)
-		.def_readwrite("ElectricField", &NEST::YieldResult::ElectricField)
-		.def_readwrite("DeltaT_Scint", &NEST::YieldResult::DeltaT_Scint);
+		.def_readonly("PhotonYield", &NEST::YieldResult::PhotonYield)
+		.def_readonly("ElectronYield", &NEST::YieldResult::ElectronYield)
+		.def_readonly("ExcitonRatio", &NEST::YieldResult::ExcitonRatio)
+		.def_readonly("Lindhard", &NEST::YieldResult::Lindhard)
+		.def_readonly("ElectricField", &NEST::YieldResult::ElectricField)
+		.def_readonly("DeltaT_Scint", &NEST::YieldResult::DeltaT_Scint);
 	
 	//	Binding for QuantaResult struct
 	py::class_<NEST::QuantaResult>(m, "QuantaResult", py::dynamic_attr())
 		.def(py::init<>())
-		.def_readwrite("photons", &NEST::QuantaResult::photons)
-		.def_readwrite("electrons", &NEST::QuantaResult::electrons)
-		.def_readwrite("ions", &NEST::QuantaResult::ions)
-		.def_readwrite("excitons", &NEST::QuantaResult::excitons);
+		.def_readonly("photons", &NEST::QuantaResult::photons)
+		.def_readonly("electrons", &NEST::QuantaResult::electrons)
+		.def_readonly("ions", &NEST::QuantaResult::ions)
+		.def_readonly("excitons", &NEST::QuantaResult::excitons);
 
 	//	Binding for NESTresult struct
 	py::class_<NEST::NESTresult>(m, "NESTresult", py::dynamic_attr())
 		.def(py::init<>())
-		.def_readwrite("yields", &NEST::NESTresult::yields)
-		.def_readwrite("quanta", &NEST::NESTresult::quanta)
-		.def_readwrite("photon_times", &NEST::NESTresult::photon_times);
+		.def_readonly("yields", &NEST::NESTresult::yields)
+		.def_readonly("quanta", &NEST::NESTresult::quanta)
+		.def_readonly("photon_times", &NEST::NESTresult::photon_times);
 
 	// Binding for Wvalue struct...
 	py::class_<NEST::NESTcalc::Wvalue>(m, "Wvalue", py::dynamic_attr())
 		.def(py::init<>())
-		.def_readwrite("Wq_eV", &NEST::NESTcalc::Wvalue::Wq_eV)
-		.def_readwrite("alpha", &NEST::NESTcalc::Wvalue::alpha);
+		.def_readonly("Wq_eV", &NEST::NESTcalc::Wvalue::Wq_eV)
+		.def_readonly("alpha", &NEST::NESTcalc::Wvalue::alpha);
 
 	// Binding for the WIMP Spectrum Prep struct
 	py::class_<TestSpectra::WIMP_spectrum_prep>(m, "WIMP_spectrum_prep", py::dynamic_attr())
@@ -211,11 +211,10 @@ PYBIND11_MODULE(_nestpy, m)
 		.def("set_cathode", &VDetector::set_cathode)
 		.def("set_gate", &VDetector::set_gate)
 
-		.def("set_molarMarr", &VDetector::set_molarMass)
+		.def("set_molarMass", &VDetector::set_molarMass)
 
 		.def("set_PosResExp", &VDetector::set_PosResExp)
 		.def("set_PosResBase", &VDetector::set_PosResBase)
-
 
 		.def_property("g1", &VDetector::get_g1, &VDetector::set_g1)
 		.def_property("sPEres", &VDetector::get_sPEres, &VDetector::set_sPEres)
@@ -251,7 +250,7 @@ PYBIND11_MODULE(_nestpy, m)
 		.def_property("cathode", &VDetector::get_cathode, &VDetector::set_cathode)
 		.def_property("gate", &VDetector::get_gate, &VDetector::set_gate)
 
-		.def_property("molarMarr", &VDetector::get_molarMass, &VDetector::set_molarMass)
+		.def_property("molarMass", &VDetector::get_molarMass, &VDetector::set_molarMass)
 
 		.def_property("PosResExp", &VDetector::get_PosResExp, &VDetector::set_PosResExp)
 		.def_property("PosResBase", &VDetector::get_PosResBase, &VDetector::set_PosResBase)
@@ -272,7 +271,7 @@ PYBIND11_MODULE(_nestpy, m)
 		.def("FitTBA", &VDetector::FitTBA)
 
 		.def("get_field", &VDetector::FitEF, "x_mm"_a, "y_mm"_a, "z_mm"_a)
-		.def_property_readonly("field_at_center", [](VDetector* self){return self->FitEF(0, 0, self->get_TopDrift()/2);});
+		.def_property_readonly("field_at_center", [](VDetector* self){return self->FitEF(0, 0, self->get_TopDrift()/2);})
 
 		//    .def("FitS1", &VDetector::FitS1,
 		//         py::arg("xpos_mm") = 0.,
@@ -285,7 +284,7 @@ PYBIND11_MODULE(_nestpy, m)
 		//         py::arg("LCE") = VDetector::LCE::unfold)
 
 		.def("OptTrans", &VDetector::OptTrans)
-		.def("get_optical_transport_time", &VDetector::OptTrans, "x_mm"_a = 0, "y_mm" = 0, "z_mm");
+		.def("get_optical_transport_time", &VDetector::OptTrans, "x_mm"_a = 0, "y_mm"_a = 0, "z_mm"_a)
 		.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
 
 	//	Binding for example XENON10
