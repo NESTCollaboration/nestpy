@@ -47,7 +47,7 @@ void init_detector(py::module& m){
         .def("FitTBA", &LZ_Detector_2024::FitTBA)
         .def("OptTrans", &LZ_Detector_2024::OptTrans)
         .def("SinglePEWaveForm", &LZ_Detector_2024::SinglePEWaveForm)
-        .def_property_readonly("nr_yield_params", &LZ_Detector_2024::get_nr_yield_params)
-        .def_property_readonly("er_yield_params", &LZ_Detector_2024::get_er_yield_params)
-        .def_property_readonly("width_yield_params", &LZ_Detector_2024::get_nr_er_width_params);
+        .def_property_readonly("nr_yield_parameters", &LZ_Detector_2024::get_nr_yield_params)
+        .def_property_readonly("er_yield_parameters", &LZ_Detector_2024::get_er_yield_params)
+        .def_property_readonly("nr_er_width_parameters", &LZ_Detector_2024::get_nr_er_width_params);
 }

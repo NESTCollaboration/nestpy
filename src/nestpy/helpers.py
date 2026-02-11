@@ -70,7 +70,7 @@ def GetInteractionObject(name):
     return interaction_object
 
 
-@np.vectorize(excluded={"NRYieldsParam", "ERYieldsParam"})
+@np.vectorize(excluded={"nr_parameters", "er_parameters"})
 def get_all_yields(interaction, energy, nest_calc=NESTcalc(DetectorExample_XENON10()), **kwargs):
     """Get a list of NEST yield objects
 
@@ -105,7 +105,7 @@ def get_yields_df(interaction, energy, nest_calc=NESTcalc(DetectorExample_XENON1
     df["energy"] = energy
     return df
 
-@np.vectorize(excluded={"nuisance_parameters", "ERYieldsParam"})
+@np.vectorize(excluded={"nr_parameters", "er_parameters"})
 def GetYieldsVectorized(interaction, yield_type, nc=None, detector=None, **kwargs):
     """
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.

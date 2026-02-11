@@ -368,9 +368,9 @@ PYBIND11_MODULE(_nestpy, m)
 	py::class_<NEST::NESTcalc, std::unique_ptr<NEST::NESTcalc, py::nodelete>>(m, "NESTcalc")
 		//.def(py::init<>())
 		.def(py::init<VDetector*>())
-		.def_readonly_static("default_NRYieldsParam", &default_NRYieldsParam)
-		.def_readonly_static("default_NRERWidthsParam", &default_NRERWidthsParam)
-		.def_readonly_static("default_ERYieldsParam", &default_ERYieldsParam)
+		.def_readonly_static("default_nr_parameters", &default_NRYieldsParam)
+		.def_readonly_static("default_nr_er_width_parameters", &default_NRERWidthsParam)
+		.def_readonly_static("default_er_parameters", &default_ERYieldsParam)
 		//     .def_static("BinomFluct", &NEST::NESTcalc::BinomFluct)
 		.def("FullCalculation", &NEST::NESTcalc::FullCalculation,
 			"Perform the full yield calculation with smearings",
@@ -380,9 +380,9 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("drift_field") = 124,
 			py::arg("A") = 131.293,
 			py::arg("Z") = 54,
-			py::arg("nuisance_parameters") = &default_NRYieldsParam,
-			py::arg("free_parameters") = &default_NRERWidthsParam,
+			py::arg("nr_parameters") = &default_NRYieldsParam,
 			py::arg("er_parameters") = &default_ERYieldsParam,
+			py::arg("nr_er_width_parameters") = &default_NRERWidthsParam,
 			py::arg("do_times") = false
 	    )
 		.def("PhotonTime", &NEST::NESTcalc::PhotonTime)
@@ -401,7 +401,7 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("energy") = 5.2,
 			py::arg("density") = 2.9, 
 			py::arg("drift_field") = 124,
-			py::arg("ERYieldsParam") = &default_ERYieldsParam,
+			py::arg("er_parameters") = &default_ERYieldsParam,
 			py::arg("EnergyParams") = std::vector<double>({0.23, 0.77, 2.95, -1.44}),
 			py::arg("FieldParams") = std::vector<double>({421.15, 3.27})
 		)
@@ -413,13 +413,13 @@ PYBIND11_MODULE(_nestpy, m)
 			py::arg("drift_field") = 124,
 			py::arg("A") = 131.293,
 			py::arg("Z") = 54,
-			py::arg("NRYieldsParam") = &default_NRYieldsParam,
-			py::arg("ERYieldsParam") = &default_ERYieldsParam
+			py::arg("nr_parameters") = &default_NRYieldsParam,
+			py::arg("er_parameters") = &default_ERYieldsParam
 		)
 		.def("GetQuanta", &NEST::NESTcalc::GetQuanta,
 			py::arg("yields"),
 			py::arg("density") = 2.9,
-			py::arg("NRERWidthsParam") = &default_NRERWidthsParam, 
+			py::arg("nr_er_width_parameters") = &default_NRERWidthsParam, 
 			py::arg("SkewnessER") = -999.
 		)   
 		.def("GetS1", &NEST::NESTcalc::GetS1)
@@ -471,9 +471,9 @@ PYBIND11_MODULE(_nestpy, m)
 		m.def("execNEST", &execNEST);
 		m.def("GetEnergyRes", &GetEnergyRes);
 		m.def("GetBand", &GetBand);
-		m.def("default_nr_yields_params", []() { return default_NRYieldsParam; });
-		m.def("default_nrer_widths_params", []() { return default_NRERWidthsParam; });
-		m.def("default_er_yields_params", []() { return default_ERYieldsParam; });
+		m.def("default_nr_parameters", []() { return default_NRYieldsParam; });
+		m.def("default_nr_er_width_parameters", []() { return default_NRERWidthsParam; });
+		m.def("default_er_parameters", []() { return default_ERYieldsParam; });
 
 	//-----------------------------------------------------------------------
 	// LAr NEST bindings
