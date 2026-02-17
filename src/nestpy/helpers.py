@@ -221,7 +221,7 @@ def run_nest(
     interaction,
     detector,
     energy,
-    pos: list[list[float]] = None,
+    positions: list[list[float]] = None,
     **kwargs
 ):
 
@@ -230,12 +230,12 @@ def run_nest(
     interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
     # If no position given then randomly sample
-    if pos is None:
-        pos = get_random_position(detector, len(energy))
+    if positions is None:
+        positions = get_random_position(detector, len(energy))
 
     # Compute the NEST outputs
     result = array.runNESTvec(
-        detector, interaction, energy.tolist(), pos.tolist(), **kwargs
+        detector, interaction, energy.tolist(), positions.tolist(), **kwargs
     )
 
     # Create the pandas dataframe
@@ -245,9 +245,9 @@ def run_nest(
 
     # Save truth information
     arr["energy_keV"] = energy
-    arr["x_mm"] = pos[:, 0]
-    arr["y_mm"] = pos[:, 1]
-    arr["z_mm"] = pos[:, 2]
+    arr["x_mm"] = positions[:, 0]
+    arr["y_mm"] = positions[:, 1]
+    arr["z_mm"] = positions[:, 2]
 
     return arr
 
