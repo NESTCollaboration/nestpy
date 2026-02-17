@@ -1,6 +1,5 @@
 # Test package every time
 name: Pytest
-env: CMAKE_BUILD_TYPE: Debug
 
 on:
   workflow_dispatch:
@@ -15,6 +14,8 @@ jobs:
   update:
     name: "(${{ matrix.os }}, ${{ matrix.python-version }}, ${{ matrix.test }})"
     runs-on: ${{ matrix.os }}
+    env: 
+      CMAKE_BUILD_TYPE: Debug
     strategy:
       fail-fast: False
       matrix:
