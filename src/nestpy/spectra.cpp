@@ -67,14 +67,15 @@ py::array_t<double>fill_spectra(
 }
 
 void init_spectra(py::module& m){
-	// Binding for the TestSpectra class
 
-// Binding for the WIMP Spectrum Prep struct
-	py::class_<TestSpectra::WIMP_spectrum_prep>(m, "WIMP_spectrum_prep", py::dynamic_attr())
+	auto m_spectra = m.def_submodule("spectra", "spectra");
+
+	// Binding for the WIMP Spectrum Prep struct
+	py::class_<TestSpectra::WIMP_spectrum_prep>(m_spectra, "WIMP_spectrum_prep", py::dynamic_attr())
 		.def(py::init<>());
 
 	// Binding for the TestSpectra class
-	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m, "spectra", py::module_local())
+	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m_spectra, "spectra", py::module_local())
 		.def(py::init<>())
 				.def_static("CH3T_spectrum", 
 			&TestSpectra::CH3T_spectrum, 
