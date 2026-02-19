@@ -17,6 +17,7 @@
 #include "spectra.hh"
 
 namespace py = pybind11;
+using namespace pybind11::literals; 
 
 // Function to vectorise spectra sampling (emin, emax)
 py::array_t<double> fill_spectra(
@@ -67,8 +68,71 @@ py::array_t<double>fill_spectra(
 
 void init_spectra(py::module& m){
 	// Binding for the TestSpectra class
+
+// Binding for the WIMP Spectrum Prep struct
+	py::class_<TestSpectra::WIMP_spectrum_prep>(m, "WIMP_spectrum_prep", py::dynamic_attr())
+		.def(py::init<>());
+
+	// Binding for the TestSpectra class
 	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m, "spectra", py::module_local())
 		.def(py::init<>())
+				.def_static("CH3T_spectrum", 
+			&TestSpectra::CH3T_spectrum, 
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 18.6
+		)
+		.def_static("C14_spectrum",
+			&TestSpectra::C14_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 156.
+		)
+		.def_static("B8_spectrum", 
+			&TestSpectra::B8_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 4.
+		)
+		.def_static("AmBe_spectrum", 
+			&TestSpectra::AmBe_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 200.
+		)
+		.def_static("Cf_spectrum", 
+			&TestSpectra::Cf_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 200.
+		)
+		.def_static("DD_spectrum",
+			&TestSpectra::DD_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 80.,
+			py::arg("expFall") =  10.,
+			py::arg("peakFrac") = 0.1,
+			py::arg("peakMu") = 60.,
+			py::arg("peakSig") = 25.,
+			py::arg("peakSkew") = 0.
+		)
+		.def_static("ppSolar_spectrum", 
+			&TestSpectra::ppSolar_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 250.
+		)
+		.def_static("atmNu_spectrum",
+			&TestSpectra::atmNu_spectrum,
+			py::arg("xMin") = 0.,
+			py::arg("xMax") = 85.
+		)
+		.def_static("WIMP_prep_spectrum", 
+			&TestSpectra::WIMP_prep_spectrum,
+			py::arg("mass") = 50.,
+			py::arg("eStep") = 5.,
+			py::arg("day")=0.
+		)
+		.def_static("WIMP_spectrum",
+			&TestSpectra::WIMP_spectrum,
+			py::arg("wprep"),
+			py::arg("mass") = 50.,
+			py::arg("day") = 0.
+		)
 		.def_static(
 			"CH3T", 
 			[](int number, double emin, double emax){return fill_spectra(number, emin, emax, &TestSpectra::CH3T_spectrum);},  

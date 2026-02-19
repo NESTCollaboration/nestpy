@@ -3,6 +3,7 @@
 #include "NEST.hh"
 #include "execNEST.hh"
 namespace py = pybind11;
+using namespace pybind11::literals; 
 
 
 void init_array(py::module& m){
