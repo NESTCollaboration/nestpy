@@ -144,7 +144,7 @@ class NESTcalcTest(unittest.TestCase):
 class TestSpectraWIMPTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.spec = nestpy.spectra.TestSpectra()
+        cls.spec = nestpy.spectra
     
     def test_WIMP_spectrum(self):
         self.spec.WIMP_prep_spectrum( 50., 10. ) #mass and energy integration step
