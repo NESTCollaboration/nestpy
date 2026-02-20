@@ -10,23 +10,23 @@ class ConstructorTest(unittest.TestCase):
     """
 
     def test_vdetector_constructor(self):
-        detector = nestpy.VDetector()
+        detector = nestpy.detectors.VDetector()
         assert detector is not None
-        assert isinstance(detector, nestpy.VDetector)
+        assert isinstance(detector, nestpy.detectors.VDetector)
 
     def test_vdetector_initialization(self):
-        detector = nestpy.VDetector()
+        detector = nestpy.detectors.VDetector()
         detector.Initialization()
         assert detector is not None
-        assert isinstance(detector, nestpy.VDetector)
+        assert isinstance(detector, nestpy.detectors.VDetector)
 
     def test_xenon_example_constructor(self):
-        detector = nestpy.DetectorExample_XENON10()
+        detector = nestpy.detectors.DetectorExample_XENON10()
         assert detector is not None
-        assert isinstance(detector, nestpy.DetectorExample_XENON10)
+        assert isinstance(detector, nestpy.detectors.DetectorExample_XENON10)
 
     def test_nestcalc_constructor_vdetect(self):
-        detector = nestpy.VDetector()
+        detector = nestpy.detectors.VDetector()
         detector.Initialization()
         nestcalc = nestpy.NESTcalc(detector)
         assert nestcalc is not None
@@ -43,12 +43,12 @@ class VDetectorTest(unittest.TestCase):
 
    @classmethod
    def setUpClass(cls):
-       cls.detector = nestpy.VDetector()
+       cls.detector = nestpy.detectors.VDetector()
        cls.detector.Initialization()
        cls.it = nestpy.INTERACTION_TYPE(0)
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
-       cls.nuisance = cls.nestcalc.default_NRYieldsParam
-       cls.free = cls.nestcalc.default_NRERWidthsParam
+       cls.nuisance = cls.nestcalc.default_nr_parameters
+       cls.free = cls.nestcalc.default_nr_er_width_parameters
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
    # def test_fit_s1(self):
    #     self.detector.FitS1(1.0, 2.0, 3.0)
@@ -67,14 +67,14 @@ class NESTcalcTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.detector = nestpy.VDetector()
+        cls.detector = nestpy.detectors.VDetector()
         cls.detector.Initialization()
         cls.it = nestpy.INTERACTION_TYPE(0)
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
 
-        cls.nuisance = cls.nestcalc.default_NRYieldsParam
-        cls.free = cls.nestcalc.default_NRERWidthsParam
-        cls.er_params = cls.nestcalc.default_ERYieldsParam
+        cls.nuisance = cls.nestcalc.default_nr_parameters
+        cls.free = cls.nestcalc.default_nr_er_width_parameters
+        cls.er_params = cls.nestcalc.default_er_parameters
 
     def test_interaction_type_constructor(self):
         for i in range(5):
@@ -138,13 +138,13 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_equality(self):
         # Will call a test for the nearlyEqual function to ensure it still works.
-        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_yields_params(), nestpy.default_er_yields_params())
+        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_parameters, nestpy.default_er_parameters)
 
 
 class TestSpectraWIMPTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.spec = nestpy.TestSpectra()
+        cls.spec = nestpy.spectra.TestSpectra()
     
     def test_WIMP_spectrum(self):
         self.spec.WIMP_prep_spectrum( 50., 10. ) #mass and energy integration step
@@ -155,14 +155,14 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.detector = nestpy.VDetector()
+        cls.detector = nestpy.detectors.VDetector()
         cls.detector.Initialization()
         cls.it = nestpy.INTERACTION_TYPE(0)
 
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
-        cls.nuisance = cls.nestcalc.default_NRYieldsParam
-        cls.free = cls.nestcalc.default_NRERWidthsParam
-        cls.er_params = cls.nestcalc.default_ERYieldsParam
+        cls.nuisance = cls.nestcalc.default_nr_parameters
+        cls.free = cls.nestcalc.default_nr_er_width_parameters
+        cls.er_params = cls.nestcalc.default_er_parameters
         cls.result = cls.nestcalc.FullCalculation(
             cls.it, 10., 3., 100., 131, 56,
             cls.nuisance,
@@ -206,7 +206,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
                             [0., 82., 2., 3., 4.])
 
     def test_nestcalc_get_xyresolution(self):
-        self.detector = nestpy.DetectorExample_XENON10()
+        self.detector = nestpy.detectors.DetectorExample_XENON10()
         self.detector.Initialization()
         self.nestcalc = nestpy.NESTcalc(self.detector)
         self.nestcalc.xyResolution(
@@ -215,7 +215,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
 class LArNESTTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.detector = nestpy.VDetector()
+        cls.detector = nestpy.detectors.VDetector()
         cls.detector.Initialization()
         cls.it = nestpy.LArInteraction(0)
 

@@ -75,7 +75,7 @@ void init_spectra(py::module& m){
 		.def(py::init<>());
 
 	// Binding for the TestSpectra class
-	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m_spectra, "spectra", py::module_local())
+	py::class_<TestSpectra, std::unique_ptr<TestSpectra, py::nodelete>>(m_spectra, "TestSpectra", py::module_local())
 		.def(py::init<>())
 				.def_static("CH3T_spectrum", 
 			&TestSpectra::CH3T_spectrum, 

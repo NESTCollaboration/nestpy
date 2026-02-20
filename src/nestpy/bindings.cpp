@@ -214,9 +214,9 @@ PYBIND11_MODULE(_nestpy, m)
 		m.def("execNEST", &execNEST);
 		m.def("GetEnergyRes", &GetEnergyRes);
 		m.def("GetBand", &GetBand);
-		m.def("default_nr_parameters", []() { return default_NRYieldsParam; });
-		m.def("default_nr_er_width_parameters", []() { return default_NRERWidthsParam; });
-		m.def("default_er_parameters", []() { return default_ERYieldsParam; });
+		m.attr("default_nr_parameters") =  py::cast(default_NRYieldsParam);
+		m.attr("default_nr_er_width_parameters") =  py::cast(default_NRERWidthsParam);
+		m.attr("default_er_parameters") =  py::cast(default_ERYieldsParam);
 
 	//-----------------------------------------------------------------------
 	// LAr NEST bindings

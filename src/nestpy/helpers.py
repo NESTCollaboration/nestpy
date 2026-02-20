@@ -14,7 +14,8 @@ Main ingredients for the above steps:
 
 import numpy as np
 
-from ._nestpy import DetectorExample_XENON10, NESTcalc, INTERACTION_TYPE, array # This is C++ library
+from ._nestpy import NESTcalc, INTERACTION_TYPE, array # This is C++ library
+from ._nestpy.detectors import DetectorExample_XENON10
 import awkward as ak
 import pandas as pd
 

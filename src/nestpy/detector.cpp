@@ -34,7 +34,7 @@ void init_detector(py::module& m){
     	//	Binding for the VDetector class
 	//	py::nodelete added so that NESTcalc() deconstructor does
 	//	not delete instance of VDetector()
-	py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m, "VDetector")	
+	py::class_<VDetector, std::unique_ptr<VDetector, py::nodelete>>(m_detect, "VDetector")	
 		.def(py::init<>())
 		.def("Initialization", &VDetector::Initialization)
 		.def("get_name", &VDetector::getName)
@@ -190,7 +190,7 @@ void init_detector(py::module& m){
 		.def("SinglePEWaveForm", &VDetector::SinglePEWaveForm);
 
 	//	Binding for example XENON10
-	py::class_<DetectorExample_XENON10, VDetector, std::unique_ptr<DetectorExample_XENON10, py::nodelete>>(m, "DetectorExample_XENON10")
+	py::class_<DetectorExample_XENON10, VDetector, std::unique_ptr<DetectorExample_XENON10, py::nodelete>>(m_detect, "DetectorExample_XENON10")
 		.def(py::init<>())
 		.def("Initialization", &DetectorExample_XENON10::Initialization)
 		.def("FitTBA", &DetectorExample_XENON10::FitTBA)
@@ -198,7 +198,7 @@ void init_detector(py::module& m){
 		.def("SinglePEWaveForm", &DetectorExample_XENON10::SinglePEWaveForm);
 	
 	//	Binding for example LUX_Run03
-	py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m, "LUX_Run03")
+	py::class_<DetectorExample_LUX_RUN03, VDetector, std::unique_ptr<DetectorExample_LUX_RUN03, py::nodelete>>(m_detect, "LUX_Run03")
 		.def(py::init<>())
 		.def("Initialization", &DetectorExample_LUX_RUN03::Initialization)
 		.def("FitTBA", &DetectorExample_LUX_RUN03::FitTBA)
