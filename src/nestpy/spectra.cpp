@@ -1,18 +1,13 @@
 #include <algorithm>
 #include <functional>
 #include <pybind11/pybind11.h>
-#include "NEST.hh"
-#include "LArNEST.hh"
-#include "VDetector.hh"
-#include "execNEST.hh"
+
 #include "TestSpectra.hh"
-#include "LUX_Run03.hh"
-#include "DetectorExample_XENON10.hh"
+
 #include <pybind11/numpy.h>
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
-#include "execNEST.hh"
 
 #include "spectra.hh"
 

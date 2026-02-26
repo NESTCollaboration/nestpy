@@ -3,7 +3,6 @@
 
 #include "detector.hh"
 
-#include <iostream>
 #include "NEST.hh"
 #include "VDetector.hh"
 #include "LUX_Run03.hh"
