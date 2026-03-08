@@ -1,0 +1,9 @@
+#ifndef detector_h
+#define detector_h
+
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
+
+void init_detector(py::module& m);
+
+#endif 
