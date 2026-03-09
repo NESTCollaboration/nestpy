@@ -7,13 +7,16 @@ Patch releases mean (the Z number in X.Y.Z version) that the underlying physics 
 2.1.0 (2026-03-09)
 ------------------
 Major Change:
+  * Adds support for accessing runENSTvec from nestpy
   * Add support for vectorised methods (yields, spectra, positions, etc..)
   * Sync with NEST cbf3bcbb99c0b10abf7e6a75b8412d90ae4b95b9 (Feb 2026)
   * Simplify bindings into categories
+  * Adds detectors and spectra subpackages which changes how they are called. Breaking change!
 Minor Changes:
   * CI test changes to remove pre-python-3.8 and formally drop support for 3.8
   * Add support for 3.12
   * Tidy up includes
+  * Adds LZ detector
   * Make LZ 2024 parameters consistent with main code.
   * Improve pythonic-ness of code
   * Formatting updates
