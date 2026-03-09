@@ -4,6 +4,20 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.1.0 (2026-03-09)
+------------------
+Major Change:
+  * Add support for vectorised methods (yields, spectra, positions, etc..)
+  * Sync with NEST cbf3bcbb99c0b10abf7e6a75b8412d90ae4b95b9 (Feb 2026)
+  * Simplify bindings into categories
+Minor Changes:
+  * CI test changes to remove pre-python-3.8 and formally drop support for 3.8
+  * Add support for 3.12
+  * Tidy up includes
+  * Make LZ 2024 parameters consistent with main code.
+  * Improve pythonic-ness of code
+  * Formatting updates
+
 2.0.6 (2025-11-20)
 ------------------
 Minor Changes:
