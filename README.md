@@ -57,9 +57,6 @@ In order to create a more efficient workflow, we suggest the user takes the foll
 [submodule "lib/gcem"]
 	path = lib/gcem
 	url = https://github.com/kthohr/gcem.git
-[submodule "lib/pybind11"]
-	path = lib/pybind11
-	url = https://github.com/pybind/pybind11.git
 ```
 
 ## Usage
