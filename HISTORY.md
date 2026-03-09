@@ -4,6 +4,28 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.1.0 (2026-03-09)
+------------------
+Major Changes:
+  * Add support for accessing `runENSTvec` from nestpy
+  * Add vectorised interfaces for NEST operations (yields, spectra, positions, etc.)
+  * Synchronise with NEST commit cbf3bcbb99c0b10abf7e6a75b8412d90ae4b95b9 (Feb 2026)
+  * Refactor pybind bindings and organise them into clearer categories
+  * Introduce new `detectors`, `spectra`, and `array` Python subpackages
+
+Breaking Changes:
+  * NEST bindings are reorganised into the new `detectors`, `spectra`, and `array`
+    subpackages, changing how some functionality is accessed from Python
+
+Minor Changes:
+  * Add LZ detector implementation
+  * Align LZ 2024 parameters with the main NEST codebase
+  * Update CI to remove testing for Python <3.8 and formally drop Python 3.8 support
+  * Add support for Python 3.12
+  * Simplify and tidy include structure
+  * Improve Python API consistency and overall pythonic style
+  * Code formatting updates
+
 2.0.6 (2025-11-20)
 ------------------
 Minor Changes:

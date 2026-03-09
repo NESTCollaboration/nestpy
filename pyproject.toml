@@ -7,10 +7,11 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "nestpy"
-version = "2.0.6"
+version = "2.1.0"
 description = "Python bindings for the NEST noble element simulation"
 authors = [
     {name = "Sam Eriksen", email = "sam.eriksen@bristol.ac.uk"},
+    {name = "Albert Baker", email = "k2371191@kcl.ac.uk"},
     {name = "Greg Rischbieter", email = "rischbie@umich.edu"},
     {name = "Nicholas Carrara", email = "ncarrara.physics@gmail.com"},
     {name = "Sophia Andaloro", email = "sja5@rice.edu"},
