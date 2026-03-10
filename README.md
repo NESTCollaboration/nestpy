@@ -63,11 +63,13 @@ In order to create a more efficient workflow, we suggest the user takes the foll
 
 Python bindings to the NEST library:
 
+### Simple example covering the basic logic behind NEST
+
 ```
 import nestpy
 
 # This is same as C++ NEST with naming
-nc = nestpy.NESTcalc(nestpy.VDetector())
+nc = nestpy.NESTcalc(nestpy.detectors.VDetector())
 
 interaction = nestpy.INTERACTION_TYPE(0)  # NR
 
@@ -82,6 +84,45 @@ print('The photon yield is:', y.PhotonYield)
 print('With statistical fluctuations',
       nc.GetQuanta(y).photons)
 ```
+
+### Examples using a vectorised approach
+
+Get the yields as a function of energy
+
+```
+# Want to use custom yields parameters (e.g. from LZ WS2024)
+lz_2024 = nestpy.detectors.LZ_WS2024()
+# Get yields as a dataframe 
+energy = np.linspace(1, 10, 10000)
+nr_yeild = nestpy.helpers.get_yields_df(ne.interactions.NR, energy)
+er_devel_yield = ne.helpers.get_yields_df(ne.interactions.beta, energy, nr_parameters = lz_2024.nr_parameters, er_parameters = lz_2024.er_parameters)
+```
+
+Run a vectorised simulation of S1 and S2 parameters 
+
+```
+n = int(1e5)
+
+t = nestpy.helpers.run_nest_df(
+    # "beta",
+    nestpy.interactions.beta,
+    lz_2024,
+    nestpy.spectra.CH3T(number=n), # Vectorised sampler from energy spectra
+    # By default uses random positions in the detector
+)
+
+d = nestpy.helpers.run_nest_df(
+    nestpy.interactions.NR,
+    lz_2024,
+    ne.spectra.DD(number=n),
+    # nr_yield_params = det.nr_yield_params <- can set custom yield parameters
+    # er_yield_params = det.er_yield_params <- can set custom yield parameters
+    # width_params = det.width_yield_params <- can set this too
+    # s1_mode" = NEST::S1CalculationMode::Hybrid <- Can simulate more detailed calculation or waveforms
+    # s2_mode" = NEST::S2CalculationMode::Full <- Can simulate Waveforms with E-trains
+)
+```
+
 
 For more examples on possible calls, please see the tests and tutorials folders.
 

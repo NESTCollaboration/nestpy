@@ -77,19 +77,26 @@ PYBIND11_MODULE(_nestpy, m)
 
 
 	//	Binding for the enumeration INTERACTION_TYPE
-	py::enum_<NEST::INTERACTION_TYPE>(m, "INTERACTION_TYPE", py::arithmetic())
+	py::enum_<NEST::INTERACTION_TYPE>(m, "interactions", py::arithmetic())
+		// nuclear recoil
 		.value("NR", NEST::INTERACTION_TYPE::NR)
 		.value("WIMP", NEST::INTERACTION_TYPE::WIMP)
 		.value("B8", NEST::INTERACTION_TYPE::B8)
 		.value("DD", NEST::INTERACTION_TYPE::DD)
 		.value("AmBe", NEST::INTERACTION_TYPE::AmBe)
 		.value("Cf", NEST::INTERACTION_TYPE::Cf)
-		.value("ion", NEST::INTERACTION_TYPE::ion)
-		.value("gammaRay", NEST::INTERACTION_TYPE::gammaRay)
-		.value("beta", NEST::INTERACTION_TYPE::beta)
+		.value("ion", NEST::INTERACTION_TYPE::ion)  // includes alphas, Pb-206
+		// electron recoil
+		.value("gammaRay", NEST::INTERACTION_TYPE::gammaRay)  // only photoelectric
+		.value("beta", NEST::INTERACTION_TYPE::beta)      // includes comptons
 		.value("CH3T", NEST::INTERACTION_TYPE::CH3T)
 		.value("C14", NEST::INTERACTION_TYPE::C14)
 		.value("Kr83m", NEST::INTERACTION_TYPE::Kr83m)
+		.value("ppSolar", NEST::INTERACTION_TYPE::ppSolar)
+		.value("atmNu", NEST::INTERACTION_TYPE::atmNu)
+		.value("fullGamma", NEST::INTERACTION_TYPE::fullGamma)
+		.value("fullGamma_PE", NEST::INTERACTION_TYPE::fullGamma_PE)
+		.value("fullGamma_Compton_PP", NEST::INTERACTION_TYPE::fullGamma_Compton_PP)
 		.value("NoneType", NEST::INTERACTION_TYPE::NoneType)
 		.export_values();
 
