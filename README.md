@@ -67,7 +67,8 @@ Python bindings to the NEST library:
 import nestpy
 
 # This is same as C++ NEST with naming
-nc = nestpy.NESTcalc(nestpy.VDetector())
+detector = nestpy.detectors.VDetector()
+nc = nestpy.NESTcalc(detector)
 
 interaction = nestpy.INTERACTION_TYPE(0)  # NR
 
