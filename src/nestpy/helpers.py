@@ -29,14 +29,12 @@ def get_all_yields(interaction, energy, nest_calc=NESTcalc(VDetector()), **kwarg
 
     Args:
         energy (array[float]): An array of energies in keV
-        interaction (INTERACTION_TYPE): The type of interaction be studied
+        interaction (nestpy.interactions): The type of interaction be studied
         nest_calc (NESTCalc): A NEST calculator defined for a given detector
 
     Returns:
         list[YieldResult]: A list of NEST yield objects
     """
-
-    interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
     return nest_calc.GetYields(energy=energy, interaction=interaction, **kwargs)
 
