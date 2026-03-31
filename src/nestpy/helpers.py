@@ -43,7 +43,7 @@ def get_yields_df(interaction, energy, nest_calc=NESTcalc(VDetector()), **kwargs
 
     Args:
         energy (array[float]): An array of energies in keV
-        interaction (INTERACTION_TYPE): The type of interaction be studied
+        interaction (nestpy.interactions): The type of interaction be studied
         nest_calc (NESTCalc): A NEST calculator defined for a given detector
 
     Returns:
@@ -62,8 +62,8 @@ def GetYieldsVectorized(interaction, yield_type, nc=None, detector=None, **kwarg
     This function calculates nc.GetYields for the various interactions and arguments we pass into it.
 
     Requires:
-        - GetInteractionObject from interactionkeys
-            - strings passed through get us the numeric equivalent for each interaction
+        - ne.interactions
+            - An object defining the interaction type
         - energy array
         - nc.GetYields (pass through interaction, energies, field value)
             - Returns dictionary with yield types and yield values at each interaction energy value.
@@ -173,8 +173,6 @@ def run_nest(
 ):
 
     energy = np.asarray(energy)
-
-    interaction = GetInteractionObject(interaction) if isinstance(interaction, str) else interaction
 
     # If no position given then randomly sample
     if positions is None:
