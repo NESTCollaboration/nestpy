@@ -4,6 +4,19 @@ History
 
 Patch releases mean (the Z number in X.Y.Z version) that the underlying physics has not changed.  Changes to the NEST version will always trigger a minor or major release.  If this library changes such that end users have to change their code, this may also trigger a minor or major release.
 
+2.1.1 (2026-04-01)
+------------------
+
+Major changes:
+  * Added all of NEST's interactions types to the python bindings
+  * Consolidated interaction type access to only support renamed `nestpy.interactions.<>` (for instance `nestpy.interactions.NR`). 
+
+Breaking changes:
+  * Removed non `nestpy.interactions.<>` methods for accessing NEST interactions.  This means we support only one obvious way of selecting interactions removing confusion and duplicated code
+
+Minor changes:
+  * Made `helpers.py` functions use `VDetector` opposed to XENON detector for detector independent calculations (namely yield calculations)
+
 2.1.0 (2026-03-09)
 ------------------
 Major Changes:
