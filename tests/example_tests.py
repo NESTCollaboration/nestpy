@@ -9,7 +9,7 @@ class nestpyExamplesTest(unittest.TestCase):
         # This is same as C++ NEST with naming
         nc = nestpy.NESTcalc(nestpy.detectors.VDetector())
         
-        interaction = nestpy.INTERACTION_TYPE(0)  # NR
+        interaction = nestpy.interactions.NR  # NR
         
         E = 10  # keV
         print('For an %s keV %s' % (E, interaction))

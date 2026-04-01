@@ -33,10 +33,10 @@ class ConstructorTest(unittest.TestCase):
         assert isinstance(nestcalc, nestpy.NESTcalc)
 
     def test_intteraction_type_constructor(self):
-        it = nestpy.INTERACTION_TYPE(0)
+        it = nestpy.interactions.NR
         assert it is not None
         assert str(it) != ""
-        assert isinstance(it, nestpy.INTERACTION_TYPE)
+        assert isinstance(it, nestpy.interactions)
 
 
 class VDetectorTest(unittest.TestCase):
@@ -45,7 +45,7 @@ class VDetectorTest(unittest.TestCase):
    def setUpClass(cls):
        cls.detector = nestpy.detectors.VDetector()
        cls.detector.Initialization()
-       cls.it = nestpy.INTERACTION_TYPE(0)
+       cls.it = nestpy.interactions.NR
        cls.nestcalc = nestpy.NESTcalc(cls.detector)
        cls.nuisance = cls.nestcalc.default_nr_parameters
        cls.free = cls.nestcalc.default_nr_er_width_parameters
@@ -69,16 +69,12 @@ class NESTcalcTest(unittest.TestCase):
     def setUpClass(cls):
         cls.detector = nestpy.detectors.VDetector()
         cls.detector.Initialization()
-        cls.it = nestpy.INTERACTION_TYPE(0)
+        cls.it = nestpy.interactions.NR
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
 
         cls.nuisance = cls.nestcalc.default_nr_parameters
         cls.free = cls.nestcalc.default_nr_er_width_parameters
         cls.er_params = cls.nestcalc.default_er_parameters
-
-    def test_interaction_type_constructor(self):
-        for i in range(5):
-            it = nestpy.INTERACTION_TYPE(i)
 
     def test_nestcalc_full_calculation(self):
         result = self.nestcalc.FullCalculation(self.it, 1., 2., 3., 4, 5,
@@ -96,11 +92,11 @@ class NESTcalcTest(unittest.TestCase):
             self.it, 10., 10., 10., 10., 10., self.nuisance)
 
     def test_nestcalc_get_yields_defaults(self):
-        yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
+        yields = self.nestcalc.GetYields(nestpy.interactions.NR,
                                          10)
 
     def test_nestcalc_get_yields_named(self):
-        yields = self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0),
+        yields = self.nestcalc.GetYields(nestpy.interactions.NR,
                                          energy=10)
 
     # def test_nestcalc_get_spike(self):
@@ -138,7 +134,7 @@ class NESTcalcTest(unittest.TestCase):
 
     def test_equality(self):
         # Will call a test for the nearlyEqual function to ensure it still works.
-        self.nestcalc.GetYields(nestpy.INTERACTION_TYPE(0), 100., 2.9, 100., 0., 54, nestpy.default_nr_parameters, nestpy.default_er_parameters)
+        self.nestcalc.GetYields(nestpy.interactions.NR, 100., 2.9, 100., 0., 54, nestpy.default_nr_parameters, nestpy.default_er_parameters)
 
 
 class TestSpectraWIMPTest(unittest.TestCase):
@@ -157,7 +153,7 @@ class NESTcalcFullCalculationTest(unittest.TestCase):
     def setUpClass(cls):
         cls.detector = nestpy.detectors.VDetector()
         cls.detector.Initialization()
-        cls.it = nestpy.INTERACTION_TYPE(0)
+        cls.it = nestpy.interactions.NR
 
         cls.nestcalc = nestpy.NESTcalc(cls.detector)
         cls.nuisance = cls.nestcalc.default_nr_parameters
