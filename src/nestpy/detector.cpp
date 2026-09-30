@@ -75,7 +75,8 @@ void init_detector(py::module& m){
 
 		.def("get_molarMass", &VDetector::get_molarMass )
 
-		.def("get_PosResExp", &VDetector::get_PosResExp)
+		// .def("get_PosResExp", &VDetector::get_PosResExp)
+		.def("get_PosResFlat", &VDetector::get_PosResFlat)
 		.def("get_PosResBase", &VDetector::get_PosResBase)
 
 		.def("set_g1", &VDetector::set_g1)
@@ -114,7 +115,7 @@ void init_detector(py::module& m){
 
 		.def("set_molarMass", &VDetector::set_molarMass)
 
-		.def("set_PosResExp", &VDetector::set_PosResExp)
+		.def("set_PosResFlat", &VDetector::set_PosResFlat)
 		.def("set_PosResBase", &VDetector::set_PosResBase)
 
 		.def_property("g1", &VDetector::get_g1, &VDetector::set_g1)
@@ -153,7 +154,7 @@ void init_detector(py::module& m){
 
 		.def_property("molarMass", &VDetector::get_molarMass, &VDetector::set_molarMass)
 
-		.def_property("PosResExp", &VDetector::get_PosResExp, &VDetector::set_PosResExp)
+		.def_property("PosResFlat", &VDetector::get_PosResFlat, &VDetector::set_PosResFlat)
 		.def_property("PosResBase", &VDetector::get_PosResBase, &VDetector::set_PosResBase)
 
 		.def_property_readonly("g2",[](VDetector *self){return NEST::NESTcalc(self).CalculateG2(0).at(3);})
@@ -220,5 +221,25 @@ void init_detector(py::module& m){
         .def("SinglePEWaveForm", &LZ_Detector_2024::SinglePEWaveForm)
         .def_property_readonly("nr_parameters", &LZ_Detector_2024::get_nr_yield_params)
         .def_property_readonly("er_parameters", &LZ_Detector_2024::get_er_yield_params)
-        .def_property_readonly("nr_er_width_parameters", &LZ_Detector_2024::get_nr_er_width_params);
+        .def_property_readonly("nr_er_width_parameters", &LZ_Detector_2024::get_nr_er_width_params)
+
+		.def_property_readonly_static("ws_nr_parameters",
+			[](py::object) { return LZ_Detector_2024::get_ws_nr_yield_params(); })
+		.def_property_readonly_static("ws_er_parameters",
+			[](py::object) { return LZ_Detector_2024::get_ws_er_yield_params(); })
+		.def_property_readonly_static("ws_nr_er_width_parameters",
+			[](py::object) { return LZ_Detector_2024::get_ws_nr_er_width_params(); })
+		.def_property_readonly_static("henr_nr_parameters",
+			[](py::object) { return LZ_Detector_2024::get_henr_nr_yield_params(); })
+		.def_property_readonly_static("henr_er_parameters",
+			[](py::object) { return LZ_Detector_2024::get_henr_er_yield_params(); })
+		.def_property_readonly_static("henr_nr_er_width_parameters",
+			[](py::object) { return LZ_Detector_2024::get_henr_nr_er_width_params(); })
+
+
+		.def("set_henr_config", &LZ_Detector_2024::SetEFT2024Configuration);
+
+
+
+		
 }
