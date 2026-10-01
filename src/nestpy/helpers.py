@@ -177,16 +177,10 @@ def run_nest(
     # If no position given then randomly sample
     if positions is None:
         positions = get_random_position(detector, len(energy))
+    positions = np.asarray(positions)
 
-    # Compute the NEST outputs
-    result = array.runNESTvec(
-        detector, interaction, energy.tolist(), positions.tolist(), **kwargs
-    )
-
-    # Create the pandas dataframe
-    arr = ak.Array(
-        {i: getattr(result, i) for i in result.__dir__() if not i.startswith("_")}
-    )
+    # Compute the NEST outputs (an awkward array, one record per event)
+    arr = array.runNESTvec(detector, interaction, energy, positions, **kwargs)
 
     # Save truth information
     arr["energy_keV"] = energy

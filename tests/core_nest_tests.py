@@ -2,6 +2,9 @@ import unittest
 import nestpy
 import platform
 
+import awkward as ak
+import numpy as np
+
 class ConstructorTest(unittest.TestCase):
     """Test constructors
 
@@ -222,6 +225,55 @@ class LArNESTTest(unittest.TestCase):
     
     def test_larnest_get_yields(self):
         self.larnest.get_yields(self.it, 100., 1., 500., 1.393)
+
+class RunNESTvecNumpyTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.detector = nestpy.detectors.DetectorExample_XENON10()
+        cls.it = nestpy.interactions.NR
+        n = 300
+        cls.energies = np.linspace(1., 50., n)
+        cls.positions = np.column_stack((np.zeros(n), np.zeros(n), np.linspace(10., 110., n)))
+
+    def simulate(self, energies=None, positions=None):
+        return nestpy.array.runNESTvec(
+            self.detector, self.it,
+            self.energies if energies is None else energies,
+            self.positions if positions is None else positions,
+            seed=3)
+
+    def test_numpy_input_matches_lists(self):
+        from_arrays = self.simulate()
+        from_lists = self.simulate(self.energies.tolist(), self.positions.tolist())
+        self.assertEqual(from_arrays.to_list(), from_lists.to_list())
+        # Other dtypes and memory layouts are converted
+        self.simulate(self.energies.astype(np.float32), np.asfortranarray(self.positions))
+
+    def test_invalid_shapes(self):
+        for e, p in [(self.energies, self.positions.T), (self.energies, self.positions[:, :2]),
+                     (self.energies[:, None], self.positions), (self.energies, self.positions[:-1])]:
+            with self.assertRaises(ValueError):
+                self.simulate(e, p)
+        self.assertEqual(len(self.simulate([], [])), 0)
+
+    def test_returns_awkward_array(self):
+        result = self.simulate()
+        self.assertIsInstance(result, ak.Array)
+        self.assertEqual(len(result), len(self.energies))
+        self.assertEqual(str(result.s1c_phd.type), "300 * float64")
+        self.assertEqual(str(result.s1_photon_times.type), "300 * var * float64")
+        # Fields share memory with the C++ result, which stays alive with them
+        s1c_phd = ak.to_numpy(result.s1c_phd)
+        self.assertFalse(s1c_phd.flags.writeable)
+        expected = s1c_phd.tolist()
+        del result
+        self.assertEqual(s1c_phd.tolist(), expected)
+
+    def test_run_nest(self):
+        result = self.simulate()
+        run = nestpy.helpers.run_nest(self.it, self.detector, self.energies, self.positions, seed=3)
+        self.assertEqual(run[result.fields].to_list(), result.to_list())
+        self.assertEqual(run["energy_keV"].to_list(), self.energies.tolist())
 
 if __name__ == "__main__":
     unittest.main()
