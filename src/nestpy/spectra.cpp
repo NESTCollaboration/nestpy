@@ -23,7 +23,7 @@ py::array_t<double> fill_spectra(
 ){
 	auto vec = std::vector<double>(number);
 	std::transform(vec.begin(), vec.end(), vec.begin(), [&](double _){return spectra(emin, emax);});
-	return py::array(py::cast(vec));
+	return py::array_t<double>(vec.size(), vec.data());
 }
 
 // Function to vectorise WIMP sampling
@@ -36,7 +36,7 @@ py::array_t<double> fill_spectra(
 	auto ws = TestSpectra::WIMP_prep_spectrum(mass, eStep, day);
 	auto vec = std::vector<double>(number);
 	std::transform(vec.begin(), vec.end(), vec.begin(), [&](double _){return TestSpectra::WIMP_spectrum(ws, mass, day);});
-	return py::array(py::cast(vec));
+	return py::array_t<double>(vec.size(), vec.data());
 }
 
 // Function to vectorise b8 sampling
@@ -50,7 +50,7 @@ py::array_t<double>fill_spectra(
 ){
 	auto vec = std::vector<double>(number);
 	std::transform(vec.begin(), vec.end(), vec.begin(), [&](double _){return spectra(emin, emax, m1, m2);});
-	return py::array(py::cast(vec));
+	return py::array_t<double>(vec.size(), vec.data());
 }
 
 
@@ -73,7 +73,7 @@ py::array_t<double>fill_spectra(
 		peakSig,
 		peakSkew
 	);});
-	return py::array(py::cast(vec));
+	return py::array_t<double>(vec.size(), vec.data());
 }
 
 void init_spectra(py::module& m){
